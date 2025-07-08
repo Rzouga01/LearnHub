@@ -19,6 +19,7 @@ import {
     LogoutOutlined,
     SettingOutlined
 } from '@ant-design/icons';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Header, Sider, Content } = Layout;
 
@@ -27,6 +28,7 @@ const MainLayout = () => {
     const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
     const location = useLocation();
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
 
     const pathname = location.pathname;
     const pathSegments = pathname.split('/').filter(Boolean);
@@ -65,7 +67,10 @@ const MainLayout = () => {
             icon: <LogoutOutlined />,
             label: 'Logout',
             danger: true,
-            onClick: () => navigate('/login')
+            onClick: async () => {
+                await logout();
+                navigate('/login');
+            }
         },
     ];
 
@@ -114,7 +119,10 @@ const MainLayout = () => {
                         </div>
                         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
                             <div className="cursor-pointer flex items-center">
-                                <span className="mr-3 hidden sm:inline">Admin User</span>
+                                <div className="mr-3 hidden sm:inline text-right">
+                                    <div>{user?.name || 'User'}</div>
+                                    <div className="text-xs text-gray-500 capitalize">{user?.role || 'User'}</div>
+                                </div>
                                 <Avatar icon={<UserOutlined />} />
                             </div>
                         </Dropdown>

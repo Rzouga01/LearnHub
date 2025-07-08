@@ -1,149 +1,56 @@
-import React from 'react';
-import { Row, Col, Card, Statistic, Table, Typography, Progress, Calendar } from 'antd';
-import { UserOutlined, BookOutlined, ClockCircleOutlined, TrophyOutlined } from '@ant-design/icons';
-
-const { Title } = Typography;
+import { useAuth } from '../contexts/AuthContext';
 
 const Dashboard = () => {
-    // Sample data for the dashboard
-    const upcomingClasses = [
-        {
-            key: '1',
-            title: 'Advanced React Patterns',
-            trainer: 'John Smith',
-            date: '2025-07-10',
-            time: '10:00 AM - 12:00 PM',
-            participants: 18,
-        },
-        {
-            key: '2',
-            title: 'Laravel Performance Optimization',
-            trainer: 'Maria Rodriguez',
-            date: '2025-07-11',
-            time: '2:00 PM - 4:00 PM',
-            participants: 12,
-        },
-        {
-            key: '3',
-            title: 'UX Design Principles',
-            trainer: 'Alex Johnson',
-            date: '2025-07-12',
-            time: '9:00 AM - 11:00 AM',
-            participants: 15,
-        },
-    ];
+    const { user, logout } = useAuth();
 
-    const columns = [
-        {
-            title: 'Course',
-            dataIndex: 'title',
-            key: 'title',
-        },
-        {
-            title: 'Trainer',
-            dataIndex: 'trainer',
-            key: 'trainer',
-        },
-        {
-            title: 'Date',
-            dataIndex: 'date',
-            key: 'date',
-        },
-        {
-            title: 'Time',
-            dataIndex: 'time',
-            key: 'time',
-        },
-        {
-            title: 'Participants',
-            dataIndex: 'participants',
-            key: 'participants',
-        },
-    ];
-
-    const coursesCompletion = [
-        { name: 'Web Development', percent: 80 },
-        { name: 'Data Science', percent: 65 },
-        { name: 'UX Design', percent: 90 },
-        { name: 'DevOps', percent: 45 },
-    ];
+    const handleLogout = async () => {
+        await logout();
+    };
 
     return (
-        <div>
-            <Title level={2}>Dashboard</Title>
-
-            <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="Total Students"
-                            value={156}
-                            prefix={<UserOutlined />}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="Active Courses"
-                            value={24}
-                            prefix={<BookOutlined />}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="Training Hours"
-                            value={420}
-                            prefix={<ClockCircleOutlined />}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title="Certificates Issued"
-                            value={95}
-                            prefix={<TrophyOutlined />}
-                        />
-                    </Card>
-                </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} className="mt-6">
-                <Col xs={24} lg={16}>
-                    <Card title="Upcoming Classes">
-                        <Table
-                            dataSource={upcomingClasses}
-                            columns={columns}
-                            pagination={false}
-                            size="middle"
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} lg={8}>
-                    <Card title="Course Completion Rates">
-                        {coursesCompletion.map((course, index) => (
-                            <div key={index} className="mb-4">
-                                <div className="flex justify-between mb-1">
-                                    <span>{course.name}</span>
-                                    <span>{course.percent}%</span>
-                                </div>
-                                <Progress percent={course.percent} strokeColor="#1677ff" />
+        <div className="min-h-screen bg-gray-100">
+            <nav className="bg-white shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between h-16">
+                        <div className="flex">
+                            <div className="flex-shrink-0 flex items-center">
+                                <h1 className="text-xl font-bold text-indigo-600">LearnHub</h1>
                             </div>
-                        ))}
-                    </Card>
-                </Col>
-            </Row>
+                        </div>
+                        <div className="flex items-center">
+                            <div className="mr-4">
+                                <span className="text-gray-700">Welcome, {user?.name}</span>
+                                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                    {user?.role}
+                                </span>
+                            </div>
+                            <button
+                                onClick={handleLogout}
+                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
 
-            <Row gutter={[16, 16]} className="mt-6">
-                <Col xs={24}>
-                    <Card title="Training Calendar">
-                        <Calendar fullscreen={false} />
-                    </Card>
-                </Col>
-            </Row>
+            <div className="py-10">
+                <header>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <h1 className="text-3xl font-bold leading-tight text-gray-900">Dashboard</h1>
+                    </div>
+                </header>
+                <main>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {/* Dashboard content will go here */}
+                        <div className="bg-white shadow overflow-hidden sm:rounded-lg mt-5 p-6">
+                            <p className="text-gray-700">You are logged in as {user?.role}.</p>
+                            <p className="text-gray-700 mt-2">This is your dashboard. Content will vary based on your role.</p>
+                        </div>
+                    </div>
+                </main>
+            </div>
         </div>
     );
 };
