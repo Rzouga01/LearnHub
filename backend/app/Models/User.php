@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -44,5 +45,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the enrollments for the user.
+     */
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    /**
+     * Get the attendances for the user.
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * Get the trainings created by the user (for trainers).
+     */
+    public function trainings()
+    {
+        return $this->hasMany(Training::class);
+    }
+
+    /**
+     * Get the feedback given by the user.
+     */
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class);
     }
 }
