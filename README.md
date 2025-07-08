@@ -2,7 +2,7 @@
 
 > Professional Training Management Platform
 
-[![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Laravel](https://img.shields.io/badge/Laravel-11+-FF2D20?style=flat-square&logo=laravel)](https://laravel.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3+-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 
@@ -16,7 +16,7 @@
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18 + Ant Design + Tailwind CSS
+- **Frontend**: React 18.3 + Ant Design + Tailwind CSS
 - **Backend**: Laravel 11
 - **Database**: MariaDB
 
