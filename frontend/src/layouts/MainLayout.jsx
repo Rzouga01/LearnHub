@@ -35,35 +35,41 @@ const MainLayout = () => {
 
     const items = [
         {
-            key: '/',
+            key: '/dashboard',
             icon: <DashboardOutlined />,
-            label: <Link to="/">Dashboard</Link>,
+            label: <Link to="/dashboard">Dashboard</Link>,
         },
         {
-            key: '/courses',
+            key: '/dashboard/courses',
             icon: <BookOutlined />,
-            label: <Link to="/courses">Courses</Link>,
+            label: <Link to="/dashboard/courses">Courses</Link>,
         },
         {
-            key: '/students',
+            key: '/dashboard/students',
             icon: <TeamOutlined />,
-            label: <Link to="/students">Students</Link>,
+            label: <Link to="/dashboard/students">Students</Link>,
         },
         {
-            key: '/trainers',
+            key: '/dashboard/trainers',
             icon: <UserOutlined />,
-            label: <Link to="/trainers">Trainers</Link>,
+            label: <Link to="/dashboard/trainers">Trainers</Link>,
         },
     ];
 
     const userMenuItems = [
         {
             key: '1',
+            icon: <UserOutlined />,
+            label: 'My Profile',
+            onClick: () => navigate('/dashboard/profile')
+        },
+        {
+            key: '2',
             icon: <SettingOutlined />,
             label: 'Account Settings',
         },
         {
-            key: '2',
+            key: '3',
             icon: <LogoutOutlined />,
             label: 'Logout',
             danger: true,

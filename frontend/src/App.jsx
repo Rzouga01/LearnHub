@@ -1,9 +1,13 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
-import Dashboard from './pages/Dashboard'; // Correct import as default import
+import { ThemeProvider } from './contexts/ThemeContext';
+import ThemeToggle from './components/ThemeToggle';
+import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import LandingPage from './pages/LandingPage';
+import ProfilePage from './pages/ProfilePage';
 import MainLayout from './layouts/MainLayout';
 import Courses from './pages/Courses';
 import Students from './pages/Students';
@@ -15,29 +19,44 @@ import { AuthProvider } from './contexts/AuthContext';
 function App() {
     console.log('App component rendering');
     return (
-        <AuthProvider>
-            <ConfigProvider theme={{ token: { colorPrimary: '#1677ff' } }}>
-                <Routes>
-                    {/* Public routes */}
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
+        <ThemeProvider>
+            <AuthProvider>
+                <ConfigProvider
+                    theme={{
+                        token: {
+                            colorPrimary: '#0BC5EA',
+                            borderRadius: 8,
+                            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+                        }
+                    }}
+                >
+                    <div className="theme-container">
+                        <ThemeToggle />
+                        <Routes>
+                            {/* Public routes */}
+                            <Route path="/" element={<LandingPage />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/register" element={<Register />} />
 
-                    {/* Protected routes */}
-                    <Route element={<ProtectedRoute />}>
-                        <Route path="/" element={<MainLayout />}>
-                            <Route index element={<Dashboard />} />
-                            <Route path="courses" element={<Courses />} />
-                            <Route path="courses/:id" element={<CourseDetail />} />
-                            <Route path="students" element={<Students />} />
-                            <Route path="trainers" element={<Trainers />} />
-                        </Route>
-                    </Route>
+                            {/* Protected routes */}
+                            <Route element={<ProtectedRoute />}>
+                                <Route path="/dashboard" element={<MainLayout />}>
+                                    <Route index element={<Dashboard />} />
+                                    <Route path="courses" element={<Courses />} />
+                                    <Route path="courses/:id" element={<CourseDetail />} />
+                                    <Route path="students" element={<Students />} />
+                                    <Route path="trainers" element={<Trainers />} />
+                                    <Route path="profile" element={<ProfilePage />} />
+                                </Route>
+                            </Route>
 
-                    {/* Fallback route */}
-                    <Route path="*" element={<Navigate to="/login" replace />} />
-                </Routes>
-            </ConfigProvider>
-        </AuthProvider>
+                            {/* Fallback route */}
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                    </div>
+                </ConfigProvider>
+            </AuthProvider>
+        </ThemeProvider>
     );
 }
 

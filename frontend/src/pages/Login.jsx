@@ -1,147 +1,241 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Form, Input, Button, Card, Typography, Alert, Divider, Checkbox } from 'antd';
+import { LockOutlined, MailOutlined, BookOutlined, GoogleOutlined, GithubOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import api from '../services/api';
 
+const { Title, Text } = Typography;
+
 const Login = () => {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-    });
-    const [errors, setErrors] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
+    const { login } = useAuth();
+    const { theme } = useTheme();
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setErrors({});
+    const onFinish = async (values) => {
+        setLoading(true);
+        setError('');
 
         try {
-            const response = await api.post('/api/login', formData);
+            const response = await api.routes.auth.login(values);
 
             if (response.data.status === 'success') {
-                // Store token in localStorage
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
-
-                // Redirect to dashboard
+                login(response.data.user, response.data.token);
                 navigate('/dashboard');
             }
         } catch (error) {
             if (error.response && error.response.status === 401) {
-                setErrors({ general: 'Invalid email or password' });
-            } else if (error.response && error.response.data.errors) {
-                setErrors(error.response.data.errors);
+                setError('Invalid email or password');
+            } else if (error.response && error.response.data.message) {
+                setError(error.response.data.message);
             } else {
-                setErrors({ general: 'Something went wrong. Please try again.' });
+                setError('Something went wrong. Please try again.');
             }
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white p-6 rounded-lg shadow-md">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        Sign in to your account
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Or{' '}
-                        <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-                            create a new account
-                        </Link>
-                    </p>
+        <div className="auth-container">
+            <Card className="auth-card fade-in">
+                {/* Logo and Header */}
+                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                    <Link to="/" className="auth-logo">
+                        <BookOutlined style={{ fontSize: '20px', marginRight: '8px' }} />
+                        <span style={{ fontSize: '18px', fontWeight: '600' }}>LearnHub</span>
+                    </Link>
+                    <Title
+                        level={3}
+                        style={{
+                            margin: '0 0 8px 0',
+                            color: 'var(--text-primary)',
+                            fontSize: '24px',
+                            fontWeight: '600'
+                        }}
+                    >
+                        Welcome back
+                    </Title>
+                    <Text style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                        Please sign in to your account
+                    </Text>
                 </div>
 
+                {/* Success/Error Messages */}
                 {location.state?.message && (
-                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                        <span className="block sm:inline">{location.state.message}</span>
+                    <div className="alert-success">
+                        {location.state.message}
                     </div>
                 )}
 
-                {errors.general && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <span className="block sm:inline">{errors.general}</span>
+                {error && (
+                    <div className="alert-error">
+                        {error}
                     </div>
                 )}
 
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    <div className="rounded-md shadow-sm -space-y-px">
-                        <div className="mb-4">
-                            <label htmlFor="email" className="sr-only">Email address</label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                required
-                                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.email ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                                placeholder="Email address"
-                                value={formData.email}
-                                onChange={handleChange}
-                            />
-                            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email[0]}</p>}
-                        </div>
+                {/* Login Form */}
+                <Form
+                    name="login"
+                    onFinish={onFinish}
+                    layout="vertical"
+                    size="large"
+                >
+                    <Form.Item
+                        name="email"
+                        rules={[
+                            { required: true, message: 'Please input your email!' },
+                            { type: 'email', message: 'Please enter a valid email!' }
+                        ]}
+                    >
+                        <Input
+                            prefix={<MailOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            placeholder="Email address"
+                            className="theme-input"
+                            style={{
+                                height: '44px',
+                                borderRadius: '8px',
+                                fontSize: '15px',
+                                backgroundColor: 'var(--bg-secondary)',
+                                borderColor: 'var(--border-color)',
+                                color: 'var(--text-primary)'
+                            }}
+                        />
+                    </Form.Item>
 
-                        <div className="mb-4">
-                            <label htmlFor="password" className="sr-only">Password</label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="current-password"
-                                required
-                                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.password ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                                placeholder="Password"
-                                value={formData.password}
-                                onChange={handleChange}
-                            />
-                            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password[0]}</p>}
-                        </div>
-                    </div>
+                    <Form.Item
+                        name="password"
+                        rules={[{ required: true, message: 'Please input your password!' }]}
+                    >
+                        <Input.Password
+                            prefix={<LockOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            placeholder="Password"
+                            iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                            style={{
+                                height: '44px',
+                                borderRadius: '8px',
+                                fontSize: '15px',
+                                backgroundColor: 'var(--bg-secondary)',
+                                borderColor: 'var(--border-color)',
+                                color: 'var(--text-primary)'
+                            }}
+                        />
+                    </Form.Item>
 
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                            <input
-                                id="remember-me"
-                                name="remember-me"
-                                type="checkbox"
-                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                            />
-                            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '24px'
+                    }}>
+                        <Form.Item name="remember" valuePropName="checked" style={{ margin: 0 }}>
+                            <Checkbox style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
                                 Remember me
-                            </label>
-                        </div>
-
-                        <div className="text-sm">
-                            <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                Forgot your password?
-                            </a>
-                        </div>
-                    </div>
-
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            </Checkbox>
+                        </Form.Item>
+                        <Link
+                            to="/forgot-password"
+                            style={{
+                                color: 'var(--accent-primary)',
+                                fontSize: '14px',
+                                textDecoration: 'none'
+                            }}
                         >
-                            {isLoading ? 'Signing in...' : 'Sign in'}
-                        </button>
+                            Forgot password?
+                        </Link>
                     </div>
-                </form>
-            </div>
+
+                    <Form.Item>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={loading}
+                            className="btn-primary"
+                            style={{
+                                width: '100%',
+                                height: '44px',
+                                borderRadius: '8px',
+                                fontSize: '15px',
+                                fontWeight: '500',
+                                backgroundColor: 'var(--accent-primary)',
+                                borderColor: 'var(--accent-primary)'
+                            }}
+                        >
+                            Sign in
+                        </Button>
+                    </Form.Item>
+                </Form>
+
+                <Divider style={{
+                    margin: '20px 0',
+                    color: 'var(--text-secondary)',
+                    fontSize: '14px',
+                    borderColor: 'var(--border-color)'
+                }}>
+                    Or continue with
+                </Divider>
+
+                {/* Social Login */}
+                <div style={{
+                    display: 'flex',
+                    gap: '12px',
+                    marginBottom: '24px'
+                }}>
+                    <Button
+                        icon={<GoogleOutlined />}
+                        className="btn-secondary"
+                        style={{
+                            flex: 1,
+                            height: '40px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            backgroundColor: 'var(--bg-secondary)',
+                            borderColor: 'var(--border-color)',
+                            color: 'var(--text-primary)'
+                        }}
+                    >
+                        Google
+                    </Button>
+                    <Button
+                        icon={<GithubOutlined />}
+                        className="btn-secondary"
+                        style={{
+                            flex: 1,
+                            height: '40px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            backgroundColor: 'var(--bg-secondary)',
+                            borderColor: 'var(--border-color)',
+                            color: 'var(--text-primary)'
+                        }}
+                    >
+                        GitHub
+                    </Button>
+                </div>
+
+                {/* Sign up link */}
+                <div style={{ textAlign: 'center' }}>
+                    <Text style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                        Don't have an account?{' '}
+                        <Link
+                            to="/register"
+                            style={{
+                                color: 'var(--accent-primary)',
+                                fontWeight: '500',
+                                textDecoration: 'none'
+                            }}
+                        >
+                            Sign up
+                        </Link>
+                    </Text>
+                </div>
+            </Card>
         </div>
     );
 };

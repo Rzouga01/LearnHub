@@ -1,165 +1,341 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Form, Input, Button, Card, Typography, Alert, Divider, Select, Checkbox } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, BookOutlined, GoogleOutlined, GithubOutlined, TeamOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import api from '../services/api';
 
+const { Title, Text } = Typography;
+const { Option } = Select;
+
 const Register = () => {
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        password: '',
-        password_confirmation: '',
-        role: 'student'
-    });
-    const [errors, setErrors] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { login } = useAuth();
+    const { theme } = useTheme();
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setErrors({});
+    const onFinish = async (values) => {
+        setLoading(true);
+        setError('');
 
         try {
-            const response = await api.post('/api/register', formData);
+            const response = await api.routes.auth.register(values);
 
             if (response.data.status === 'success') {
-                // Redirect to login page after successful registration
-                navigate('/login', { state: { message: 'Registration successful! Please log in.' } });
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+                login(response.data.user, response.data.token);
+                navigate('/dashboard');
             }
         } catch (error) {
-            if (error.response && error.response.data.errors) {
-                setErrors(error.response.data.errors);
+            if (error.response && error.response.data.message) {
+                setError(error.response.data.message);
+            } else if (error.response && error.response.data.errors) {
+                const errors = error.response.data.errors;
+                const firstError = Object.values(errors)[0];
+                setError(Array.isArray(firstError) ? firstError[0] : firstError);
             } else {
-                setErrors({ general: 'Something went wrong. Please try again.' });
+                setError('Something went wrong. Please try again.');
             }
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white p-6 rounded-lg shadow-md">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <div className="auth-container">
+            <Card className="auth-card fade-in" style={{ maxWidth: '420px' }}>
+                {/* Logo and Header */}
+                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                    <Link to="/" className="auth-logo">
+                        <BookOutlined style={{ fontSize: '20px', marginRight: '8px' }} />
+                        <span style={{ fontSize: '18px', fontWeight: '600' }}>LearnHub</span>
+                    </Link>
+                    <Title
+                        level={3}
+                        style={{
+                            margin: '0 0 8px 0',
+                            color: 'var(--text-primary)',
+                            fontSize: '24px',
+                            fontWeight: '600'
+                        }}
+                    >
                         Create your account
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Or{' '}
-                        <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-                            sign in to your account
-                        </Link>
-                    </p>
+                    </Title>
+                    <Text style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                        Join thousands of learners today
+                    </Text>
                 </div>
 
-                {errors.general && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <span className="block sm:inline">{errors.general}</span>
+                {/* Error Message */}
+                {error && (
+                    <div className="alert-error">
+                        {error}
                     </div>
                 )}
 
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    <div className="rounded-md shadow-sm -space-y-px">
-                        <div className="mb-4">
-                            <label htmlFor="name" className="sr-only">Full Name</label>
-                            <input
-                                id="name"
-                                name="name"
-                                type="text"
-                                required
-                                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.name ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                                placeholder="Full Name"
-                                value={formData.name}
-                                onChange={handleChange}
-                            />
-                            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name[0]}</p>}
-                        </div>
+                {/* Register Form */}
+                <Form
+                    name="register"
+                    onFinish={onFinish}
+                    layout="vertical"
+                    size="large"
+                >
+                    <Form.Item
+                        name="name"
+                        rules={[
+                            { required: true, message: 'Please input your full name!' },
+                            { min: 2, message: 'Name must be at least 2 characters!' }
+                        ]}
+                    >
+                        <Input
+                            prefix={<UserOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            placeholder="Full name"
+                            style={{
+                                height: '44px',
+                                borderRadius: '8px',
+                                fontSize: '15px',
+                                backgroundColor: 'var(--bg-secondary)',
+                                borderColor: 'var(--border-color)',
+                                color: 'var(--text-primary)'
+                            }}
+                        />
+                    </Form.Item>
 
-                        <div className="mb-4">
-                            <label htmlFor="email" className="sr-only">Email address</label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                required
-                                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.email ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                                placeholder="Email address"
-                                value={formData.email}
-                                onChange={handleChange}
-                            />
-                            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email[0]}</p>}
-                        </div>
+                    <Form.Item
+                        name="email"
+                        rules={[
+                            { required: true, message: 'Please input your email!' },
+                            { type: 'email', message: 'Please enter a valid email!' }
+                        ]}
+                    >
+                        <Input
+                            prefix={<MailOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            placeholder="Email address"
+                            style={{
+                                height: '44px',
+                                borderRadius: '8px',
+                                fontSize: '15px',
+                                backgroundColor: 'var(--bg-secondary)',
+                                borderColor: 'var(--border-color)',
+                                color: 'var(--text-primary)'
+                            }}
+                        />
+                    </Form.Item>
 
-                        <div className="mb-4">
-                            <label htmlFor="password" className="sr-only">Password</label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="new-password"
-                                required
-                                className={`appearance-none rounded-none relative block w-full px-3 py-2 border ${errors.password ? 'border-red-300' : 'border-gray-300'} placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                                placeholder="Password"
-                                value={formData.password}
-                                onChange={handleChange}
-                            />
-                            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password[0]}</p>}
-                        </div>
-
-                        <div className="mb-4">
-                            <label htmlFor="password_confirmation" className="sr-only">Confirm Password</label>
-                            <input
-                                id="password_confirmation"
-                                name="password_confirmation"
-                                type="password"
-                                autoComplete="new-password"
-                                required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                placeholder="Confirm Password"
-                                value={formData.password_confirmation}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                            <select
-                                id="role"
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                            >
-                                <option value="student">Student</option>
-                                <option value="trainer">Trainer</option>
-                                <option value="coordinator">Coordinator</option>
-                            </select>
-                            {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role[0]}</p>}
-                        </div>
-                    </div>
-
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    <Form.Item
+                        name="role"
+                        rules={[{ required: true, message: 'Please select your role!' }]}
+                    >
+                        <Select
+                            placeholder="Select your role"
+                            style={{
+                                height: '44px',
+                                fontSize: '15px'
+                            }}
+                            dropdownStyle={{
+                                borderRadius: '8px',
+                                backgroundColor: 'var(--bg-secondary)',
+                                borderColor: 'var(--border-color)'
+                            }}
                         >
-                            {isLoading ? 'Creating account...' : 'Sign up'}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                            <Option value="student">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <UserOutlined style={{ color: 'var(--accent-primary)' }} />
+                                    <span>Student</span>
+                                </div>
+                            </Option>
+                            <Option value="trainer">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <TeamOutlined style={{ color: '#48BB78' }} />
+                                    <span>Trainer</span>
+                                </div>
+                            </Option>
+                            <Option value="coordinator">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <BookOutlined style={{ color: '#ED8936' }} />
+                                    <span>Coordinator</span>
+                                </div>
+                            </Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="password"
+                        rules={[
+                            { required: true, message: 'Please input your password!' },
+                            { min: 8, message: 'Password must be at least 8 characters!' }
+                        ]}
+                    >
+                        <Input.Password
+                            prefix={<LockOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            placeholder="Password"
+                            iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                            style={{
+                                height: '44px',
+                                borderRadius: '8px',
+                                fontSize: '15px',
+                                backgroundColor: 'var(--bg-secondary)',
+                                borderColor: 'var(--border-color)',
+                                color: 'var(--text-primary)'
+                            }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="password_confirmation"
+                        dependencies={['password']}
+                        rules={[
+                            { required: true, message: 'Please confirm your password!' },
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('password') === value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('Passwords do not match!'));
+                                },
+                            }),
+                        ]}
+                    >
+                        <Input.Password
+                            prefix={<LockOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            placeholder="Confirm password"
+                            iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                            style={{
+                                height: '44px',
+                                borderRadius: '8px',
+                                fontSize: '15px',
+                                backgroundColor: 'var(--bg-secondary)',
+                                borderColor: 'var(--border-color)',
+                                color: 'var(--text-primary)'
+                            }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="terms"
+                        valuePropName="checked"
+                        rules={[
+                            { required: true, message: 'You must accept the terms and conditions!' }
+                        ]}
+                        style={{ marginBottom: '24px' }}
+                    >
+                        <Checkbox style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+                            I agree to the{' '}
+                            <Link
+                                to="/terms"
+                                style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
+                            >
+                                Terms of Service
+                            </Link>
+                            {' '}and{' '}
+                            <Link
+                                to="/privacy"
+                                style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
+                            >
+                                Privacy Policy
+                            </Link>
+                        </Checkbox>
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={loading}
+                            className="btn-primary"
+                            style={{
+                                width: '100%',
+                                height: '44px',
+                                borderRadius: '8px',
+                                fontSize: '15px',
+                                fontWeight: '500',
+                                backgroundColor: 'var(--accent-primary)',
+                                borderColor: 'var(--accent-primary)'
+                            }}
+                        >
+                            Create account
+                        </Button>
+                    </Form.Item>
+                </Form>
+
+                <Divider style={{
+                    margin: '20px 0',
+                    color: 'var(--text-secondary)',
+                    fontSize: '14px',
+                    borderColor: 'var(--border-color)'
+                }}>
+                    Or continue with
+                </Divider>
+
+                {/* Social Login */}
+                <div style={{
+                    display: 'flex',
+                    gap: '12px',
+                    marginBottom: '24px'
+                }}>
+                    <Button
+                        icon={<GoogleOutlined />}
+                        className="btn-secondary"
+                        style={{
+                            flex: 1,
+                            height: '40px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            backgroundColor: 'var(--bg-secondary)',
+                            borderColor: 'var(--border-color)',
+                            color: 'var(--text-primary)'
+                        }}
+                    >
+                        Google
+                    </Button>
+                    <Button
+                        icon={<GithubOutlined />}
+                        className="btn-secondary"
+                        style={{
+                            flex: 1,
+                            height: '40px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            backgroundColor: 'var(--bg-secondary)',
+                            borderColor: 'var(--border-color)',
+                            color: 'var(--text-primary)'
+                        }}
+                    >
+                        GitHub
+                    </Button>
+                </div>
+
+                {/* Sign in link */}
+                <div style={{ textAlign: 'center' }}>
+                    <Text style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                        Already have an account?{' '}
+                        <Link
+                            to="/login"
+                            style={{
+                                color: 'var(--accent-primary)',
+                                fontWeight: '500',
+                                textDecoration: 'none'
+                            }}
+                        >
+                            Sign in
+                        </Link>
+                    </Text>
+                </div>
+            </Card>
         </div>
     );
 };
 
 export default Register;
+
+
+
+
+
+
+
+
+
