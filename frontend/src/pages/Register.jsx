@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Form, Input, Button, Card, Typography, Alert, Divider, Select, Checkbox } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, BookOutlined, GoogleOutlined, GithubOutlined, TeamOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
+import { Form, Input, Button, Card, Typography, Divider, Select, Checkbox } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, GoogleOutlined, GithubOutlined, TeamOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import Logo from '../components/Logo';
 import api from '../services/api';
 
 const { Title, Text } = Typography;
@@ -49,14 +50,16 @@ const Register = () => {
             <Card className="auth-card fade-in" style={{ maxWidth: '420px' }}>
                 {/* Logo and Header */}
                 <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                    <Link to="/" className="auth-logo">
-                        <BookOutlined style={{ fontSize: '20px', marginRight: '8px' }} />
-                        <span style={{ fontSize: '18px', fontWeight: '600' }}>LearnHub</span>
-                    </Link>
+                    <Logo
+                        to="/"
+                        size="xlarge"
+                        className="auth-logo"
+                        showText={false}
+                    />
                     <Title
                         level={3}
                         style={{
-                            margin: '0 0 8px 0',
+                            margin: '16px 0 8px 0',
                             color: 'var(--text-primary)',
                             fontSize: '24px',
                             fontWeight: '600'
@@ -93,6 +96,7 @@ const Register = () => {
                         <Input
                             prefix={<UserOutlined style={{ color: 'var(--text-secondary)' }} />}
                             placeholder="Full name"
+                            className="theme-input"
                             style={{
                                 height: '44px',
                                 borderRadius: '8px',
@@ -114,6 +118,7 @@ const Register = () => {
                         <Input
                             prefix={<MailOutlined style={{ color: 'var(--text-secondary)' }} />}
                             placeholder="Email address"
+                            className="theme-input"
                             style={{
                                 height: '44px',
                                 borderRadius: '8px',
@@ -123,43 +128,6 @@ const Register = () => {
                                 color: 'var(--text-primary)'
                             }}
                         />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="role"
-                        rules={[{ required: true, message: 'Please select your role!' }]}
-                    >
-                        <Select
-                            placeholder="Select your role"
-                            style={{
-                                height: '44px',
-                                fontSize: '15px'
-                            }}
-                            dropdownStyle={{
-                                borderRadius: '8px',
-                                backgroundColor: 'var(--bg-secondary)',
-                                borderColor: 'var(--border-color)'
-                            }}
-                        >
-                            <Option value="student">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <UserOutlined style={{ color: 'var(--accent-primary)' }} />
-                                    <span>Student</span>
-                                </div>
-                            </Option>
-                            <Option value="trainer">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <TeamOutlined style={{ color: '#48BB78' }} />
-                                    <span>Trainer</span>
-                                </div>
-                            </Option>
-                            <Option value="coordinator">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <BookOutlined style={{ color: '#ED8936' }} />
-                                    <span>Coordinator</span>
-                                </div>
-                            </Option>
-                        </Select>
                     </Form.Item>
 
                     <Form.Item
@@ -215,26 +183,55 @@ const Register = () => {
                     </Form.Item>
 
                     <Form.Item
+                        name="role"
+                        rules={[{ required: true, message: 'Please select your role!' }]}
+                    >
+                        <Select
+                            placeholder="Select your role"
+                            style={{
+                                height: '44px',
+                                fontSize: '15px'
+                            }}
+                        >
+                            <Option value="student">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <UserOutlined style={{ color: '#3B82F6' }} />
+                                    <span>Student</span>
+                                </div>
+                            </Option>
+                            <Option value="trainer">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <TeamOutlined style={{ color: '#10B981' }} />
+                                    <span>Trainer</span>
+                                </div>
+                            </Option>
+                            <Option value="coordinator">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <TeamOutlined style={{ color: '#ED8936' }} />
+                                    <span>Coordinator</span>
+                                </div>
+                            </Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
                         name="terms"
                         valuePropName="checked"
                         rules={[
-                            { required: true, message: 'You must accept the terms and conditions!' }
+                            {
+                                validator: (_, value) =>
+                                    value ? Promise.resolve() : Promise.reject(new Error('Please accept the terms and conditions')),
+                            },
                         ]}
                         style={{ marginBottom: '24px' }}
                     >
                         <Checkbox style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
                             I agree to the{' '}
-                            <Link
-                                to="/terms"
-                                style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
-                            >
+                            <Link to="/terms" style={{ color: 'var(--accent-primary)' }}>
                                 Terms of Service
-                            </Link>
-                            {' '}and{' '}
-                            <Link
-                                to="/privacy"
-                                style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
-                            >
+                            </Link>{' '}
+                            and{' '}
+                            <Link to="/privacy" style={{ color: 'var(--accent-primary)' }}>
                                 Privacy Policy
                             </Link>
                         </Checkbox>
@@ -256,7 +253,7 @@ const Register = () => {
                                 borderColor: 'var(--accent-primary)'
                             }}
                         >
-                            Create account
+                            Create Account
                         </Button>
                     </Form.Item>
                 </Form>
@@ -270,7 +267,7 @@ const Register = () => {
                     Or continue with
                 </Divider>
 
-                {/* Social Login */}
+                {/* Social Registration */}
                 <div style={{
                     display: 'flex',
                     gap: '12px',

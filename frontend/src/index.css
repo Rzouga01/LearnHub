@@ -9,30 +9,52 @@
     /* Light Theme Colors */
     --bg-primary: #F8FAFC;
     --bg-secondary: #FFFFFF;
+    --bg-tertiary: #F1F5F9;
     --text-primary: #1F2937;
-    --text-secondary: #A0AEC0;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
     --accent-primary: #0BC5EA;
     --accent-hover: #0891B2;
-    --error-color: #F56565;
-    --border-color: #E2E8F0;
-    --shadow-light: rgba(0, 0, 0, 0.05);
-    --shadow-medium: rgba(0, 0, 0, 0.1);
-    --shadow-strong: rgba(0, 0, 0, 0.15);
+    --accent-light: rgba(11, 197, 234, 0.1);
+    --success-color: #10B981;
+    --warning-color: #F59E0B;
+    --error-color: #EF4444;
+    --info-color: #3B82F6;
+    --border-color: #E5E7EB;
+    --border-light: #F3F4F6;
+    --shadow-light: rgba(0, 0, 0, 0.04);
+    --shadow-medium: rgba(0, 0, 0, 0.08);
+    --shadow-strong: rgba(0, 0, 0, 0.12);
+    --overlay: rgba(0, 0, 0, 0.5);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --input-bg: #FFFFFF;
+    --hover-bg: #F9FAFB;
 }
 
 /* Dark Theme Colors */
 [data-theme="dark"] {
-    --bg-primary: #1F2937;
-    --bg-secondary: #2D3748;
+    --bg-primary: #0F172A;
+    --bg-secondary: #1E293B;
+    --bg-tertiary: #334155;
     --text-primary: #F8FAFC;
-    --text-secondary: #A0AEC0;
+    --text-secondary: #CBD5E1;
+    --text-muted: #94A3B8;
     --accent-primary: #0BC5EA;
     --accent-hover: #22D3EE;
-    --error-color: #F56565;
-    --border-color: #4A5568;
+    --accent-light: rgba(11, 197, 234, 0.15);
+    --success-color: #22C55E;
+    --warning-color: #F59E0B;
+    --error-color: #EF4444;
+    --info-color: #3B82F6;
+    --border-color: #475569;
+    --border-light: #334155;
     --shadow-light: rgba(0, 0, 0, 0.2);
     --shadow-medium: rgba(0, 0, 0, 0.3);
     --shadow-strong: rgba(0, 0, 0, 0.4);
+    --overlay: rgba(0, 0, 0, 0.7);
+    --glass-bg: rgba(30, 41, 59, 0.8);
+    --input-bg: #334155;
+    --hover-bg: #334155;
 }
 
 /* Base Styles */
@@ -299,52 +321,121 @@ div {
     transform: translateY(-1px);
 }
 
-/* Ant Design Overrides for Theme System */
+/* Ant Design Overrides for Perfect Theme System */
 .ant-input {
-    background-color: var(--bg-secondary) !important;
+    background-color: var(--input-bg) !important;
     border-color: var(--border-color) !important;
     color: var(--text-primary) !important;
+    transition: all 0.3s ease !important;
 }
 
 .ant-input:hover {
     border-color: var(--accent-primary) !important;
+    background-color: var(--input-bg) !important;
 }
 
-.ant-input:focus {
+.ant-input:focus,
+.ant-input-focused {
     border-color: var(--accent-primary) !important;
-    box-shadow: 0 0 0 2px rgba(11, 197, 234, 0.2) !important;
+    box-shadow: 0 0 0 2px var(--accent-light) !important;
+    background-color: var(--input-bg) !important;
 }
 
 .ant-input::placeholder {
-    color: var(--text-secondary) !important;
+    color: var(--text-muted) !important;
+}
+
+.ant-input-password {
+    background-color: var(--input-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+.ant-input-password:hover {
+    border-color: var(--accent-primary) !important;
+}
+
+.ant-input-password-focused {
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 0 2px var(--accent-light) !important;
 }
 
 .ant-btn-primary {
     background-color: var(--accent-primary) !important;
     border-color: var(--accent-primary) !important;
+    color: white !important;
 }
 
 .ant-btn-primary:hover {
     background-color: var(--accent-hover) !important;
     border-color: var(--accent-hover) !important;
+    color: white !important;
+}
+
+.ant-btn-primary:focus {
+    background-color: var(--accent-primary) !important;
+    border-color: var(--accent-primary) !important;
+    color: white !important;
+}
+
+.ant-btn-default {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.ant-btn-default:hover {
+    background-color: var(--hover-bg) !important;
+    border-color: var(--accent-primary) !important;
+    color: var(--accent-primary) !important;
 }
 
 .ant-card {
     background-color: var(--bg-secondary) !important;
     border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.ant-card-head {
+    background-color: var(--bg-secondary) !important;
+    border-bottom-color: var(--border-color) !important;
+}
+
+.ant-card-head-title {
+    color: var(--text-primary) !important;
 }
 
 .ant-typography {
     color: var(--text-primary) !important;
 }
 
+.ant-typography.ant-typography-secondary {
+    color: var(--text-secondary) !important;
+}
+
 .ant-alert-error {
-    background-color: rgba(245, 101, 101, 0.1) !important;
+    background-color: rgba(239, 68, 68, 0.1) !important;
     border-color: var(--error-color) !important;
+    color: var(--error-color) !important;
+}
+
+.ant-alert-success {
+    background-color: rgba(34, 197, 94, 0.1) !important;
+    border-color: var(--success-color) !important;
+    color: var(--success-color) !important;
+}
+
+.ant-alert-info {
+    background-color: var(--accent-light) !important;
+    border-color: var(--accent-primary) !important;
+    color: var(--accent-primary) !important;
+}
+
+.ant-select {
+    color: var(--text-primary) !important;
 }
 
 .ant-select-selector {
-    background-color: var(--bg-secondary) !important;
+    background-color: var(--input-bg) !important;
     border-color: var(--border-color) !important;
     color: var(--text-primary) !important;
 }
@@ -353,8 +444,40 @@ div {
     border-color: var(--accent-primary) !important;
 }
 
+.ant-select-focused .ant-select-selector {
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 0 2px var(--accent-light) !important;
+}
+
+.ant-select-dropdown {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+.ant-select-item {
+    color: var(--text-primary) !important;
+}
+
+.ant-select-item:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+.ant-select-item-option-selected {
+    background-color: var(--accent-light) !important;
+    color: var(--accent-primary) !important;
+}
+
 .ant-checkbox-wrapper {
     color: var(--text-primary) !important;
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+    background-color: var(--accent-primary) !important;
+    border-color: var(--accent-primary) !important;
+}
+
+.ant-checkbox:hover .ant-checkbox-inner {
+    border-color: var(--accent-primary) !important;
 }
 
 .ant-divider {
@@ -366,29 +489,570 @@ div {
     border-color: var(--border-color) !important;
 }
 
-/* Utility Classes */
-.bg-primary {
-    background-color: var(--bg-primary);
+.ant-divider-inner-text {
+    color: var(--text-secondary) !important;
 }
 
-.bg-secondary {
-    background-color: var(--bg-secondary);
+.ant-form-item-label>label {
+    color: var(--text-primary) !important;
 }
 
-.border-theme {
-    border-color: var(--border-color);
+.ant-form-item-required::before {
+    color: var(--error-color) !important;
 }
 
-.shadow-theme {
-    box-shadow: 0 4px 6px var(--shadow-light);
+.ant-menu {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
 }
 
-.shadow-theme-medium {
-    box-shadow: 0 8px 25px var(--shadow-medium);
+.ant-menu-item {
+    color: var(--text-primary) !important;
 }
 
-.shadow-theme-strong {
-    box-shadow: 0 20px 25px var(--shadow-strong);
+.ant-menu-item:hover {
+    color: var(--accent-primary) !important;
+}
+
+.ant-menu-item-selected {
+    color: var(--accent-primary) !important;
+    background-color: var(--accent-light) !important;
+}
+
+.ant-tabs {
+    color: var(--text-primary) !important;
+}
+
+.ant-tabs-tab {
+    color: var(--text-secondary) !important;
+}
+
+.ant-tabs-tab:hover {
+    color: var(--accent-primary) !important;
+}
+
+.ant-tabs-tab-active {
+    color: var(--accent-primary) !important;
+}
+
+.ant-tabs-ink-bar {
+    background-color: var(--accent-primary) !important;
+}
+
+.ant-tabs-content-holder {
+    background-color: var(--bg-secondary) !important;
+}
+
+.ant-list {
+    background-color: var(--bg-secondary) !important;
+}
+
+.ant-list-item {
+    border-bottom-color: var(--border-light) !important;
+    color: var(--text-primary) !important;
+}
+
+.ant-list-item-meta-title {
+    color: var(--text-primary) !important;
+}
+
+.ant-list-item-meta-description {
+    color: var(--text-secondary) !important;
+}
+
+.ant-progress-text {
+    color: var(--text-primary) !important;
+}
+
+.ant-tag {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.ant-upload {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+.ant-upload:hover {
+    border-color: var(--accent-primary) !important;
+}
+
+.ant-notification {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.ant-modal-content {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.ant-modal-header {
+    background-color: var(--bg-secondary) !important;
+    border-bottom-color: var(--border-color) !important;
+}
+
+.ant-modal-title {
+    color: var(--text-primary) !important;
+}
+
+.ant-modal-footer {
+    background-color: var(--bg-secondary) !important;
+    border-top-color: var(--border-color) !important;
+}
+
+/* Enhanced Dashboard & Profile Specific Styles */
+
+/* Stunning Card Hover Effects */
+.stunning-card {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 24px !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.stunning-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+    z-index: 1;
+}
+
+.stunning-card:hover::before {
+    left: 100%;
+}
+
+.stunning-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: 0 25px 50px rgba(11, 197, 234, 0.2) !important;
+    border-color: rgba(11, 197, 234, 0.4) !important;
+}
+
+/* Glassmorphism Header */
+.glass-header {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Animated Gradient Text */
+.gradient-text {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, #8b5cf6 30%, #ec4899 70%, #f59e0b 100%) !important;
+    background-size: 300% 300% !important;
+    animation: gradientShift 4s ease-in-out infinite !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+/* Floating Animation for Background Elements */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    33% {
+        transform: translateY(-20px) rotate(5deg);
+    }
+
+    66% {
+        transform: translateY(-10px) rotate(-3deg);
+    }
+}
+
+@keyframes floatReverse {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    33% {
+        transform: translateY(15px) rotate(-4deg);
+    }
+
+    66% {
+        transform: translateY(-5px) rotate(2deg);
+    }
+}
+
+/* Enhanced Stats Cards */
+.stats-card {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.stats-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.stats-card:hover::after {
+    transform: translateX(100%);
+}
+
+.stats-card:hover {
+    transform: translateY(-6px) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Course Progress Cards */
+.course-progress-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
+    transition: all 0.4s ease !important;
+    cursor: pointer !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.course-progress-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-primary), #8b5cf6, #ec4899);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.course-progress-card:hover::before {
+    transform: scaleX(1);
+}
+
+.course-progress-card:hover {
+    transform: translateY(-4px) !important;
+    border-color: rgba(11, 197, 234, 0.3) !important;
+}
+
+/* Achievement Badges */
+.achievement-badge {
+    position: relative !important;
+    overflow: hidden !important;
+    border-radius: 16px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+.achievement-badge.legendary {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.1) 100%) !important;
+    border: 2px solid rgba(255, 215, 0, 0.4) !important;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3) !important;
+}
+
+.achievement-badge.epic {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%) !important;
+    border: 2px solid rgba(139, 92, 246, 0.4) !important;
+}
+
+.achievement-badge.rare {
+    background: linear-gradient(135deg, rgba(24, 144, 255, 0.2) 0%, rgba(24, 144, 255, 0.1) 100%) !important;
+    border: 2px solid rgba(24, 144, 255, 0.4) !important;
+}
+
+.achievement-badge.common {
+    background: linear-gradient(135deg, rgba(82, 196, 26, 0.2) 0%, rgba(82, 196, 26, 0.1) 100%) !important;
+    border: 2px solid rgba(82, 196, 26, 0.4) !important;
+}
+
+.achievement-badge:hover {
+    transform: scale(1.05) !important;
+}
+
+/* Skill Progress Bars */
+.skill-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+.skill-card:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Certificate Cards */
+.certificate-card {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.05) 100%) !important;
+    border: 2px solid rgba(255, 215, 0, 0.3) !important;
+    border-radius: 20px !important;
+    transition: all 0.4s ease !important;
+    cursor: pointer !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.certificate-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+    animation: rotate 4s linear infinite;
+    z-index: 0;
+}
+
+.certificate-card>* {
+    position: relative;
+    z-index: 1;
+}
+
+.certificate-card:hover {
+    transform: translateY(-6px) scale(1.02) !important;
+    box-shadow: 0 15px 40px rgba(255, 215, 0, 0.25) !important;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Profile Avatar Enhancement */
+.profile-avatar {
+    position: relative !important;
+    transition: all 0.3s ease !important;
+}
+
+.profile-avatar::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    background: linear-gradient(45deg, var(--accent-primary), #8b5cf6, #ec4899, var(--accent-primary));
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: rotate 3s linear infinite;
+}
+
+.profile-avatar:hover::after {
+    opacity: 1;
+}
+
+/* Level Progress Enhancement */
+.level-progress {
+    position: relative !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+}
+
+.level-progress .ant-progress-bg {
+    background: linear-gradient(90deg, var(--accent-primary), #8b5cf6) !important;
+}
+
+/* Timeline Enhancements */
+.activity-timeline .ant-timeline-item-dot {
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Button Enhancements */
+.stunning-button {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, #8b5cf6 100%) !important;
+    border: none !important;
+    border-radius: 16px !important;
+    color: white !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.stunning-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.stunning-button:hover::before {
+    left: 100%;
+}
+
+.stunning-button:hover {
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 10px 25px rgba(11, 197, 234, 0.4) !important;
+}
+
+/* Notification Badge */
+.notification-badge {
+    background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%) !important;
+    box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3) !important;
+}
+
+/* Modal Enhancements */
+.ant-modal .ant-modal-content {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 24px !important;
+}
+
+.ant-modal .ant-modal-header {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Tab Enhancements */
+.ant-tabs .ant-tabs-tab {
+    transition: all 0.3s ease !important;
+}
+
+.ant-tabs .ant-tabs-tab:hover {
+    color: var(--accent-primary) !important;
+}
+
+.ant-tabs .ant-tabs-tab-active {
+    background: rgba(11, 197, 234, 0.1) !important;
+    border-radius: 12px !important;
+}
+
+/* Form Input Enhancements */
+.stunning-input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+.stunning-input:hover {
+    border-color: rgba(11, 197, 234, 0.4) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.stunning-input:focus {
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 0 3px rgba(11, 197, 234, 0.1) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Mobile Responsive Enhancements */
+@media (max-width: 768px) {
+    .stunning-card {
+        border-radius: 16px !important;
+        padding: 16px !important;
+    }
+
+    .glass-header {
+        border-radius: 16px !important;
+        padding: 16px !important;
+    }
+
+    .gradient-text {
+        font-size: 2.5rem !important;
+    }
+
+    .stats-card {
+        border-radius: 16px !important;
+    }
+}
+
+/* Dark Theme Enhancements */
+[data-theme="dark"] .stunning-card {
+    background: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .glass-header {
+    background: rgba(30, 41, 59, 0.8) !important;
+}
+
+[data-theme="dark"] .stats-card {
+    background: rgba(30, 41, 59, 0.6) !important;
+}
+
+/* Loading Shimmer Effects */
+.shimmer-loading {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+
+    .stunning-card,
+    .stats-card,
+    .achievement-badge,
+    .certificate-card {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+
+    .stunning-card,
+    .glass-header,
+    .stats-card {
+        background: white !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+    }
+
+    .gradient-text {
+        -webkit-text-fill-color: initial !important;
+        color: #333 !important;
+        background: none !important;
+    }
 }
 
 /* Animations */

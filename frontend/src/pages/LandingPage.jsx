@@ -17,7 +17,6 @@ import {
     Menu
 } from 'antd';
 import {
-    BookOutlined,
     UserOutlined,
     ClockCircleOutlined,
     TrophyOutlined,
@@ -31,6 +30,9 @@ import {
     DownOutlined
 } from '@ant-design/icons';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import ThemeToggle from '../components/ThemeToggle';
+import Logo from '../components/Logo';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -38,6 +40,7 @@ const { Panel } = Collapse;
 
 const LandingPage = () => {
     const { theme } = useTheme();
+    const { user, isAuthenticated } = useAuth();
     const [activeSection, setActiveSection] = useState('hero');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -53,7 +56,7 @@ const LandingPage = () => {
             students: 1250,
             rating: 4.8,
             price: '$199',
-            image: '/api/placeholder/300/200',
+            image: null, // Will show logo instead
             instructor: 'Sarah Johnson'
         },
         {
@@ -65,7 +68,7 @@ const LandingPage = () => {
             students: 890,
             rating: 4.9,
             price: '$299',
-            image: '/api/placeholder/300/200',
+            image: null, // Will show logo instead
             instructor: 'Dr. Michael Chen'
         },
         {
@@ -77,7 +80,7 @@ const LandingPage = () => {
             students: 2100,
             rating: 4.7,
             price: '$149',
-            image: '/api/placeholder/300/200',
+            image: null, // Will show logo instead
             instructor: 'Emma Rodriguez'
         },
         {
@@ -89,7 +92,7 @@ const LandingPage = () => {
             students: 750,
             rating: 4.9,
             price: '$399',
-            image: '/api/placeholder/300/200',
+            image: null, // Will show logo instead
             instructor: 'James Wilson'
         }
     ];
@@ -104,7 +107,7 @@ const LandingPage = () => {
             courses: 12,
             students: 3500,
             rating: 4.9,
-            avatar: '/api/placeholder/120/120',
+            avatar: null, // Will show default avatar
             bio: 'Full-stack developer with expertise in React, Node.js, and cloud technologies.'
         },
         {
@@ -115,7 +118,7 @@ const LandingPage = () => {
             courses: 8,
             students: 2800,
             rating: 4.8,
-            avatar: '/api/placeholder/120/120',
+            avatar: null, // Will show default avatar
             bio: 'PhD in Computer Science, specializing in machine learning and data analytics.'
         },
         {
@@ -126,7 +129,7 @@ const LandingPage = () => {
             courses: 15,
             students: 4200,
             rating: 4.9,
-            avatar: '/api/placeholder/120/120',
+            avatar: null, // Will show default avatar
             bio: 'Marketing strategist with proven track record in digital transformation.'
         }
     ];
@@ -140,7 +143,7 @@ const LandingPage = () => {
             company: 'TechCorp',
             content: 'LearnHub transformed my career. The web development course was comprehensive and practical.',
             rating: 5,
-            avatar: '/api/placeholder/80/80'
+            avatar: null // Will show default avatar
         },
         {
             id: 2,
@@ -149,7 +152,7 @@ const LandingPage = () => {
             company: 'DataInsights',
             content: 'The data science program exceeded my expectations. Now I\'m leading analytics projects.',
             rating: 5,
-            avatar: '/api/placeholder/80/80'
+            avatar: null // Will show default avatar
         },
         {
             id: 3,
@@ -158,7 +161,7 @@ const LandingPage = () => {
             company: 'GrowthCo',
             content: 'Excellent instructors and real-world projects. Highly recommend for career advancement.',
             rating: 5,
-            avatar: '/api/placeholder/80/80'
+            avatar: null // Will show default avatar
         }
     ];
 
@@ -195,12 +198,12 @@ const LandingPage = () => {
                 <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
                     <Row justify="space-between" align="middle">
                         <Col>
-                            <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-                                <BookOutlined style={{ fontSize: '24px', color: 'var(--accent-primary)', marginRight: '8px' }} />
-                                <Text style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)' }}>
-                                    LearnHub
-                                </Text>
-                            </Link>
+                            <Logo
+                                to="/"
+                                size="xxlarge"
+                                showText={false}
+                                style={{ color: 'var(--text-primary)' }}
+                            />
                         </Col>
                         <Col>
                             <Menu
@@ -216,27 +219,94 @@ const LandingPage = () => {
                         </Col>
                         <Col>
                             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                <Button type="text" style={{ color: 'var(--text-primary)' }}>
-                                    <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>
-                                        Sign In
-                                    </Link>
-                                </Button>
-                                <Button
-                                    type="primary"
-                                    className="btn-primary cta-button"
-                                    style={{
-                                        backgroundColor: 'var(--accent-primary)',
-                                        borderColor: 'var(--accent-primary)',
-                                        height: '40px',
-                                        borderRadius: '20px',
-                                        fontWeight: '600',
-                                        boxShadow: '0 4px 15px rgba(11, 197, 234, 0.3)'
-                                    }}
-                                >
-                                    <Link to="/register" style={{ color: 'white', textDecoration: 'none' }}>
-                                        Get Started
-                                    </Link>
-                                </Button>
+                                <ThemeToggle />
+                                {isAuthenticated ? (
+                                    // Logged in user menu
+                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                        <Button
+                                            type="text"
+                                            style={{ color: 'var(--text-primary)' }}
+                                        >
+                                            <Link to="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                Dashboard
+                                            </Link>
+                                        </Button>
+                                        <Button
+                                            type="text"
+                                            style={{ color: 'var(--text-primary)' }}
+                                        >
+                                            <Link to="/profile" style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                Profile
+                                            </Link>
+                                        </Button>
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            padding: '8px 16px',
+                                            backgroundColor: 'var(--bg-secondary)',
+                                            borderRadius: '20px',
+                                            border: '1px solid var(--border-color)'
+                                        }}>
+                                            <div style={{
+                                                width: '32px',
+                                                height: '32px',
+                                                borderRadius: '50%',
+                                                backgroundColor: 'var(--accent-primary)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                color: 'white',
+                                                fontWeight: '600',
+                                                fontSize: '14px'
+                                            }}>
+                                                {user?.name?.charAt(0).toUpperCase() || 'U'}
+                                            </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                                <Text style={{
+                                                    color: 'var(--text-primary)',
+                                                    fontSize: '14px',
+                                                    fontWeight: '600',
+                                                    lineHeight: 1.2
+                                                }}>
+                                                    {user?.name || 'User'}
+                                                </Text>
+                                                <Text style={{
+                                                    color: 'var(--text-secondary)',
+                                                    fontSize: '12px',
+                                                    lineHeight: 1.2
+                                                }}>
+                                                    {user?.role || 'Student'}
+                                                </Text>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    // Not logged in menu
+                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                        <Button type="text" style={{ color: 'var(--text-primary)' }}>
+                                            <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                Sign In
+                                            </Link>
+                                        </Button>
+                                        <Button
+                                            type="primary"
+                                            className="btn-primary cta-button"
+                                            style={{
+                                                backgroundColor: 'var(--accent-primary)',
+                                                borderColor: 'var(--accent-primary)',
+                                                height: '40px',
+                                                borderRadius: '20px',
+                                                fontWeight: '600',
+                                                boxShadow: '0 4px 15px rgba(11, 197, 234, 0.3)'
+                                            }}
+                                        >
+                                            <Link to="/register" style={{ color: 'white', textDecoration: 'none' }}>
+                                                Get Started
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         </Col>
                     </Row>
@@ -371,7 +441,6 @@ const LandingPage = () => {
                                     <Button
                                         size="large"
                                         className="btn-secondary"
-                                        icon={<BookOutlined />}
                                         style={{
                                             height: '56px',
                                             padding: '0 32px',
@@ -688,7 +757,16 @@ const LandingPage = () => {
                                             alignItems: 'center',
                                             justifyContent: 'center'
                                         }}>
-                                            <BookOutlined style={{ fontSize: '48px', color: 'white' }} />
+                                            <img
+                                                src="/src/assets/images/logo.png"
+                                                alt="LearnHub Logo"
+                                                style={{
+                                                    width: '64px',
+                                                    height: '64px',
+                                                    objectFit: 'contain',
+                                                    filter: 'brightness(0) invert(1)'
+                                                }}
+                                            />
                                         </div>
                                     }
                                     style={{
@@ -936,12 +1014,12 @@ const LandingPage = () => {
                 <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
                     <Row gutter={[32, 32]}>
                         <Col xs={24} md={6}>
-                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                                <BookOutlined style={{ fontSize: '24px', color: 'var(--accent-primary)', marginRight: '8px' }} />
-                                <Text style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)' }}>
-                                    LearnHub
-                                </Text>
-                            </div>
+                            <Logo
+                                to="/"
+                                size="large"
+                                showText={true}
+                                style={{ color: 'var(--text-primary)', marginBottom: '16px' }}
+                            />
                             <Paragraph style={{ color: 'var(--text-secondary)' }}>
                                 Empowering professionals worldwide with cutting-edge training and education.
                             </Paragraph>

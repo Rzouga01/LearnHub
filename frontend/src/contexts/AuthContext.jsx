@@ -52,8 +52,33 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const updateProfile = async (profileData) => {
+        try {
+            // In a real app, this would make an API call to update the profile
+            // For now, we'll just update the local state
+            const updatedUser = { ...user, ...profileData };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            return updatedUser;
+        } catch (error) {
+            console.error('Profile update failed:', error);
+            throw error;
+        }
+    };
+
+    const isAuthenticated = !!user;
+
+    const value = {
+        user,
+        loading,
+        login,
+        logout,
+        updateProfile,
+        isAuthenticated
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={value}>
             {children}
         </AuthContext.Provider>
     );

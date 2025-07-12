@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Form, Input, Button, Card, Typography, Alert, Divider, Checkbox } from 'antd';
-import { LockOutlined, MailOutlined, BookOutlined, GoogleOutlined, GithubOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
+import { LockOutlined, MailOutlined, GoogleOutlined, GithubOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import Logo from '../components/Logo';
 import api from '../services/api';
 
 const { Title, Text } = Typography;
@@ -47,14 +48,16 @@ const Login = () => {
             <Card className="auth-card fade-in">
                 {/* Logo and Header */}
                 <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                    <Link to="/" className="auth-logo">
-                        <BookOutlined style={{ fontSize: '20px', marginRight: '8px' }} />
-                        <span style={{ fontSize: '18px', fontWeight: '600' }}>LearnHub</span>
-                    </Link>
+                    <Logo
+                        to="/"
+                        size="xlarge"
+                        className="auth-logo"
+                        showText={false}
+                    />
                     <Title
                         level={3}
                         style={{
-                            margin: '0 0 8px 0',
+                            margin: '16px 0 8px 0',
                             color: 'var(--text-primary)',
                             fontSize: '24px',
                             fontWeight: '600'

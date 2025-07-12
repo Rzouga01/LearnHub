@@ -2,17 +2,18 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import { ThemeProvider } from './contexts/ThemeContext';
-import ThemeToggle from './components/ThemeToggle';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import LandingPage from './pages/LandingPage';
 import ProfilePage from './pages/ProfilePage';
+import Profile from './pages/Profile';
 import MainLayout from './layouts/MainLayout';
 import Courses from './pages/Courses';
 import Students from './pages/Students';
 import Trainers from './pages/Trainers';
 import CourseDetail from './pages/CourseDetail';
+import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -31,15 +32,13 @@ function App() {
                     }}
                 >
                     <div className="theme-container">
-                        <ThemeToggle />
                         <Routes>
                             {/* Public routes */}
                             <Route path="/" element={<LandingPage />} />
                             <Route path="/login" element={<Login />} />
                             <Route path="/register" element={<Register />} />
 
-                            {/* Protected routes */}
-                            <Route element={<ProtectedRoute />}>
+                            {/* Protected routes */}                            <Route element={<ProtectedRoute />}>
                                 <Route path="/dashboard" element={<MainLayout />}>
                                     <Route index element={<Dashboard />} />
                                     <Route path="courses" element={<Courses />} />
@@ -47,7 +46,13 @@ function App() {
                                     <Route path="students" element={<Students />} />
                                     <Route path="trainers" element={<Trainers />} />
                                     <Route path="profile" element={<ProfilePage />} />
+                                    <Route path="settings" element={<Settings />} />
                                 </Route>
+                            </Route>
+
+                            {/* Standalone Profile Route */}
+                            <Route element={<ProtectedRoute />}>
+                                <Route path="/profile" element={<Profile />} />
                             </Route>
 
                             {/* Fallback route */}
