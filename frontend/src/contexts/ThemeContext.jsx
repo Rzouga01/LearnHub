@@ -26,11 +26,39 @@ export const ThemeProvider = ({ children }) => {
         return 'light';
     });
 
+    const [isTransitioning, setIsTransitioning] = useState(false);
+
     useEffect(() => {
-        // Apply theme to document root
+        // Apply theme to document root with transition class
         document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.classList.add('theme-transitioning');
+        setIsTransitioning(true);
+
+        // Store theme preference
         localStorage.setItem('theme', theme);
+
+        // Remove transition class after animation completes
+        const timer = setTimeout(() => {
+            document.documentElement.classList.remove('theme-transitioning');
+            setIsTransitioning(false);
+        }, 300);
+
+        return () => clearTimeout(timer);
     }, [theme]);
+
+    // Listen for system theme changes
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        const handleChange = (e) => {
+            if (!localStorage.getItem('theme')) {
+                setTheme(e.matches ? 'dark' : 'light');
+            }
+        };
+
+        mediaQuery.addListener(handleChange);
+        return () => mediaQuery.removeListener(handleChange);
+    }, []);
 
     const toggleTheme = () => {
         setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -41,7 +69,8 @@ export const ThemeProvider = ({ children }) => {
         setTheme,
         toggleTheme,
         isLight: theme === 'light',
-        isDark: theme === 'dark'
+        isDark: theme === 'dark',
+        isTransitioning
     };
 
     return (
@@ -50,3 +79,5 @@ export const ThemeProvider = ({ children }) => {
         </ThemeContext.Provider>
     );
 };
+
+export default ThemeProvider;
