@@ -61,7 +61,7 @@ const Dashboard = () => {
             instructor: 'Sarah Johnson',
             rating: 4.9,
             thumbnail: '⚛️',
-            color: '#61dafb',
+            color: '#E76F51', // terracotta
             nextLesson: 'Advanced Hooks & Context'
         },
         {
@@ -71,7 +71,7 @@ const Dashboard = () => {
             instructor: 'Dr. Michael Chen',
             rating: 4.8,
             thumbnail: '🤖',
-            color: '#ff6b6b',
+            color: '#2A9D8F', // sage
             nextLesson: 'Neural Networks'
         },
         {
@@ -79,459 +79,474 @@ const Dashboard = () => {
             title: 'Web3 Development',
             progress: 65,
             instructor: 'Alex Turner',
-            rating: 4.9,
-            thumbnail: '⛓️',
-            color: '#8b5cf6',
+            rating: 4.7,
+            thumbnail: '🔗',
+            color: '#F4A261', // mustard
             nextLesson: 'Smart Contracts'
         }
     ];
 
-    const recentAchievements = [
+    const recentActivity = [
         {
             id: 1,
-            title: 'Course Master',
-            description: 'Completed 8 courses with excellence',
-            icon: '👑',
-            color: '#FFD700'
+            type: 'course_complete',
+            title: 'Completed "JavaScript Fundamentals"',
+            time: '2 hours ago',
+            icon: <TrophyOutlined className="text-olive-500" />
         },
         {
             id: 2,
-            title: 'Learning Streak',
-            description: '18 consecutive days of learning',
-            icon: '🔥',
-            color: '#ff4d4f'
+            type: 'certificate',
+            title: 'Earned React Developer Certificate',
+            time: '1 day ago',
+            icon: <StarOutlined className="text-saffron-500" />
         },
         {
             id: 3,
-            title: 'AI Expert',
-            description: 'Mastered AI fundamentals',
-            icon: '🚀',
-            color: '#1890ff'
+            type: 'streak',
+            title: 'Maintained 18-day learning streak',
+            time: '2 days ago',
+            icon: <FireOutlined className="text-terracotta-500" />
         }
     ];
 
-    const upcomingEvents = [
-        { title: 'React Performance Workshop', time: 'Today 3:00 PM', type: 'workshop' },
-        { title: 'AI Study Group', time: 'Tomorrow 10:00 AM', type: 'study' },
-        { title: 'Project Deadline', time: 'Friday 11:59 PM', type: 'deadline' }
-    ];
-
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: isDark ? '#1a202c' : '#f5f5f5',
-            padding: '24px'
-        }}>
-            {/* Welcome Header */}
-            <div style={{
-                marginBottom: '32px',
-                padding: '32px',
-                background: 'linear-gradient(135deg, #0BC5EA 0%, #40a9ff 100%)',
-                borderRadius: '16px',
-                color: 'white',
-                position: 'relative',
-                overflow: 'hidden'
-            }}>
-                <div style={{
-                    position: 'absolute',
-                    top: '-50px',
-                    right: '-50px',
-                    width: '200px',
-                    height: '200px',
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    borderRadius: '50%'
-                }} />
-                <div style={{ position: 'relative', zIndex: 1 }}>
-                    <Title level={2} style={{ color: 'white', margin: 0 }}>
-                        {getGreeting()}
-                    </Title>
-                    <Paragraph style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '16px', margin: '8px 0 0 0' }}>
-                        Ready to continue your learning journey? You're doing amazing! 🚀
-                    </Paragraph>
-                    <div style={{
-                        display: 'flex',
-                        gap: '24px',
-                        marginTop: '24px',
-                        alignItems: 'center',
-                        flexWrap: 'wrap'
-                    }}>
-                        <div style={{
-                            padding: '8px 16px',
-                            background: 'rgba(255, 255, 255, 0.2)',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            fontWeight: '600'
-                        }}>
-                            Level {stats.level}
-                        </div>
-                        <div style={{
-                            padding: '8px 16px',
-                            background: 'rgba(255, 255, 255, 0.2)',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            fontWeight: '600'
-                        }}>
-                            🔥 {stats.streak} Day Streak
-                        </div>
-                        <div style={{
-                            padding: '8px 16px',
-                            background: 'rgba(255, 255, 255, 0.2)',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            fontWeight: '600'
-                        }}>
-                            {stats.xp}/{stats.nextLevelXp} XP
+        <div className="min-h-screen bg-gradient-to-br from-cream-50 via-cream-100 to-warm-50 dark:from-charcoal-600 dark:via-charcoal-500 dark:to-warm-800 transition-all duration-500">
+            <div className="max-w-7xl mx-auto p-6 space-y-8">
+
+                {/* Welcome Header - Enhanced */}
+                <Card className="relative overflow-hidden border-0 shadow-2xl">
+                    <div className="absolute inset-0 bg-gradient-to-r from-terracotta-500 via-terracotta-400 to-sage-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full -mr-36 -mt-36"></div>
+                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-sage-600/20 rounded-full -ml-48 -mb-48"></div>
+
+                    <div className="relative z-10 p-8">
+                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
+                            <div className="flex-1">
+                                <Title level={1} className="text-white mb-3 text-3xl lg:text-4xl font-bold">
+                                    {getGreeting()}
+                                </Title>
+                                <Text className="text-white/90 text-lg lg:text-xl font-medium">
+                                    Ready to continue your learning journey today?
+                                </Text>
+                                <div className="flex items-center gap-4 mt-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-3 h-3 bg-olive-400 rounded-full animate-pulse"></div>
+                                        <Text className="text-white/80 text-sm">Online</Text>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <TrophyOutlined className="text-saffron-300" />
+                                        <Text className="text-white/80 text-sm">Level {stats.level}</Text>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/30">
+                                    <Text className="text-white/90 text-sm block mb-2">Learning Streak</Text>
+                                    <div className="flex items-center gap-3">
+                                        <FireOutlined className="text-saffron-300 text-xl" />
+                                        <Text className="text-white text-3xl font-bold">{stats.streak}</Text>
+                                        <Text className="text-white/80 text-sm">days</Text>
+                                    </div>
+                                </div>
+                                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/30">
+                                    <Text className="text-white/90 text-sm block mb-2">XP Progress</Text>
+                                    <div className="flex items-center gap-3">
+                                        <StarOutlined className="text-mustard-300 text-xl" />
+                                        <Text className="text-white text-3xl font-bold">{Math.round((stats.xp / stats.nextLevelXp) * 100)}%</Text>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </Card>
 
-            {/* Quick Stats */}
-            <Row gutter={[16, 16]} style={{ marginBottom: '32px' }}>
-                <Col xs={12} sm={6}>
-                    <Card style={{
-                        textAlign: 'center',
-                        borderRadius: '12px',
-                        border: isDark ? '1px solid #2d3748' : '1px solid #e8f4fd',
-                        background: isDark
-                            ? 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)'
-                            : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-                        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)'
-                    }}>
-                        <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📚</div>
-                        <Statistic
-                            title={<span style={{ color: isDark ? '#a0aec0' : '#666' }}>Active Courses</span>}
-                            value={stats.coursesEnrolled}
-                            valueStyle={{ color: '#0BC5EA', fontSize: '24px', fontWeight: '700' }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                    <Card style={{
-                        textAlign: 'center',
-                        borderRadius: '12px',
-                        border: isDark ? '1px solid #2d3748' : '1px solid #f0f9e8',
-                        background: isDark
-                            ? 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)'
-                            : 'linear-gradient(135deg, #f6ffed 0%, #f0f9e8 100%)',
-                        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)'
-                    }}>
-                        <div style={{ fontSize: '2rem', marginBottom: '8px' }}>✅</div>
-                        <Statistic
-                            title={<span style={{ color: isDark ? '#a0aec0' : '#666' }}>Completed</span>}
-                            value={stats.coursesCompleted}
-                            valueStyle={{ color: '#52c41a', fontSize: '24px', fontWeight: '700' }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                    <Card style={{
-                        textAlign: 'center',
-                        borderRadius: '12px',
-                        border: isDark ? '1px solid #2d3748' : '1px solid #fef3e8',
-                        background: isDark
-                            ? 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)'
-                            : 'linear-gradient(135deg, #fffbf0 0%, #fef3e8 100%)',
-                        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)'
-                    }}>
-                        <div style={{ fontSize: '2rem', marginBottom: '8px' }}>⏰</div>
-                        <Statistic
-                            title={<span style={{ color: isDark ? '#a0aec0' : '#666' }}>Study Hours</span>}
-                            value={stats.totalHours}
-                            valueStyle={{ color: '#faad14', fontSize: '24px', fontWeight: '700' }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                    <Card style={{
-                        textAlign: 'center',
-                        borderRadius: '12px',
-                        border: isDark ? '1px solid #2d3748' : '1px solid #fff0f6',
-                        background: isDark
-                            ? 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)'
-                            : 'linear-gradient(135deg, #fff0f6 0%, #fce7f3 100%)',
-                        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)'
-                    }}>
-                        <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🏆</div>
-                        <Statistic
-                            title={<span style={{ color: isDark ? '#a0aec0' : '#666' }}>Certificates</span>}
-                            value={stats.certificates}
-                            valueStyle={{ color: '#eb2f96', fontSize: '24px', fontWeight: '700' }}
-                        />
-                    </Card>
-                </Col>
-            </Row>
+                {/* Enhanced Stats Overview */}
+                <Row gutter={[32, 32]}>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card className="relative bg-white dark:bg-warm-900 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-terracotta-500/5 to-terracotta-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div className="relative z-10 p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-14 h-14 bg-terracotta-100 dark:bg-terracotta-900 rounded-2xl flex items-center justify-center">
+                                        <BookOutlined className="text-terracotta-500 text-xl" />
+                                    </div>
+                                    <div className="text-right">
+                                        <Text className="text-terracotta-500 text-3xl font-bold block">{stats.coursesEnrolled}</Text>
+                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">+2 this month</Text>
+                                    </div>
+                                </div>
+                                <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-1">
+                                    Courses Enrolled
+                                </Title>
+                                <Text className="text-warm-500 dark:text-warm-300 text-sm">
+                                    Active learning paths
+                                </Text>
+                            </div>
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card className="relative bg-white dark:bg-warm-900 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-olive-500/5 to-olive-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div className="relative z-10 p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-14 h-14 bg-olive-100 dark:bg-olive-900 rounded-2xl flex items-center justify-center">
+                                        <TrophyOutlined className="text-olive-500 text-xl" />
+                                    </div>
+                                    <div className="text-right">
+                                        <Text className="text-olive-500 text-3xl font-bold block">{stats.coursesCompleted}</Text>
+                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">{Math.round((stats.coursesCompleted / stats.coursesEnrolled) * 100)}% completion</Text>
+                                    </div>
+                                </div>
+                                <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-1">
+                                    Completed
+                                </Title>
+                                <Text className="text-warm-500 dark:text-warm-300 text-sm">
+                                    Successfully finished
+                                </Text>
+                            </div>
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card className="relative bg-white dark:bg-warm-900 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-sage-500/5 to-sage-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div className="relative z-10 p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-14 h-14 bg-sage-100 dark:bg-sage-900 rounded-2xl flex items-center justify-center">
+                                        <ClockCircleOutlined className="text-sage-500 text-xl" />
+                                    </div>
+                                    <div className="text-right">
+                                        <Text className="text-sage-500 text-3xl font-bold block">{stats.totalHours}</Text>
+                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">+12 this week</Text>
+                                    </div>
+                                </div>
+                                <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-1">
+                                    Learning Hours
+                                </Title>
+                                <Text className="text-warm-500 dark:text-warm-300 text-sm">
+                                    Total time invested
+                                </Text>
+                            </div>
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card className="relative bg-white dark:bg-warm-900 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-mustard-500/5 to-mustard-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div className="relative z-10 p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-14 h-14 bg-mustard-100 dark:bg-mustard-900 rounded-2xl flex items-center justify-center">
+                                        <StarOutlined className="text-mustard-500 text-xl" />
+                                    </div>
+                                    <div className="text-right">
+                                        <Text className="text-mustard-500 text-3xl font-bold block">{stats.certificates}</Text>
+                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">+1 this month</Text>
+                                    </div>
+                                </div>
+                                <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-1">
+                                    Certificates
+                                </Title>
+                                <Text className="text-warm-500 dark:text-warm-300 text-sm">
+                                    Earned credentials
+                                </Text>
+                            </div>
+                        </Card>
+                    </Col>
+                </Row>
 
-            {/* Main Content */}
-            <Row gutter={[24, 24]}>
-                {/* Active Courses */}
-                <Col xs={24} lg={16}>
-                    <Card style={{
-                        borderRadius: '16px',
-                        border: isDark ? '1px solid #2d3748' : '1px solid #f0f0f0',
-                        background: isDark ? '#2d3748' : '#ffffff',
-                        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '24px'
-                        }}>
-                            <Title level={4} style={{ margin: 0, color: isDark ? '#fff' : '#262626' }}>
-                                🎯 Continue Learning
-                            </Title>
-                            <Button
-                                type="text"
-                                icon={<ArrowRightOutlined />}
-                                style={{ color: '#0BC5EA' }}
-                                onClick={() => navigate('/dashboard/courses')}
-                            >
-                                View All Courses
-                            </Button>
-                        </div>
-
-                        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                            {activeCourses.map(course => (
-                                <Card
-                                    key={course.id}
-                                    style={{
-                                        background: isDark ? '#1a202c' : '#fafafa',
-                                        border: isDark ? '1px solid #4a5568' : '1px solid #f0f0f0',
-                                        borderRadius: '12px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s ease'
-                                    }}
-                                    hoverable
-                                    onClick={() => navigate(`/dashboard/courses/${course.id}`)}
-                                >
-                                    <Row align="middle" gutter={[16, 16]}>
-                                        <Col flex="none">
-                                            <div style={{
-                                                width: '60px',
-                                                height: '60px',
-                                                borderRadius: '12px',
-                                                background: `${course.color}20`,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                fontSize: '24px',
-                                                border: `2px solid ${course.color}40`
-                                            }}>
-                                                {course.thumbnail}
-                                            </div>
-                                        </Col>
-                                        <Col flex="auto">
-                                            <div style={{ marginBottom: '8px' }}>
-                                                <Title level={5} style={{ margin: 0, color: isDark ? '#fff' : '#262626' }}>
-                                                    {course.title}
-                                                </Title>
-                                                <Text style={{ color: isDark ? '#a0aec0' : '#8c8c8c', fontSize: '14px' }}>
-                                                    by {course.instructor}
-                                                </Text>
-                                            </div>
-
-                                            <div style={{ marginBottom: '12px' }}>
-                                                <div style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    marginBottom: '4px'
-                                                }}>
-                                                    <Text style={{ fontSize: '12px', color: isDark ? '#a0aec0' : '#595959' }}>
-                                                        Progress: {course.progress}%
-                                                    </Text>
-                                                    <Rate disabled defaultValue={course.rating} allowHalf style={{ fontSize: '12px' }} />
-                                                </div>
-                                                <Progress
-                                                    percent={course.progress}
-                                                    strokeColor={course.color}
-                                                    trailColor={isDark ? '#4a5568' : '#f0f0f0'}
-                                                    strokeWidth={6}
-                                                    showInfo={false}
-                                                />
-                                            </div>
-
-                                            <Text style={{ color: isDark ? '#fff' : '#262626', fontSize: '13px' }}>
-                                                📚 Next: {course.nextLesson}
-                                            </Text>
-                                        </Col>
-                                    </Row>
-                                </Card>
-                            ))}
-                        </Space>
-
-                        <div style={{ textAlign: 'center', marginTop: '24px' }}>
-                            <Button
-                                type="primary"
-                                size="large"
-                                icon={<PlayCircleOutlined />}
-                                style={{
-                                    background: 'linear-gradient(135deg, #0BC5EA 0%, #40a9ff 100%)',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    height: '48px',
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    paddingInline: '32px'
-                                }}
-                                onClick={() => navigate('/dashboard/courses')}
-                            >
-                                Explore More Courses
-                            </Button>
-                        </div>
-                    </Card>
-                </Col>
-
-                {/* Sidebar */}
-                <Col xs={24} lg={8}>
-                    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                        {/* Recent Achievements */}
-                        <Card style={{
-                            borderRadius: '16px',
-                            border: isDark ? '1px solid #2d3748' : '1px solid #f0f0f0',
-                            background: isDark ? '#2d3748' : '#ffffff',
-                            boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)'
-                        }}>
-                            <Title level={4} style={{ marginBottom: '20px', color: isDark ? '#fff' : '#262626' }}>
-                                🎉 Recent Achievements
-                            </Title>
-                            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                                {recentAchievements.map(achievement => (
-                                    <div
-                                        key={achievement.id}
-                                        style={{
-                                            background: isDark ? `${achievement.color}15` : `${achievement.color}10`,
-                                            borderRadius: '12px',
-                                            padding: '16px',
-                                            border: `1px solid ${achievement.color}30`
-                                        }}
+                {/* Enhanced Progress & Active Courses */}
+                <Row gutter={[32, 32]}>
+                    <Col xs={24} lg={16}>
+                        <Card
+                            className="bg-white dark:bg-warm-900 border-0 shadow-lg"
+                            title={
+                                <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-terracotta-100 dark:bg-terracotta-900 rounded-xl flex items-center justify-center">
+                                            <PlayCircleOutlined className="text-terracotta-500 text-lg" />
+                                        </div>
+                                        <Title level={3} className="text-charcoal-500 dark:text-cream-100 mb-0">
+                                            Continue Learning
+                                        </Title>
+                                    </div>
+                                    <Button
+                                        type="text"
+                                        className="text-sage-500 hover:text-sage-600 hover:bg-sage-50 dark:hover:bg-sage-900/20 rounded-lg px-4 py-2"
+                                        onClick={() => navigate('/courses')}
                                     >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <div style={{
-                                                background: `${achievement.color}20`,
-                                                borderRadius: '8px',
-                                                padding: '8px',
-                                                fontSize: '20px'
-                                            }}>
-                                                {achievement.icon}
+                                        View All <ArrowRightOutlined />
+                                    </Button>
+                                </div>
+                            }
+                        >
+                            <div className="space-y-6">
+                                {activeCourses.map((course, index) => (
+                                    <Card
+                                        key={course.id}
+                                        className="bg-gradient-to-r from-cream-50 to-white dark:from-warm-800 dark:to-warm-750 border-0 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
+                                        onClick={() => navigate(`/courses/${course.id}`)}
+                                    >
+                                        <div className="flex items-center gap-6 p-2">
+                                            <div className="relative">
+                                                <div
+                                                    className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition-transform duration-300"
+                                                    style={{
+                                                        background: `linear-gradient(135deg, ${course.color}20, ${course.color}30)`,
+                                                        border: `2px solid ${course.color}40`
+                                                    }}
+                                                >
+                                                    {course.thumbnail}
+                                                </div>
+                                                <div className="absolute -top-2 -right-2 w-6 h-6 bg-olive-500 rounded-full flex items-center justify-center">
+                                                    <Text className="text-white text-xs font-bold">{index + 1}</Text>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <Text style={{
-                                                    color: isDark ? '#fff' : '#262626',
-                                                    fontSize: '14px',
-                                                    fontWeight: '600',
-                                                    display: 'block'
-                                                }}>
-                                                    {achievement.title}
-                                                </Text>
-                                                <Text style={{
-                                                    color: isDark ? '#a0aec0' : '#8c8c8c',
-                                                    fontSize: '12px'
-                                                }}>
-                                                    {achievement.description}
-                                                </Text>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div className="flex-1">
+                                                        <Title level={4} className="text-charcoal-500 dark:text-cream-100 mb-1 group-hover:text-terracotta-500 transition-colors">
+                                                            {course.title}
+                                                        </Title>
+                                                        <div className="flex items-center gap-4 mb-2">
+                                                            <Text className="text-warm-500 dark:text-warm-300 text-sm">
+                                                                by {course.instructor}
+                                                            </Text>
+                                                            <div className="flex items-center gap-1">
+                                                                <Rate disabled value={course.rating} allowHalf className="text-xs" />
+                                                                <Text className="text-warm-400 text-xs">({course.rating})</Text>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="mb-4">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <Text className="text-warm-500 dark:text-warm-300 text-sm font-medium">
+                                                            Progress: {course.progress}%
+                                                        </Text>
+                                                        <Text className="text-sage-500 text-sm font-medium">
+                                                            Next: {course.nextLesson}
+                                                        </Text>
+                                                    </div>
+                                                    <div className="relative">
+                                                        <Progress
+                                                            percent={course.progress}
+                                                            strokeColor={{
+                                                                '0%': course.color,
+                                                                '100%': course.color + 'CC'
+                                                            }}
+                                                            trailColor={isDark ? '#4A4341' : '#F1EFED'}
+                                                            strokeWidth={8}
+                                                            showInfo={false}
+                                                            className="rounded-full"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <Button
+                                                        type="primary"
+                                                        icon={<PlayCircleOutlined />}
+                                                        className="bg-terracotta-500 hover:bg-terracotta-600 border-terracotta-500 hover:border-terracotta-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                                                        size="default"
+                                                    >
+                                                        Continue Learning
+                                                    </Button>
+                                                    <Text className="text-warm-400 text-sm">
+                                                        {Math.round((100 - course.progress) / 10)} lessons left
+                                                    </Text>
+                                                </div>
                                             </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        </Card>
+                    </Col>
+
+                    <Col xs={24} lg={8}>
+                        <div className="space-y-8">
+                            {/* Enhanced Level Progress */}
+                            <Card className="bg-white dark:bg-warm-900 border-0 shadow-lg">
+                                <div className="text-center p-4">
+                                    <div className="flex items-center justify-center gap-3 mb-6">
+                                        <div className="w-10 h-10 bg-terracotta-100 dark:bg-terracotta-900 rounded-xl flex items-center justify-center">
+                                            <TrophyOutlined className="text-terracotta-500 text-lg" />
+                                        </div>
+                                        <Title level={3} className="text-charcoal-500 dark:text-cream-100 mb-0">
+                                            Your Level
+                                        </Title>
+                                    </div>
+
+                                    <div className="relative mb-6">
+                                        <Progress
+                                            type="circle"
+                                            percent={Math.round((stats.xp / stats.nextLevelXp) * 100)}
+                                            strokeColor={{
+                                                '0%': '#E76F51',
+                                                '100%': '#F4A261'
+                                            }}
+                                            trailColor={isDark ? '#4A4341' : '#F1EFED'}
+                                            strokeWidth={8}
+                                            size={140}
+                                            format={() => (
+                                                <div className="text-center">
+                                                    <Text className="text-terracotta-500 text-2xl font-bold block">
+                                                        {stats.level}
+                                                    </Text>
+                                                    <Text className="text-warm-500 dark:text-warm-300 text-xs">
+                                                        LEVEL
+                                                    </Text>
+                                                </div>
+                                            )}
+                                        />
+                                    </div>
+
+                                    <div className="bg-cream-50 dark:bg-warm-800 rounded-xl p-4 mb-4">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <Text className="text-warm-500 dark:text-warm-300 text-sm font-medium">
+                                                Current XP
+                                            </Text>
+                                            <Text className="text-terracotta-500 text-sm font-bold">
+                                                {stats.xp.toLocaleString()}
+                                            </Text>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <Text className="text-warm-500 dark:text-warm-300 text-sm font-medium">
+                                                Next Level
+                                            </Text>
+                                            <Text className="text-sage-500 text-sm font-bold">
+                                                {stats.nextLevelXp.toLocaleString()}
+                                            </Text>
                                         </div>
                                     </div>
-                                ))}
-                            </Space>
-                        </Card>
 
-                        {/* Upcoming Events */}
-                        <Card style={{
-                            borderRadius: '16px',
-                            border: isDark ? '1px solid #2d3748' : '1px solid #f0f0f0',
-                            background: isDark ? '#2d3748' : '#ffffff',
-                            boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)'
-                        }}>
-                            <Title level={4} style={{ marginBottom: '20px', color: isDark ? '#fff' : '#262626' }}>
-                                📅 Upcoming Events
-                            </Title>
-                            <Timeline
-                                items={upcomingEvents.map(event => ({
-                                    color: event.type === 'deadline' ? '#ff4d4f' :
-                                        event.type === 'workshop' ? '#52c41a' : '#0BC5EA',
-                                    children: (
-                                        <div>
-                                            <Text style={{
-                                                color: isDark ? '#fff' : '#262626',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                display: 'block'
-                                            }}>
-                                                {event.title}
-                                            </Text>
-                                            <Text style={{
-                                                color: isDark ? '#a0aec0' : '#8c8c8c',
-                                                fontSize: '12px'
-                                            }}>
-                                                {event.time}
-                                            </Text>
+                                    <div className="flex items-center justify-center gap-2">
+                                        <StarOutlined className="text-mustard-500" />
+                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">
+                                            {stats.nextLevelXp - stats.xp} XP to next level
+                                        </Text>
+                                    </div>
+                                </div>
+                            </Card>
+
+                            {/* Enhanced Recent Activity */}
+                            <Card className="bg-white dark:bg-warm-900 border-0 shadow-lg">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 bg-sage-100 dark:bg-sage-900 rounded-xl flex items-center justify-center">
+                                        <ClockCircleOutlined className="text-sage-500 text-lg" />
+                                    </div>
+                                    <Title level={3} className="text-charcoal-500 dark:text-cream-100 mb-0">
+                                        Recent Activity
+                                    </Title>
+                                </div>
+
+                                <div className="space-y-4">
+                                    {recentActivity.map((activity, index) => (
+                                        <div key={activity.id} className="flex items-start gap-4 p-3 rounded-xl bg-cream-50 dark:bg-warm-800 hover:bg-cream-100 dark:hover:bg-warm-700 transition-colors duration-200">
+                                            <div className="w-10 h-10 rounded-xl bg-white dark:bg-warm-900 flex items-center justify-center shadow-sm">
+                                                {activity.icon}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <Text className="text-charcoal-500 dark:text-cream-100 text-sm font-medium block mb-1">
+                                                    {activity.title}
+                                                </Text>
+                                                <Text className="text-warm-500 dark:text-warm-300 text-xs">
+                                                    {activity.time}
+                                                </Text>
+                                            </div>
                                         </div>
-                                    )
-                                }))}
-                            />
-                        </Card>
+                                    ))}
+                                </div>
 
-                        {/* Quick Actions */}
-                        <Card style={{
-                            borderRadius: '16px',
-                            border: isDark ? '1px solid #2d3748' : '1px solid #f0f0f0',
-                            background: isDark ? '#2d3748' : '#ffffff',
-                            boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)'
-                        }}>
-                            <Title level={4} style={{ marginBottom: '20px', color: isDark ? '#fff' : '#262626' }}>
-                                ⚡ Quick Actions
-                            </Title>
-                            <Space direction="vertical" style={{ width: '100%' }}>
+                                <div className="mt-6 text-center">
+                                    <Button
+                                        type="text"
+                                        className="text-sage-500 hover:text-sage-600 hover:bg-sage-50 dark:hover:bg-sage-900/20 rounded-lg"
+                                        onClick={() => navigate('/activity')}
+                                    >
+                                        View All Activity <ArrowRightOutlined />
+                                    </Button>
+                                </div>
+                            </Card>
+                        </div>
+                    </Col>
+                </Row>
+
+                {/* Enhanced Quick Actions */}
+                <Card className="bg-white dark:bg-warm-900 border-0 shadow-lg">
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="w-10 h-10 bg-mustard-100 dark:bg-mustard-900 rounded-xl flex items-center justify-center">
+                            <StarOutlined className="text-mustard-500 text-lg" />
+                        </div>
+                        <Title level={3} className="text-charcoal-500 dark:text-cream-100 mb-0">
+                            Quick Actions
+                        </Title>
+                    </div>
+
+                    <Row gutter={[24, 24]}>
+                        <Col xs={24} sm={12} md={6}>
+                            <div className="group">
                                 <Button
+                                    type="primary"
                                     block
                                     icon={<BookOutlined />}
-                                    style={{
-                                        borderRadius: '8px',
-                                        height: '40px',
-                                        textAlign: 'left',
-                                        background: isDark ? '#1a202c' : '#ffffff',
-                                        border: isDark ? '1px solid #4a5568' : '1px solid #d9d9d9',
-                                        color: isDark ? '#fff' : '#262626'
-                                    }}
-                                    onClick={() => navigate('/dashboard/courses')}
+                                    className="h-16 bg-gradient-to-r from-terracotta-500 to-terracotta-600 hover:from-terracotta-600 hover:to-terracotta-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 rounded-xl text-white font-medium"
+                                    onClick={() => navigate('/courses')}
                                 >
-                                    Browse All Courses
+                                    <div className="flex flex-col items-center gap-1">
+                                        <span className="text-lg">Browse Courses</span>
+                                        <span className="text-xs opacity-90">Explore new topics</span>
+                                    </div>
                                 </Button>
+                            </div>
+                        </Col>
+                        <Col xs={24} sm={12} md={6}>
+                            <div className="group">
                                 <Button
                                     block
                                     icon={<TrophyOutlined />}
-                                    style={{
-                                        borderRadius: '8px',
-                                        height: '40px',
-                                        textAlign: 'left',
-                                        background: isDark ? '#1a202c' : '#ffffff',
-                                        border: isDark ? '1px solid #4a5568' : '1px solid #d9d9d9',
-                                        color: isDark ? '#fff' : '#262626'
-                                    }}
+                                    className="h-16 bg-gradient-to-r from-olive-500 to-olive-600 hover:from-olive-600 hover:to-olive-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 rounded-xl text-white font-medium"
+                                    onClick={() => navigate('/achievements')}
                                 >
-                                    View Achievements
+                                    <div className="flex flex-col items-center gap-1">
+                                        <span className="text-lg">Achievements</span>
+                                        <span className="text-xs opacity-90">View your progress</span>
+                                    </div>
                                 </Button>
+                            </div>
+                        </Col>
+                        <Col xs={24} sm={12} md={6}>
+                            <div className="group">
                                 <Button
                                     block
                                     icon={<CalendarOutlined />}
-                                    style={{
-                                        borderRadius: '8px',
-                                        height: '40px',
-                                        textAlign: 'left',
-                                        background: isDark ? '#1a202c' : '#ffffff',
-                                        border: isDark ? '1px solid #4a5568' : '1px solid #d9d9d9',
-                                        color: isDark ? '#fff' : '#262626'
-                                    }}
+                                    className="h-16 bg-gradient-to-r from-sage-500 to-sage-600 hover:from-sage-600 hover:to-sage-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 rounded-xl text-white font-medium"
+                                    onClick={() => navigate('/schedule')}
                                 >
-                                    Schedule Study Time
+                                    <div className="flex flex-col items-center gap-1">
+                                        <span className="text-lg">Schedule</span>
+                                        <span className="text-xs opacity-90">Plan your learning</span>
+                                    </div>
                                 </Button>
-                            </Space>
-                        </Card>
-                    </Space>
-                </Col>
-            </Row>
+                            </div>
+                        </Col>
+                        <Col xs={24} sm={12} md={6}>
+                            <div className="group">
+                                <Button
+                                    block
+                                    icon={<StarOutlined />}
+                                    className="h-16 bg-gradient-to-r from-mustard-500 to-mustard-600 hover:from-mustard-600 hover:to-mustard-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 rounded-xl text-charcoal-500 font-medium"
+                                    onClick={() => navigate('/certificates')}
+                                >
+                                    <div className="flex flex-col items-center gap-1">
+                                        <span className="text-lg">Certificates</span>
+                                        <span className="text-xs opacity-90">Download credentials</span>
+                                    </div>
+                                </Button>
+                            </div>
+                        </Col>
+                    </Row>
+                </Card>
+            </div>
         </div>
     );
 };

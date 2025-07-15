@@ -1,668 +1,532 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
-    Typography,
     Card,
-    Descriptions,
     Button,
-    Tabs,
-    Table,
+    Typography,
+    Row,
+    Col,
     Progress,
-    List,
-    Avatar,
     Tag,
-    Space,
-    Badge,
-    Divider,
-    message,
-    Modal,
-    Form,
+    Rate,
+    Avatar,
+    Tabs,
+    List,
     Input,
-    DatePicker,
-    TimePicker,
-    Select
+    Space,
+    Divider,
+    Tooltip,
+    Badge
 } from 'antd';
 import {
-    EditOutlined,
-    UserOutlined,
-    CalendarOutlined,
-    ClockCircleOutlined,
+    PlayCircleOutlined,
     BookOutlined,
-    BarChartOutlined,
-    TeamOutlined,
-    FileTextOutlined,
-    PlusOutlined,
-    DeleteOutlined
+    ClockCircleOutlined,
+    UserOutlined,
+    StarOutlined,
+    DownloadOutlined,
+    ShareAltOutlined,
+    HeartOutlined,
+    MessageOutlined,
+    TrophyOutlined,
+    CheckCircleOutlined
 } from '@ant-design/icons';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
-const { Option } = Select;
 const { TextArea } = Input;
 
 const CourseDetail = () => {
     const { id } = useParams();
-    const [course, setCourse] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('1');
-    const [isSessionModalVisible, setIsSessionModalVisible] = useState(false);
-    const [isResourceModalVisible, setIsResourceModalVisible] = useState(false);
-    const [sessionForm] = Form.useForm();
-    const [resourceForm] = Form.useForm();
+    const [isEnrolled, setIsEnrolled] = useState(false);
+    const [progress, setProgress] = useState(0);
 
-    // Sample course data - in a real app, you would fetch this from your API
-    useEffect(() => {
-        // Simulate API call
-        setTimeout(() => {
-            setCourse({
-                id: 1,
-                title: 'Advanced React Patterns',
-                description: 'Master advanced React patterns including hooks, context, render props, and more. This course will take your React skills to the next level with practical examples and real-world applications.',
-                category: 'Web Development',
-                level: 'Advanced',
-                trainer: {
-                    id: 1,
-                    name: 'John Smith',
-                    email: 'john.smith@example.com',
-                    avatar: null
-                },
-                duration: '12 hours',
-                startDate: '2025-07-15',
-                endDate: '2025-07-18',
-                enrolledStudents: 18,
-                maxStudents: 25,
-                status: 'Active',
-                price: '$299',
-                location: 'Online',
-                sessions: [
-                    {
-                        id: 1,
-                        title: 'Introduction to Advanced Patterns',
-                        date: '2025-07-15',
-                        time: '10:00 AM - 12:00 PM',
-                        topics: ['Course Overview', 'Review of React Fundamentals', 'Introduction to Advanced Patterns'],
-                        materials: ['Slides', 'Code Examples'],
-                        attendance: 18
-                    },
-                    {
-                        id: 2,
-                        title: 'Render Props & HOCs',
-                        date: '2025-07-16',
-                        time: '10:00 AM - 12:00 PM',
-                        topics: ['Render Props Pattern', 'Higher Order Components', 'Comparing Approaches'],
-                        materials: ['Slides', 'Code Examples', 'Practice Exercises'],
-                        attendance: 16
-                    },
-                    {
-                        id: 3,
-                        title: 'Hooks & Custom Hooks',
-                        date: '2025-07-17',
-                        time: '10:00 AM - 12:00 PM',
-                        topics: ['Built-in Hooks', 'Creating Custom Hooks', 'Hook Dependencies'],
-                        materials: ['Slides', 'Code Examples', 'Practice Exercises'],
-                        attendance: 17
-                    },
-                    {
-                        id: 4,
-                        title: 'Context & State Management',
-                        date: '2025-07-18',
-                        time: '10:00 AM - 12:00 PM',
-                        topics: ['React Context API', 'State Management Patterns', 'Performance Considerations'],
-                        materials: ['Slides', 'Code Examples', 'Final Project'],
-                        attendance: 0
-                    }
-                ],
-                students: [
-                    {
-                        id: 1,
-                        name: 'Emily Johnson',
-                        email: 'emily.johnson@example.com',
-                        progress: 75,
-                        attendance: 3,
-                        totalSessions: 4
-                    },
-                    {
-                        id: 2,
-                        name: 'Michael Smith',
-                        email: 'michael.smith@example.com',
-                        progress: 60,
-                        attendance: 2,
-                        totalSessions: 4
-                    },
-                    {
-                        id: 3,
-                        name: 'Sophia Martinez',
-                        email: 'sophia.martinez@example.com',
-                        progress: 90,
-                        attendance: 3,
-                        totalSessions: 4
-                    }
-                ],
-                resources: [
-                    {
-                        id: 1,
-                        title: 'Course Slides',
-                        type: 'PDF',
-                        url: '#',
-                        uploadDate: '2025-07-01'
-                    },
-                    {
-                        id: 2,
-                        title: 'Code Repository',
-                        type: 'GitHub',
-                        url: '#',
-                        uploadDate: '2025-07-01'
-                    },
-                    {
-                        id: 3,
-                        title: 'Recommended Reading',
-                        type: 'Document',
-                        url: '#',
-                        uploadDate: '2025-07-02'
-                    }
-                ]
-            });
-            setLoading(false);
-        }, 500);
-    }, [id]);
-
-    const handleTabChange = (key) => {
-        setActiveTab(key);
+    // Sample course data with new color scheme
+    const courseData = {
+        id: 1,
+        title: 'Advanced React Development',
+        description: 'Master advanced React patterns, hooks, context, performance optimization, and modern development practices.',
+        fullDescription: 'This comprehensive course covers advanced React concepts including custom hooks, context patterns, performance optimization, testing strategies, and modern development workflows. You\'ll build real-world projects and learn industry best practices.',
+        instructor: {
+            name: 'Sarah Johnson',
+            title: 'Senior Frontend Developer',
+            company: 'Tech Corp',
+            avatar: '👩‍💻',
+            bio: 'Sarah has 8+ years of experience in frontend development and has worked with companies like Google and Facebook.',
+            rating: 4.9,
+            students: 15420,
+            courses: 12
+        },
+        thumbnail: '⚛️',
+        category: 'Web Development',
+        level: 'Advanced',
+        duration: '12 hours',
+        lessons: 45,
+        students: 2847,
+        rating: 4.8,
+        reviews: 542,
+        price: 149,
+        originalPrice: 199,
+        language: 'English',
+        lastUpdated: '2024-01-15',
+        requirements: [
+            'Solid understanding of JavaScript ES6+',
+            'Basic React knowledge (components, props, state)',
+            'Familiarity with modern development tools',
+            'Basic understanding of HTML/CSS'
+        ],
+        whatYouLearn: [
+            'Advanced React patterns and best practices',
+            'Custom hooks and context management',
+            'Performance optimization techniques',
+            'Testing React applications',
+            'Modern development workflows',
+            'Real-world project implementation'
+        ],
+        curriculum: [
+            {
+                title: 'Introduction & Setup',
+                lessons: 5,
+                duration: '45 min',
+                topics: ['Course Overview', 'Development Environment', 'Project Structure']
+            },
+            {
+                title: 'Advanced Hooks',
+                lessons: 8,
+                duration: '2 hours',
+                topics: ['Custom Hooks', 'useCallback & useMemo', 'useReducer Patterns']
+            },
+            {
+                title: 'Context & State Management',
+                lessons: 10,
+                duration: '2.5 hours',
+                topics: ['Context Patterns', 'State Management', 'Performance Optimization']
+            },
+            {
+                title: 'Testing Strategies',
+                lessons: 12,
+                duration: '3 hours',
+                topics: ['Unit Testing', 'Integration Testing', 'E2E Testing']
+            },
+            {
+                title: 'Real-World Projects',
+                lessons: 10,
+                duration: '4 hours',
+                topics: ['Project Planning', 'Implementation', 'Deployment']
+            }
+        ]
     };
 
-    const showSessionModal = () => {
-        setIsSessionModalVisible(true);
-    };
-
-    const handleSessionCancel = () => {
-        setIsSessionModalVisible(false);
-        sessionForm.resetFields();
-    };
-
-    const handleSessionOk = () => {
-        sessionForm.submit();
-    };
-
-    const onSessionFinish = (values) => {
-        const newSession = {
-            id: course.sessions.length + 1,
-            title: values.title,
-            date: values.date.format('YYYY-MM-DD'),
-            time: `${values.startTime.format('h:mm A')} - ${values.endTime.format('h:mm A')}`,
-            topics: values.topics.split(',').map(topic => topic.trim()),
-            materials: [],
-            attendance: 0
-        };
-
-        setCourse({
-            ...course,
-            sessions: [...course.sessions, newSession]
-        });
-
-        setIsSessionModalVisible(false);
-        sessionForm.resetFields();
-        message.success('Session added successfully!');
-    };
-
-    const showResourceModal = () => {
-        setIsResourceModalVisible(true);
-    };
-
-    const handleResourceCancel = () => {
-        setIsResourceModalVisible(false);
-        resourceForm.resetFields();
-    };
-
-    const handleResourceOk = () => {
-        resourceForm.submit();
-    };
-
-    const onResourceFinish = (values) => {
-        const newResource = {
-            id: course.resources.length + 1,
-            title: values.title,
-            type: values.type,
-            url: values.url,
-            uploadDate: new Date().toISOString().split('T')[0]
-        };
-
-        setCourse({
-            ...course,
-            resources: [...course.resources, newResource]
-        });
-
-        setIsResourceModalVisible(false);
-        resourceForm.resetFields();
-        message.success('Resource added successfully!');
-    };
-
-    const sessionsColumns = [
+    const reviews = [
         {
-            title: 'Session',
-            dataIndex: 'title',
-            key: 'title',
+            id: 1,
+            user: 'Alex Thompson',
+            avatar: '👨‍💻',
+            rating: 5,
+            date: '2024-01-10',
+            comment: 'Excellent course! Sarah explains complex concepts very clearly and the projects are very practical.',
+            helpful: 24
         },
         {
-            title: 'Date',
-            dataIndex: 'date',
-            key: 'date',
+            id: 2,
+            user: 'Maria Garcia',
+            avatar: '👩‍🎨',
+            rating: 5,
+            date: '2024-01-05',
+            comment: 'The advanced hooks section was particularly valuable. Great real-world examples.',
+            helpful: 18
         },
         {
-            title: 'Time',
-            dataIndex: 'time',
-            key: 'time',
-        },
-        {
-            title: 'Topics',
-            dataIndex: 'topics',
-            key: 'topics',
-            render: (topics) => (
-                <>
-                    {topics.map((topic, index) => (
-                        <Tag color="blue" key={index}>
-                            {topic}
-                        </Tag>
-                    ))}
-                </>
-            ),
-        },
-        {
-            title: 'Attendance',
-            key: 'attendance',
-            render: (_, record) => (
-                <Badge
-                    count={`${record.attendance}/${course.enrolledStudents}`}
-                    style={{
-                        backgroundColor: record.attendance > 0 ? '#52c41a' : '#d9d9d9',
-                        color: 'white'
-                    }}
-                />
-            ),
-        },
-        {
-            title: 'Actions',
-            key: 'actions',
-            render: (_, record) => (
-                <Space size="small">
-                    <Button
-                        type="default"
-                        icon={<EditOutlined />}
-                        size="small"
-                        onClick={() => console.log('Edit session', record.id)}
-                    />
-                    <Button
-                        danger
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => console.log('Delete session', record.id)}
-                    />
-                </Space>
-            ),
-        },
+            id: 3,
+            user: 'David Kim',
+            avatar: '👨‍🔬',
+            rating: 4,
+            date: '2023-12-28',
+            comment: 'Very comprehensive course. The testing section could be a bit more detailed but overall great content.',
+            helpful: 12
+        }
     ];
 
-    const studentsColumns = [
-        {
-            title: 'Student',
-            key: 'student',
-            render: (_, record) => (
-                <Space>
-                    <Avatar icon={<UserOutlined />} />
-                    <span>{record.name}</span>
-                </Space>
-            ),
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-        },
-        {
-            title: 'Progress',
-            key: 'progress',
-            render: (_, record) => (
-                <Progress percent={record.progress} size="small" />
-            ),
-        },
-        {
-            title: 'Attendance',
-            key: 'attendance',
-            render: (_, record) => (
-                <span>{record.attendance}/{record.totalSessions} sessions</span>
-            ),
-        },
-        {
-            title: 'Actions',
-            key: 'actions',
-            render: (_, record) => (
-                <Button
-                    type="default"
-                    size="small"
-                    onClick={() => console.log('View student', record.id)}
-                >
-                    View Details
-                </Button>
-            ),
-        },
-    ];
-
-    if (loading) {
-        return <div className="text-center py-10">Loading course details...</div>;
-    }
-
-    if (!course) {
-        return <div className="text-center py-10">Course not found</div>;
-    }
+    const handleEnroll = () => {
+        setIsEnrolled(true);
+        setProgress(0);
+        // Simulate enrollment API call
+    };
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-4">
-                <div>
-                    <Title level={2}>{course.title}</Title>
-                    <Space className="mb-2">
-                        <Tag color="blue">{course.category}</Tag>
-                        <Tag color="purple">{course.level}</Tag>
-                        <Tag color={course.status === 'Active' ? 'green' : 'orange'}>{course.status}</Tag>
-                    </Space>
-                </div>
-                <Button type="primary" icon={<EditOutlined />}>
-                    Edit Course
-                </Button>
-            </div>
+        <div className="min-h-screen bg-cream-100 dark:bg-charcoal-500 transition-colors duration-300">
+            <div className="max-w-7xl mx-auto p-6 space-y-6">
 
-            <Card className="mb-6">
-                <Descriptions
-                    bordered
-                    column={{ xxl: 4, xl: 3, lg: 3, md: 2, sm: 1, xs: 1 }}
-                >
-                    <Descriptions.Item label="Trainer">{course.trainer.name}</Descriptions.Item>
-                    <Descriptions.Item label="Duration">{course.duration}</Descriptions.Item>
-                    <Descriptions.Item label="Dates">{course.startDate} to {course.endDate}</Descriptions.Item>
-                    <Descriptions.Item label="Location">{course.location}</Descriptions.Item>
-                    <Descriptions.Item label="Enrollment">{course.enrolledStudents}/{course.maxStudents} students</Descriptions.Item>
-                    <Descriptions.Item label="Price">{course.price}</Descriptions.Item>
-                </Descriptions>
+                {/* Header Section */}
+                <Card className="bg-gradient-to-r from-terracotta-500 to-sage-500 border-0 text-white">
+                    <Row gutter={[32, 32]} align="middle">
+                        <Col xs={24} lg={16}>
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-6xl">{courseData.thumbnail}</div>
+                                    <div>
+                                        <Tag className="bg-white/20 text-white border-0 mb-2">
+                                            {courseData.category}
+                                        </Tag>
+                                        <Title level={1} className="text-white mb-2">
+                                            {courseData.title}
+                                        </Title>
+                                        <Text className="text-white/90 text-lg">
+                                            {courseData.description}
+                                        </Text>
+                                    </div>
+                                </div>
 
-                <Divider />
+                                <div className="flex flex-wrap items-center gap-6 text-white/90">
+                                    <div className="flex items-center gap-2">
+                                        <StarOutlined />
+                                        <span>{courseData.rating} ({courseData.reviews} reviews)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <UserOutlined />
+                                        <span>{courseData.students.toLocaleString()} students</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <ClockCircleOutlined />
+                                        <span>{courseData.duration}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <BookOutlined />
+                                        <span>{courseData.lessons} lessons</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </Col>
 
-                <Title level={4}>Course Description</Title>
-                <Paragraph>{course.description}</Paragraph>
-            </Card>
+                        <Col xs={24} lg={8}>
+                            <Card className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700">
+                                <div className="space-y-4">
+                                    <div className="text-center">
+                                        <div className="flex items-center justify-center gap-2 mb-2">
+                                            <Text className="text-2xl line-through text-warm-500">
+                                                ${courseData.originalPrice}
+                                            </Text>
+                                            <Title level={2} className="text-terracotta-500 mb-0">
+                                                ${courseData.price}
+                                            </Title>
+                                        </div>
+                                        <Text className="text-olive-500 font-medium">
+                                            25% OFF - Limited Time
+                                        </Text>
+                                    </div>
 
-            <Tabs activeKey={activeTab} onChange={handleTabChange} className="mb-6">
-                <TabPane
-                    tab={
-                        <span>
-                            <CalendarOutlined />
-                            Sessions
-                        </span>
-                    }
-                    key="1"
-                >
-                    <div className="flex justify-between items-center mb-4">
-                        <Title level={4}>Course Sessions</Title>
-                        <Button
-                            type="primary"
-                            icon={<PlusOutlined />}
-                            onClick={showSessionModal}
-                        >
-                            Add Session
-                        </Button>
-                    </div>
+                                    {isEnrolled ? (
+                                        <div className="space-y-3">
+                                            <div className="text-center">
+                                                <CheckCircleOutlined className="text-olive-500 text-2xl mb-2" />
+                                                <Text className="text-olive-500 font-medium block">
+                                                    You're enrolled!
+                                                </Text>
+                                            </div>
+                                            <Progress
+                                                percent={progress}
+                                                strokeColor="#E76F51"
+                                                trailColor="#F1EFED"
+                                            />
+                                            <Button
+                                                type="primary"
+                                                block
+                                                size="large"
+                                                icon={<PlayCircleOutlined />}
+                                                className="bg-terracotta-500 hover:bg-terracotta-600 border-terracotta-500"
+                                            >
+                                                Continue Learning
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <Button
+                                            type="primary"
+                                            block
+                                            size="large"
+                                            icon={<BookOutlined />}
+                                            className="bg-terracotta-500 hover:bg-terracotta-600 border-terracotta-500"
+                                            onClick={handleEnroll}
+                                        >
+                                            Enroll Now
+                                        </Button>
+                                    )}
 
-                    <Table
-                        columns={sessionsColumns}
-                        dataSource={course.sessions}
-                        rowKey="id"
-                        pagination={false}
-                    />
-                </TabPane>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            block
+                                            icon={<HeartOutlined />}
+                                            className="text-sage-500 border-sage-500 hover:bg-sage-50 dark:hover:bg-sage-900"
+                                        >
+                                            Wishlist
+                                        </Button>
+                                        <Button
+                                            block
+                                            icon={<ShareAltOutlined />}
+                                            className="text-mustard-500 border-mustard-500 hover:bg-mustard-50 dark:hover:bg-mustard-900"
+                                        >
+                                            Share
+                                        </Button>
+                                    </div>
 
-                <TabPane
-                    tab={
-                        <span>
-                            <TeamOutlined />
-                            Students
-                        </span>
-                    }
-                    key="2"
-                >
-                    <div className="flex justify-between items-center mb-4">
-                        <Title level={4}>Enrolled Students ({course.students.length})</Title>
-                        <Button type="primary" icon={<PlusOutlined />}>
-                            Add Student
-                        </Button>
-                    </div>
+                                    <Divider className="border-warm-200 dark:border-warm-700" />
 
-                    <Table
-                        columns={studentsColumns}
-                        dataSource={course.students}
-                        rowKey="id"
-                        pagination={false}
-                    />
-                </TabPane>
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <Text className="text-warm-500 dark:text-warm-300">Language:</Text>
+                                            <Text className="text-charcoal-500 dark:text-cream-100">{courseData.language}</Text>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <Text className="text-warm-500 dark:text-warm-300">Level:</Text>
+                                            <Tag className="bg-rust-100 dark:bg-rust-900 text-rust-700 dark:text-rust-300 border-0">
+                                                {courseData.level}
+                                            </Tag>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <Text className="text-warm-500 dark:text-warm-300">Last Updated:</Text>
+                                            <Text className="text-charcoal-500 dark:text-cream-100">{courseData.lastUpdated}</Text>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Card>
 
-                <TabPane
-                    tab={
-                        <span>
-                            <FileTextOutlined />
-                            Resources
-                        </span>
-                    }
-                    key="3"
-                >
-                    <div className="flex justify-between items-center mb-4">
-                        <Title level={4}>Course Resources</Title>
-                        <Button
-                            type="primary"
-                            icon={<PlusOutlined />}
-                            onClick={showResourceModal}
-                        >
-                            Add Resource
-                        </Button>
-                    </div>
+                {/* Course Content */}
+                <Row gutter={[24, 24]}>
+                    <Col xs={24} lg={16}>
+                        <Card className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700">
+                            <Tabs defaultActiveKey="1" className="custom-tabs">
+                                <TabPane tab="Overview" key="1">
+                                    <div className="space-y-6">
+                                        <div>
+                                            <Title level={3} className="text-charcoal-500 dark:text-cream-100">
+                                                About This Course
+                                            </Title>
+                                            <Paragraph className="text-warm-600 dark:text-warm-300 text-base leading-relaxed">
+                                                {courseData.fullDescription}
+                                            </Paragraph>
+                                        </div>
 
-                    <List
-                        itemLayout="horizontal"
-                        dataSource={course.resources}
-                        renderItem={item => (
-                            <List.Item
-                                actions={[
-                                    <Button type="link" key="download">Download</Button>,
-                                    <Button type="link" key="edit">Edit</Button>,
-                                    <Button type="link" danger key="delete">Delete</Button>
-                                ]}
-                            >
-                                <List.Item.Meta
-                                    avatar={
-                                        <Avatar
-                                            icon={<FileTextOutlined />}
-                                            style={{ backgroundColor: '#1677ff' }}
+                                        <div>
+                                            <Title level={4} className="text-charcoal-500 dark:text-cream-100 mb-3">
+                                                What You'll Learn
+                                            </Title>
+                                            <Row gutter={[16, 16]}>
+                                                {courseData.whatYouLearn.map((item, index) => (
+                                                    <Col key={index} xs={24} sm={12}>
+                                                        <div className="flex items-start gap-2">
+                                                            <CheckCircleOutlined className="text-olive-500 mt-1" />
+                                                            <Text className="text-warm-600 dark:text-warm-300">{item}</Text>
+                                                        </div>
+                                                    </Col>
+                                                ))}
+                                            </Row>
+                                        </div>
+
+                                        <div>
+                                            <Title level={4} className="text-charcoal-500 dark:text-cream-100 mb-3">
+                                                Requirements
+                                            </Title>
+                                            <ul className="space-y-2">
+                                                {courseData.requirements.map((req, index) => (
+                                                    <li key={index} className="text-warm-600 dark:text-warm-300">
+                                                        • {req}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </TabPane>
+
+                                <TabPane tab="Curriculum" key="2">
+                                    <div className="space-y-4">
+                                        {courseData.curriculum.map((section, index) => (
+                                            <Card
+                                                key={index}
+                                                className="bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600"
+                                            >
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-0">
+                                                        {section.title}
+                                                    </Title>
+                                                    <div className="flex gap-4 text-sm text-warm-500 dark:text-warm-300">
+                                                        <span>{section.lessons} lessons</span>
+                                                        <span>{section.duration}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    {section.topics.map((topic, topicIndex) => (
+                                                        <div key={topicIndex} className="flex items-center gap-2">
+                                                            <PlayCircleOutlined className="text-sage-500 text-sm" />
+                                                            <Text className="text-warm-600 dark:text-warm-300">{topic}</Text>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                </TabPane>
+
+                                <TabPane tab="Reviews" key="3">
+                                    <div className="space-y-6">
+                                        <div className="flex items-center gap-6">
+                                            <div className="text-center">
+                                                <Title level={2} className="text-terracotta-500 mb-0">
+                                                    {courseData.rating}
+                                                </Title>
+                                                <Rate disabled value={courseData.rating} allowHalf />
+                                                <Text className="text-warm-500 dark:text-warm-300 block">
+                                                    {courseData.reviews} reviews
+                                                </Text>
+                                            </div>
+                                        </div>
+
+                                        <Divider className="border-warm-200 dark:border-warm-700" />
+
+                                        <List
+                                            dataSource={reviews}
+                                            renderItem={(review) => (
+                                                <Card className="mb-4 bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600">
+                                                    <div className="flex justify-between items-start mb-3">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="text-2xl">{review.avatar}</div>
+                                                            <div>
+                                                                <Text className="text-charcoal-500 dark:text-cream-100 font-medium">
+                                                                    {review.user}
+                                                                </Text>
+                                                                <div className="flex items-center gap-2">
+                                                                    <Rate disabled value={review.rating} className="text-sm" />
+                                                                    <Text className="text-warm-500 dark:text-warm-300 text-sm">
+                                                                        {review.date}
+                                                                    </Text>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <Paragraph className="text-warm-600 dark:text-warm-300 mb-3">
+                                                        {review.comment}
+                                                    </Paragraph>
+                                                    <div className="flex items-center gap-4">
+                                                        <Button
+                                                            type="text"
+                                                            size="small"
+                                                            className="text-sage-500 hover:text-sage-600"
+                                                        >
+                                                            👍 Helpful ({review.helpful})
+                                                        </Button>
+                                                        <Button
+                                                            type="text"
+                                                            size="small"
+                                                            className="text-warm-500 hover:text-warm-600"
+                                                        >
+                                                            Reply
+                                                        </Button>
+                                                    </div>
+                                                </Card>
+                                            )}
                                         />
-                                    }
-                                    title={<a href={item.url}>{item.title}</a>}
-                                    description={
-                                        <Space>
-                                            <Tag color="blue">{item.type}</Tag>
-                                            <Text type="secondary">Uploaded: {item.uploadDate}</Text>
-                                        </Space>
-                                    }
-                                />
-                            </List.Item>
-                        )}
-                    />
-                </TabPane>
+                                    </div>
+                                </TabPane>
+                            </Tabs>
+                        </Card>
+                    </Col>
 
-                <TabPane
-                    tab={
-                        <span>
-                            <BarChartOutlined />
-                            Progress
-                        </span>
-                    }
-                    key="4"
-                >
-                    <Card title="Course Completion">
-                        <div className="flex justify-between mb-4">
-                            <Text>Overall Course Progress</Text>
-                            <Text strong>75%</Text>
-                        </div>
-                        <Progress percent={75} status="active" />
-
-                        <Divider />
-
-                        <Title level={5} className="mb-4">Student Progress</Title>
-
-                        {course.students.map(student => (
-                            <div key={student.id} className="mb-4">
-                                <div className="flex justify-between mb-1">
-                                    <Space>
-                                        <Avatar size="small" icon={<UserOutlined />} />
-                                        <Text>{student.name}</Text>
-                                    </Space>
-                                    <Text>{student.progress}%</Text>
+                    <Col xs={24} lg={8}>
+                        {/* Instructor Info */}
+                        <Card
+                            title={<Title level={4} className="text-charcoal-500 dark:text-cream-100 mb-0">Instructor</Title>}
+                            className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700 mb-6"
+                        >
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-3xl">{courseData.instructor.avatar}</div>
+                                    <div>
+                                        <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-0">
+                                            {courseData.instructor.name}
+                                        </Title>
+                                        <Text className="text-warm-500 dark:text-warm-300">
+                                            {courseData.instructor.title}
+                                        </Text>
+                                        <br />
+                                        <Text className="text-sage-500">
+                                            {courseData.instructor.company}
+                                        </Text>
+                                    </div>
                                 </div>
-                                <Progress percent={student.progress} size="small" />
-                            </div>
-                        ))}
 
-                        <Divider />
-
-                        <Title level={5} className="mb-4">Session Attendance</Title>
-
-                        {course.sessions.map(session => (
-                            <div key={session.id} className="mb-4">
-                                <div className="flex justify-between mb-1">
-                                    <Text>{session.title} ({session.date})</Text>
-                                    <Text>{session.attendance}/{course.enrolledStudents} students</Text>
+                                <div className="grid grid-cols-3 gap-4 text-center">
+                                    <div>
+                                        <Title level={5} className="text-terracotta-500 mb-0">
+                                            {courseData.instructor.rating}
+                                        </Title>
+                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">Rating</Text>
+                                    </div>
+                                    <div>
+                                        <Title level={5} className="text-sage-500 mb-0">
+                                            {courseData.instructor.students.toLocaleString()}
+                                        </Title>
+                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">Students</Text>
+                                    </div>
+                                    <div>
+                                        <Title level={5} className="text-mustard-500 mb-0">
+                                            {courseData.instructor.courses}
+                                        </Title>
+                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">Courses</Text>
+                                    </div>
                                 </div>
-                                <Progress
-                                    percent={Math.round((session.attendance / course.enrolledStudents) * 100)}
-                                    size="small"
-                                    status={session.date > new Date().toISOString().split('T')[0] ? 'normal' : 'active'}
-                                />
+
+                                <Text className="text-warm-600 dark:text-warm-300 block">
+                                    {courseData.instructor.bio}
+                                </Text>
+
+                                <Button
+                                    block
+                                    className="text-sage-500 border-sage-500 hover:bg-sage-50 dark:hover:bg-sage-900"
+                                >
+                                    View Profile
+                                </Button>
                             </div>
-                        ))}
-                    </Card>
-                </TabPane>
-            </Tabs>
+                        </Card>
 
-            <Modal
-                title="Add New Session"
-                open={isSessionModalVisible}
-                onOk={handleSessionOk}
-                onCancel={handleSessionCancel}
-                width={600}
-            >
-                <Form
-                    form={sessionForm}
-                    layout="vertical"
-                    onFinish={onSessionFinish}
-                >
-                    <Form.Item
-                        name="title"
-                        label="Session Title"
-                        rules={[{ required: true, message: 'Please enter session title' }]}
-                    >
-                        <Input placeholder="Enter session title" />
-                    </Form.Item>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Form.Item
-                            name="date"
-                            label="Date"
-                            rules={[{ required: true, message: 'Please select date' }]}
+                        {/* Related Courses */}
+                        <Card
+                            title={<Title level={4} className="text-charcoal-500 dark:text-cream-100 mb-0">Related Courses</Title>}
+                            className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700"
                         >
-                            <DatePicker style={{ width: '100%' }} />
-                        </Form.Item>
-
-                        <div className="grid grid-cols-2 gap-2">
-                            <Form.Item
-                                name="startTime"
-                                label="Start Time"
-                                rules={[{ required: true, message: 'Required' }]}
-                            >
-                                <TimePicker format="h:mm A" style={{ width: '100%' }} />
-                            </Form.Item>
-
-                            <Form.Item
-                                name="endTime"
-                                label="End Time"
-                                rules={[{ required: true, message: 'Required' }]}
-                            >
-                                <TimePicker format="h:mm A" style={{ width: '100%' }} />
-                            </Form.Item>
-                        </div>
-                    </div>
-
-                    <Form.Item
-                        name="topics"
-                        label="Topics (comma-separated)"
-                        rules={[{ required: true, message: 'Please enter session topics' }]}
-                    >
-                        <TextArea
-                            placeholder="Enter topics covered in this session, separated by commas"
-                            rows={3}
-                        />
-                    </Form.Item>
-                </Form>
-            </Modal>
-
-            <Modal
-                title="Add New Resource"
-                open={isResourceModalVisible}
-                onOk={handleResourceOk}
-                onCancel={handleResourceCancel}
-                width={600}
-            >
-                <Form
-                    form={resourceForm}
-                    layout="vertical"
-                    onFinish={onResourceFinish}
-                >
-                    <Form.Item
-                        name="title"
-                        label="Resource Title"
-                        rules={[{ required: true, message: 'Please enter resource title' }]}
-                    >
-                        <Input placeholder="Enter resource title" />
-                    </Form.Item>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Form.Item
-                            name="type"
-                            label="Resource Type"
-                            rules={[{ required: true, message: 'Please select resource type' }]}
-                        >
-                            <Select placeholder="Select resource type">
-                                <Option value="PDF">PDF</Option>
-                                <Option value="Document">Document</Option>
-                                <Option value="Video">Video</Option>
-                                <Option value="GitHub">GitHub Repository</Option>
-                                <Option value="Link">External Link</Option>
-                            </Select>
-                        </Form.Item>
-
-                        <Form.Item
-                            name="url"
-                            label="Resource URL"
-                            rules={[{ required: true, message: 'Please enter resource URL' }]}
-                        >
-                            <Input placeholder="Enter URL or file path" />
-                        </Form.Item>
-                    </div>
-
-                    <Form.Item
-                        name="description"
-                        label="Description"
-                    >
-                        <TextArea
-                            placeholder="Enter optional description"
-                            rows={3}
-                        />
-                    </Form.Item>
-                </Form>
-            </Modal>
+                            <div className="space-y-4">
+                                {[1, 2, 3].map((item) => (
+                                    <Card
+                                        key={item}
+                                        className="bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600 cursor-pointer hover:shadow-md transition-shadow"
+                                        size="small"
+                                    >
+                                        <div className="flex gap-3">
+                                            <div className="text-2xl">🔥</div>
+                                            <div className="flex-1">
+                                                <Text className="text-charcoal-500 dark:text-cream-100 font-medium block">
+                                                    React Testing Library
+                                                </Text>
+                                                <Text className="text-warm-500 dark:text-warm-300 text-sm">
+                                                    by John Doe
+                                                </Text>
+                                                <div className="flex items-center justify-between mt-2">
+                                                    <Rate disabled value={4.7} className="text-xs" />
+                                                    <Text className="text-mustard-600 dark:text-mustard-400 font-medium">
+                                                        $89
+                                                    </Text>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        </Card>
+                    </Col>
+                </Row>
+            </div>
         </div>
     );
 };

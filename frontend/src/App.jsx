@@ -14,6 +14,8 @@ import Students from './pages/Students';
 import Trainers from './pages/Trainers';
 import CourseDetail from './pages/CourseDetail';
 import Settings from './pages/Settings';
+import BecomeTrainer from './pages/BecomeTrainer';
+import TrainerApplications from './pages/TrainerApplications';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -25,7 +27,7 @@ function App() {
                 <ConfigProvider
                     theme={{
                         token: {
-                            colorPrimary: '#0BC5EA',
+                            colorPrimary: '#E76F51',
                             borderRadius: 8,
                             fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
                         }
@@ -37,6 +39,7 @@ function App() {
                             <Route path="/" element={<LandingPage />} />
                             <Route path="/login" element={<Login />} />
                             <Route path="/register" element={<Register />} />
+                            <Route path="/become-trainer" element={<BecomeTrainer />} />
 
                             {/* Protected routes */}                            <Route element={<ProtectedRoute />}>
                                 <Route path="/dashboard" element={<MainLayout />}>
@@ -45,6 +48,7 @@ function App() {
                                     <Route path="courses/:id" element={<CourseDetail />} />
                                     <Route path="students" element={<Students />} />
                                     <Route path="trainers" element={<Trainers />} />
+                                    <Route path="trainer-applications" element={<TrainerApplications />} />
                                     <Route path="profile" element={<ProfilePage />} />
                                     <Route path="settings" element={<Settings />} />
                                 </Route>

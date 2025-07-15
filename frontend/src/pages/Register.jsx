@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Form, Input, Button, Card, Typography, Divider, Select, Checkbox } from 'antd';
+import { Form, Input, Button, Card, Typography, Divider, Select, Checkbox, Alert } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, GoogleOutlined, GithubOutlined, TeamOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -46,37 +46,35 @@ const Register = () => {
     };
 
     return (
-        <div className="auth-container">
-            <Card className="auth-card fade-in" style={{ maxWidth: '420px' }}>
+        <div className="min-h-screen bg-cream-100 dark:bg-charcoal-500 flex items-center justify-center p-6 transition-colors duration-300">
+            <Card className="w-full max-w-md bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
                 {/* Logo and Header */}
-                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                <div className="text-center mb-8">
                     <Logo
                         to="/"
                         size="xlarge"
-                        className="auth-logo"
+                        className="inline-flex items-center px-4 py-2 bg-terracotta-500 hover:bg-terracotta-600 rounded-xl text-white transition-all duration-200"
                         showText={false}
                     />
                     <Title
                         level={3}
-                        style={{
-                            margin: '16px 0 8px 0',
-                            color: 'var(--text-primary)',
-                            fontSize: '24px',
-                            fontWeight: '600'
-                        }}
+                        className="mt-4 mb-2 text-charcoal-500 dark:text-cream-100 text-2xl font-semibold"
                     >
                         Create your account
                     </Title>
-                    <Text style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                    <Text className="text-warm-500 dark:text-warm-300 text-sm">
                         Join thousands of learners today
                     </Text>
                 </div>
 
                 {/* Error Message */}
                 {error && (
-                    <div className="alert-error">
-                        {error}
-                    </div>
+                    <Alert
+                        message={error}
+                        type="error"
+                        className="mb-4 bg-rust-50 dark:bg-rust-900 border-rust-200 dark:border-rust-700"
+                        showIcon
+                    />
                 )}
 
                 {/* Register Form */}
@@ -85,6 +83,7 @@ const Register = () => {
                     onFinish={onFinish}
                     layout="vertical"
                     size="large"
+                    className="space-y-4"
                 >
                     <Form.Item
                         name="name"
@@ -94,17 +93,9 @@ const Register = () => {
                         ]}
                     >
                         <Input
-                            prefix={<UserOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            prefix={<UserOutlined className="text-sage-500" />}
                             placeholder="Full name"
-                            className="theme-input"
-                            style={{
-                                height: '44px',
-                                borderRadius: '8px',
-                                fontSize: '15px',
-                                backgroundColor: 'var(--bg-secondary)',
-                                borderColor: 'var(--border-color)',
-                                color: 'var(--text-primary)'
-                            }}
+                            className="h-11 rounded-lg text-base bg-white dark:bg-warm-800 border-warm-200 dark:border-warm-600 focus:border-terracotta-500 dark:focus:border-terracotta-500 text-charcoal-500 dark:text-cream-100"
                         />
                     </Form.Item>
 
@@ -116,18 +107,24 @@ const Register = () => {
                         ]}
                     >
                         <Input
-                            prefix={<MailOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            prefix={<MailOutlined className="text-sage-500" />}
                             placeholder="Email address"
-                            className="theme-input"
-                            style={{
-                                height: '44px',
-                                borderRadius: '8px',
-                                fontSize: '15px',
-                                backgroundColor: 'var(--bg-secondary)',
-                                borderColor: 'var(--border-color)',
-                                color: 'var(--text-primary)'
-                            }}
+                            className="h-11 rounded-lg text-base bg-white dark:bg-warm-800 border-warm-200 dark:border-warm-600 focus:border-terracotta-500 dark:focus:border-terracotta-500 text-charcoal-500 dark:text-cream-100"
                         />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="role"
+                        rules={[{ required: true, message: 'Please select your role!' }]}
+                    >
+                        <Select
+                            placeholder="I want to..."
+                            className="h-11 text-base"
+                            suffixIcon={<TeamOutlined className="text-sage-500" />}
+                        >
+                            <Option value="student">Learn new skills (Student)</Option>
+                            <Option value="trainer">Teach others (Trainer)</Option>
+                        </Select>
                     </Form.Item>
 
                     <Form.Item
@@ -138,17 +135,10 @@ const Register = () => {
                         ]}
                     >
                         <Input.Password
-                            prefix={<LockOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            prefix={<LockOutlined className="text-sage-500" />}
                             placeholder="Password"
                             iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-                            style={{
-                                height: '44px',
-                                borderRadius: '8px',
-                                fontSize: '15px',
-                                backgroundColor: 'var(--bg-secondary)',
-                                borderColor: 'var(--border-color)',
-                                color: 'var(--text-primary)'
-                            }}
+                            className="h-11 rounded-lg text-base bg-white dark:bg-warm-800 border-warm-200 dark:border-warm-600 focus:border-terracotta-500 dark:focus:border-terracotta-500 text-charcoal-500 dark:text-cream-100"
                         />
                     </Form.Item>
 
@@ -162,56 +152,17 @@ const Register = () => {
                                     if (!value || getFieldValue('password') === value) {
                                         return Promise.resolve();
                                     }
-                                    return Promise.reject(new Error('Passwords do not match!'));
+                                    return Promise.reject(new Error('The passwords do not match!'));
                                 },
                             }),
                         ]}
                     >
                         <Input.Password
-                            prefix={<LockOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            prefix={<LockOutlined className="text-sage-500" />}
                             placeholder="Confirm password"
                             iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-                            style={{
-                                height: '44px',
-                                borderRadius: '8px',
-                                fontSize: '15px',
-                                backgroundColor: 'var(--bg-secondary)',
-                                borderColor: 'var(--border-color)',
-                                color: 'var(--text-primary)'
-                            }}
+                            className="h-11 rounded-lg text-base bg-white dark:bg-warm-800 border-warm-200 dark:border-warm-600 focus:border-terracotta-500 dark:focus:border-terracotta-500 text-charcoal-500 dark:text-cream-100"
                         />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="role"
-                        rules={[{ required: true, message: 'Please select your role!' }]}
-                    >
-                        <Select
-                            placeholder="Select your role"
-                            style={{
-                                height: '44px',
-                                fontSize: '15px'
-                            }}
-                        >
-                            <Option value="student">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <UserOutlined style={{ color: '#3B82F6' }} />
-                                    <span>Student</span>
-                                </div>
-                            </Option>
-                            <Option value="trainer">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <TeamOutlined style={{ color: '#10B981' }} />
-                                    <span>Trainer</span>
-                                </div>
-                            </Option>
-                            <Option value="coordinator">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <TeamOutlined style={{ color: '#ED8936' }} />
-                                    <span>Coordinator</span>
-                                </div>
-                            </Option>
-                        </Select>
                     </Form.Item>
 
                     <Form.Item
@@ -220,18 +171,17 @@ const Register = () => {
                         rules={[
                             {
                                 validator: (_, value) =>
-                                    value ? Promise.resolve() : Promise.reject(new Error('Please accept the terms and conditions')),
+                                    value ? Promise.resolve() : Promise.reject(new Error('Please accept the terms and conditions!')),
                             },
                         ]}
-                        style={{ marginBottom: '24px' }}
                     >
-                        <Checkbox style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+                        <Checkbox className="text-sm text-charcoal-500 dark:text-cream-100">
                             I agree to the{' '}
-                            <Link to="/terms" style={{ color: 'var(--accent-primary)' }}>
+                            <Link to="/terms" className="text-sage-500 hover:text-sage-600 dark:text-sage-400 dark:hover:text-sage-300 no-underline">
                                 Terms of Service
-                            </Link>{' '}
-                            and{' '}
-                            <Link to="/privacy" style={{ color: 'var(--accent-primary)' }}>
+                            </Link>
+                            {' '}and{' '}
+                            <Link to="/privacy" className="text-sage-500 hover:text-sage-600 dark:text-sage-400 dark:hover:text-sage-300 no-underline">
                                 Privacy Policy
                             </Link>
                         </Checkbox>
@@ -242,80 +192,40 @@ const Register = () => {
                             type="primary"
                             htmlType="submit"
                             loading={loading}
-                            className="btn-primary"
-                            style={{
-                                width: '100%',
-                                height: '44px',
-                                borderRadius: '8px',
-                                fontSize: '15px',
-                                fontWeight: '500',
-                                backgroundColor: 'var(--accent-primary)',
-                                borderColor: 'var(--accent-primary)'
-                            }}
+                            className="w-full h-11 bg-terracotta-500 hover:bg-terracotta-600 border-terracotta-500 hover:border-terracotta-600 rounded-lg text-base font-medium transition-all duration-200 hover:shadow-md"
                         >
                             Create Account
                         </Button>
                     </Form.Item>
                 </Form>
 
-                <Divider style={{
-                    margin: '20px 0',
-                    color: 'var(--text-secondary)',
-                    fontSize: '14px',
-                    borderColor: 'var(--border-color)'
-                }}>
-                    Or continue with
+                <Divider className="my-5 text-warm-500 dark:text-warm-300 text-sm border-warm-200 dark:border-warm-700">
+                    Or sign up with
                 </Divider>
 
-                {/* Social Registration */}
-                <div style={{
-                    display: 'flex',
-                    gap: '12px',
-                    marginBottom: '24px'
-                }}>
+                {/* Social Login */}
+                <div className="flex gap-3 mb-6">
                     <Button
                         icon={<GoogleOutlined />}
-                        className="btn-secondary"
-                        style={{
-                            flex: 1,
-                            height: '40px',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            backgroundColor: 'var(--bg-secondary)',
-                            borderColor: 'var(--border-color)',
-                            color: 'var(--text-primary)'
-                        }}
+                        className="flex-1 h-10 rounded-lg text-sm bg-white dark:bg-warm-800 border-warm-200 dark:border-warm-600 text-charcoal-500 dark:text-cream-100 hover:border-mustard-500 dark:hover:border-mustard-500 hover:text-mustard-600 dark:hover:text-mustard-400 transition-all duration-200"
                     >
                         Google
                     </Button>
                     <Button
                         icon={<GithubOutlined />}
-                        className="btn-secondary"
-                        style={{
-                            flex: 1,
-                            height: '40px',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            backgroundColor: 'var(--bg-secondary)',
-                            borderColor: 'var(--border-color)',
-                            color: 'var(--text-primary)'
-                        }}
+                        className="flex-1 h-10 rounded-lg text-sm bg-white dark:bg-warm-800 border-warm-200 dark:border-warm-600 text-charcoal-500 dark:text-cream-100 hover:border-mustard-500 dark:hover:border-mustard-500 hover:text-mustard-600 dark:hover:text-mustard-400 transition-all duration-200"
                     >
                         GitHub
                     </Button>
                 </div>
 
                 {/* Sign in link */}
-                <div style={{ textAlign: 'center' }}>
-                    <Text style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                <div className="text-center">
+                    <Text className="text-sm text-warm-500 dark:text-warm-300">
                         Already have an account?{' '}
                         <Link
                             to="/login"
-                            style={{
-                                color: 'var(--accent-primary)',
-                                fontWeight: '500',
-                                textDecoration: 'none'
-                            }}
+                            className="text-sage-500 hover:text-sage-600 dark:text-sage-400 dark:hover:text-sage-300 font-medium no-underline transition-colors"
                         >
                             Sign in
                         </Link>

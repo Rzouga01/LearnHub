@@ -17,7 +17,8 @@ import {
     TeamOutlined,
     UserOutlined,
     LogoutOutlined,
-    SettingOutlined
+    SettingOutlined,
+    FileTextOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -56,6 +57,11 @@ const MainLayout = () => {
             key: '/dashboard/trainers',
             icon: <UserOutlined />,
             label: <Link to="/dashboard/trainers">Trainers</Link>,
+        },
+        {
+            key: '/dashboard/trainer-applications',
+            icon: <FileTextOutlined />,
+            label: <Link to="/dashboard/trainer-applications">Trainer Applications</Link>,
         },
     ];
 

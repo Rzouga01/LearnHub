@@ -44,43 +44,44 @@ const Login = () => {
     };
 
     return (
-        <div className="auth-container">
-            <Card className="auth-card fade-in">
+        <div className="min-h-screen bg-cream-100 dark:bg-charcoal-500 flex items-center justify-center p-6 transition-colors duration-300">
+            <Card className="w-full max-w-md bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
                 {/* Logo and Header */}
-                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                <div className="text-center mb-8">
                     <Logo
                         to="/"
                         size="xlarge"
-                        className="auth-logo"
+                        className="inline-flex items-center px-4 py-2 bg-terracotta-500 hover:bg-terracotta-600 rounded-xl text-white transition-all duration-200"
                         showText={false}
                     />
                     <Title
                         level={3}
-                        style={{
-                            margin: '16px 0 8px 0',
-                            color: 'var(--text-primary)',
-                            fontSize: '24px',
-                            fontWeight: '600'
-                        }}
+                        className="mt-4 mb-2 text-charcoal-500 dark:text-cream-100 text-2xl font-semibold"
                     >
                         Welcome back
                     </Title>
-                    <Text style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                    <Text className="text-warm-500 dark:text-warm-300 text-sm">
                         Please sign in to your account
                     </Text>
                 </div>
 
                 {/* Success/Error Messages */}
                 {location.state?.message && (
-                    <div className="alert-success">
-                        {location.state.message}
-                    </div>
+                    <Alert
+                        message={location.state.message}
+                        type="success"
+                        className="mb-4 bg-olive-50 dark:bg-olive-900 border-olive-200 dark:border-olive-700"
+                        showIcon
+                    />
                 )}
 
                 {error && (
-                    <div className="alert-error">
-                        {error}
-                    </div>
+                    <Alert
+                        message={error}
+                        type="error"
+                        className="mb-4 bg-rust-50 dark:bg-rust-900 border-rust-200 dark:border-rust-700"
+                        showIcon
+                    />
                 )}
 
                 {/* Login Form */}
@@ -89,6 +90,7 @@ const Login = () => {
                     onFinish={onFinish}
                     layout="vertical"
                     size="large"
+                    className="space-y-4"
                 >
                     <Form.Item
                         name="email"
@@ -98,17 +100,9 @@ const Login = () => {
                         ]}
                     >
                         <Input
-                            prefix={<MailOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            prefix={<MailOutlined className="text-sage-500" />}
                             placeholder="Email address"
-                            className="theme-input"
-                            style={{
-                                height: '44px',
-                                borderRadius: '8px',
-                                fontSize: '15px',
-                                backgroundColor: 'var(--bg-secondary)',
-                                borderColor: 'var(--border-color)',
-                                color: 'var(--text-primary)'
-                            }}
+                            className="h-11 rounded-lg text-base bg-white dark:bg-warm-800 border-warm-200 dark:border-warm-600 focus:border-terracotta-500 dark:focus:border-terracotta-500 text-charcoal-500 dark:text-cream-100"
                         />
                     </Form.Item>
 
@@ -117,38 +111,22 @@ const Login = () => {
                         rules={[{ required: true, message: 'Please input your password!' }]}
                     >
                         <Input.Password
-                            prefix={<LockOutlined style={{ color: 'var(--text-secondary)' }} />}
+                            prefix={<LockOutlined className="text-sage-500" />}
                             placeholder="Password"
                             iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-                            style={{
-                                height: '44px',
-                                borderRadius: '8px',
-                                fontSize: '15px',
-                                backgroundColor: 'var(--bg-secondary)',
-                                borderColor: 'var(--border-color)',
-                                color: 'var(--text-primary)'
-                            }}
+                            className="h-11 rounded-lg text-base bg-white dark:bg-warm-800 border-warm-200 dark:border-warm-600 focus:border-terracotta-500 dark:focus:border-terracotta-500 text-charcoal-500 dark:text-cream-100"
                         />
                     </Form.Item>
 
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '24px'
-                    }}>
-                        <Form.Item name="remember" valuePropName="checked" style={{ margin: 0 }}>
-                            <Checkbox style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+                    <div className="flex justify-between items-center mb-6">
+                        <Form.Item name="remember" valuePropName="checked" className="mb-0">
+                            <Checkbox className="text-sm text-charcoal-500 dark:text-cream-100">
                                 Remember me
                             </Checkbox>
                         </Form.Item>
                         <Link
                             to="/forgot-password"
-                            style={{
-                                color: 'var(--accent-primary)',
-                                fontSize: '14px',
-                                textDecoration: 'none'
-                            }}
+                            className="text-sm text-sage-500 hover:text-sage-600 dark:text-sage-400 dark:hover:text-sage-300 no-underline transition-colors"
                         >
                             Forgot password?
                         </Link>
@@ -192,47 +170,25 @@ const Login = () => {
                 }}>
                     <Button
                         icon={<GoogleOutlined />}
-                        className="btn-secondary"
-                        style={{
-                            flex: 1,
-                            height: '40px',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            backgroundColor: 'var(--bg-secondary)',
-                            borderColor: 'var(--border-color)',
-                            color: 'var(--text-primary)'
-                        }}
+                        className="flex-1 h-10 rounded-lg text-sm bg-white dark:bg-warm-800 border-warm-200 dark:border-warm-600 text-charcoal-500 dark:text-cream-100 hover:border-mustard-500 dark:hover:border-mustard-500 hover:text-mustard-600 dark:hover:text-mustard-400 transition-all duration-200"
                     >
                         Google
                     </Button>
                     <Button
                         icon={<GithubOutlined />}
-                        className="btn-secondary"
-                        style={{
-                            flex: 1,
-                            height: '40px',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            backgroundColor: 'var(--bg-secondary)',
-                            borderColor: 'var(--border-color)',
-                            color: 'var(--text-primary)'
-                        }}
+                        className="flex-1 h-10 rounded-lg text-sm bg-white dark:bg-warm-800 border-warm-200 dark:border-warm-600 text-charcoal-500 dark:text-cream-100 hover:border-mustard-500 dark:hover:border-mustard-500 hover:text-mustard-600 dark:hover:text-mustard-400 transition-all duration-200"
                     >
                         GitHub
                     </Button>
                 </div>
 
                 {/* Sign up link */}
-                <div style={{ textAlign: 'center' }}>
-                    <Text style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                <div className="text-center">
+                    <Text className="text-sm text-warm-500 dark:text-warm-300">
                         Don't have an account?{' '}
                         <Link
                             to="/register"
-                            style={{
-                                color: 'var(--accent-primary)',
-                                fontWeight: '500',
-                                textDecoration: 'none'
-                            }}
+                            className="text-sage-500 hover:text-sage-600 dark:text-sage-400 dark:hover:text-sage-300 font-medium no-underline transition-colors"
                         >
                             Sign up
                         </Link>

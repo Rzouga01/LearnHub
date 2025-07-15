@@ -48,174 +48,155 @@ import {
     CrownOutlined,
     GiftOutlined,
     CalendarOutlined,
-    LineChartOutlined,
-    RiseOutlined,
-    HeartOutlined,
-    ShareAltOutlined,
-    DownloadOutlined,
-    LinkOutlined,
-    MailOutlined,
-    PhoneOutlined,
-    EnvironmentOutlined,
-    GlobalOutlined,
-    LinkedinOutlined,
-    GithubOutlined,
-    TwitterOutlined
+    LineChartOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
-import api from '../services/api';
+import { useTheme } from '../contexts/ThemeContext';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
-const { TextArea } = Input;
 
-const StunningProfilePage = () => {
+const ProfilePage = () => {
     const { user, updateUser } = useAuth();
+    const { isDark } = useTheme();
     const navigate = useNavigate();
+    const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const [profileForm] = Form.useForm();
-    const [passwordForm] = Form.useForm();
     const [editMode, setEditMode] = useState(false);
-    const [activeTab, setActiveTab] = useState('overview');
+    const [activeTab, setActiveTab] = useState('1');
 
-    // Enhanced user data with more engaging stats
-    const [profileData, setProfileData] = useState({
-        enrollments: [],
-        achievements: [],
-        stats: {
-            coursesCompleted: 12,
-            coursesInProgress: 4,
-            totalHours: 387,
-            certificates: 12,
-            rank: 'Knowledge Master',
-            level: 47,
-            xp: 18750,
-            nextLevelXp: 20000,
-            streak: 23,
-            averageScore: 96.8,
-            skillPoints: 2847,
-            projectsCompleted: 18
-        },
-        skills: [
-            { name: 'React', level: 95, category: 'Frontend' },
-            { name: 'Node.js', level: 88, category: 'Backend' },
-            { name: 'Python', level: 92, category: 'Programming' },
-            { name: 'AI/ML', level: 85, category: 'Data Science' },
-            { name: 'UI/UX Design', level: 78, category: 'Design' },
-            { name: 'DevOps', level: 74, category: 'Operations' },
-            { name: 'Blockchain', level: 81, category: 'Web3' },
-            { name: 'TypeScript', level: 90, category: 'Programming' }
-        ],
-        recentActivity: [
-            {
-                id: 1,
-                type: 'achievement',
-                title: 'Earned "AI Master" Badge',
-                description: 'Completed advanced machine learning certification',
-                date: '2024-01-15',
-                icon: '🤖',
-                color: '#1890ff'
-            },
-            {
-                id: 2,
-                type: 'course_completed',
-                title: 'Advanced React Patterns',
-                description: 'Perfect score: 100%',
-                date: '2024-01-14',
-                icon: '⚛️',
-                color: '#52c41a'
-            },
-            {
-                id: 3,
-                type: 'project',
-                title: 'Built E-commerce Platform',
-                description: 'Full-stack project with React & Node.js',
-                date: '2024-01-12',
-                icon: '🛍️',
-                color: '#722ed1'
-            },
-            {
-                id: 4,
-                type: 'streak',
-                title: '20-Day Learning Streak',
-                description: 'Consistent daily learning achievement',
-                date: '2024-01-10',
-                icon: '🔥',
-                color: '#ff4d4f'
-            }
-        ],
-        certificates: [
-            {
-                id: 1,
-                title: 'Advanced React Development',
-                issuer: 'LearnHub',
-                date: '2024-01-15',
-                score: 98,
-                credentialId: 'LH-2024-001',
-                skills: ['React', 'Redux', 'TypeScript']
-            },
-            {
-                id: 2,
-                title: 'AI & Machine Learning',
-                issuer: 'LearnHub',
-                date: '2024-01-10',
-                score: 95,
-                credentialId: 'LH-2024-002',
-                skills: ['Python', 'TensorFlow', 'Deep Learning']
-            },
-            {
-                id: 3,
-                title: 'Full-Stack Web Development',
-                issuer: 'LearnHub',
-                date: '2024-01-05',
-                score: 97,
-                credentialId: 'LH-2024-003',
-                skills: ['Node.js', 'MongoDB', 'Express']
-            }
-        ],
-        learningGoals: [
-            { title: 'Master Kubernetes', progress: 65, target: '2024-02-28' },
-            { title: 'Complete AWS Certification', progress: 42, target: '2024-03-15' },
-            { title: 'Build 5 Web3 Projects', progress: 80, target: '2024-04-01' },
-            { title: 'Learn Advanced AI', progress: 55, target: '2024-05-01' }
-        ]
-    });
-
-    useEffect(() => {
-        if (user) {
-            profileForm.setFieldsValue({
-                name: user.name,
-                email: user.email,
-                bio: user.bio || '',
-                location: user.location || '',
-                website: user.website || '',
-                linkedin: user.linkedin || '',
-                github: user.github || '',
-                twitter: user.twitter || ''
-            });
-            fetchUserData();
-        }
-    }, [user, profileForm]);
-
-    const fetchUserData = async () => {
-        try {
-            setLoading(true);
-            // In a real app, you'd fetch this data from your API
-            // const response = await api.routes.users.getProfile();
-            // setProfileData(response.data);
-        } catch (error) {
-            message.error('Failed to fetch user data');
-        } finally {
-            setLoading(false);
-        }
+    // Enhanced profile data with achievements and detailed stats
+    const profileData = {
+        ...user,
+        bio: "Passionate full-stack developer with 5+ years of experience building scalable web applications. Love learning new technologies and sharing knowledge with the community.",
+        title: "Senior Full Stack Developer",
+        company: "TechCorp Inc.",
+        location: "San Francisco, CA",
+        website: "https://johndoe.dev",
+        github: "https://github.com/johndoe",
+        linkedin: "https://linkedin.com/in/johndoe",
+        twitter: "https://twitter.com/johndoe",
+        joinedDate: "January 2023",
+        level: 42,
+        totalXP: 12750,
+        nextLevelXP: 15000,
+        currentStreak: 18,
+        longestStreak: 45,
+        totalCourses: 12,
+        completedCourses: 8,
+        inProgressCourses: 3,
+        savedCourses: 15,
+        certificates: 8,
+        learningHours: 247,
+        averageRating: 4.8,
+        skillsCount: 24,
+        projectsCount: 15,
+        mentorshipHours: 32
     };
 
-    const handleUpdateProfile = async (values) => {
+    const recentActivity = [
+        {
+            id: 1,
+            type: 'course_complete',
+            title: 'Completed "Advanced React Patterns"',
+            description: 'Earned certificate and 500 XP',
+            timestamp: '2 hours ago',
+            icon: <TrophyOutlined className="text-olive-500" />,
+            color: 'bg-olive-50 dark:bg-olive-900'
+        },
+        {
+            id: 2,
+            type: 'achievement',
+            title: 'Earned "Code Master" Badge',
+            description: 'Completed 10 coding challenges',
+            timestamp: '1 day ago',
+            icon: <CrownOutlined className="text-terracotta-500" />,
+            color: 'bg-terracotta-50 dark:bg-terracotta-900'
+        },
+        {
+            id: 3,
+            type: 'streak',
+            title: '18-Day Learning Streak',
+            description: 'Keep it up! Just 12 more days for the next milestone',
+            timestamp: '1 day ago',
+            icon: <FireOutlined className="text-saffron-500" />,
+            color: 'bg-saffron-50 dark:bg-saffron-900'
+        },
+        {
+            id: 4,
+            type: 'skill_unlock',
+            title: 'New Skill Unlocked: TypeScript',
+            description: 'Reached intermediate level',
+            timestamp: '3 days ago',
+            icon: <ThunderboltOutlined className="text-sage-500" />,
+            color: 'bg-sage-50 dark:bg-sage-900'
+        }
+    ];
+
+    const skillsData = [
+        { name: 'JavaScript', level: 95, color: '#E76F51' },
+        { name: 'React', level: 92, color: '#2A9D8F' },
+        { name: 'Node.js', level: 88, color: '#F4A261' },
+        { name: 'Python', level: 82, color: '#6A994E' },
+        { name: 'TypeScript', level: 78, color: '#F6BD60' },
+        { name: 'MongoDB', level: 75, color: '#BC4749' }
+    ];
+
+    const achievementsData = [
+        {
+            id: 1,
+            title: 'Course Completionist',
+            description: 'Completed 10+ courses',
+            icon: '🏆',
+            earned: true,
+            rarity: 'Gold',
+            earnedDate: '2024-01-15',
+            color: 'bg-saffron-100 dark:bg-saffron-900'
+        },
+        {
+            id: 2,
+            title: 'Speed Learner',
+            description: 'Completed a course in under 3 days',
+            icon: '⚡',
+            earned: true,
+            rarity: 'Silver',
+            earnedDate: '2024-01-20',
+            color: 'bg-sage-100 dark:bg-sage-900'
+        },
+        {
+            id: 3,
+            title: 'Knowledge Seeker',
+            description: 'Explored 5 different categories',
+            icon: '📚',
+            earned: true,
+            rarity: 'Bronze',
+            earnedDate: '2024-01-25',
+            color: 'bg-rust-100 dark:bg-rust-900'
+        },
+        {
+            id: 4,
+            title: 'Streak Master',
+            description: 'Maintain 30-day learning streak',
+            icon: '🔥',
+            earned: false,
+            progress: 60,
+            color: 'bg-terracotta-100 dark:bg-terracotta-900'
+        }
+    ];
+
+    const learningGoals = [
+        { id: 1, title: 'Complete React Advanced Course', progress: 75, target: 100, color: '#E76F51' },
+        { id: 2, title: 'Learn TypeScript', progress: 45, target: 100, color: '#2A9D8F' },
+        { id: 3, title: 'Build 3 Projects', progress: 2, target: 3, color: '#F4A261' },
+        { id: 4, title: 'Earn 5 Certificates', progress: 3, target: 5, color: '#6A994E' }
+    ];
+
+    const handleSave = async (values) => {
+        setLoading(true);
         try {
-            setLoading(true);
-            // const response = await api.routes.users.updateProfile(values);
-            // updateUser(response.data);
-            message.success('Profile updated successfully');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            updateUser({ ...user, ...values });
+            message.success('Profile updated successfully!');
             setEditMode(false);
         } catch (error) {
             message.error('Failed to update profile');
@@ -224,875 +205,355 @@ const StunningProfilePage = () => {
         }
     };
 
-    const handleUpdatePassword = async (values) => {
-        try {
-            setLoading(true);
-            // await api.routes.users.updatePassword(values);
-            message.success('Password updated successfully');
-            passwordForm.resetFields();
-        } catch (error) {
-            message.error('Failed to update password');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getSkillColor = (level) => {
-        if (level >= 90) return '#52c41a';
-        if (level >= 80) return '#1890ff';
-        if (level >= 70) return '#faad14';
-        return '#ff4d4f';
-    };
-
-    const getLevelProgress = () => {
-        return ((profileData.stats.xp - (profileData.stats.level * 400)) / 400) * 100;
-    };
-
-    return (
-        <div style={{
-            minHeight: '100vh',
-            background: `
-                radial-gradient(circle at 20% 50%, rgba(11, 197, 234, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(236, 72, 153, 0.06) 0%, transparent 50%),
-                var(--bg-primary)
-            `,
-            position: 'relative',
-            overflow: 'hidden'
-        }}>
-            {/* Animated Background Elements */}
-            <div style={{
-                position: 'absolute',
-                top: '5%',
-                right: '8%',
-                width: '300px',
-                height: '300px',
-                background: 'radial-gradient(circle, rgba(11, 197, 234, 0.06) 0%, transparent 70%)',
-                borderRadius: '50%',
-                animation: 'float 12s ease-in-out infinite',
-                zIndex: 0
-            }} />
-            <div style={{
-                position: 'absolute',
-                bottom: '10%',
-                left: '5%',
-                width: '250px',
-                height: '250px',
-                background: 'radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 70%)',
-                borderRadius: '50%',
-                animation: 'float 15s ease-in-out infinite reverse',
-                zIndex: 0
-            }} />
-
-            <div style={{ position: 'relative', zIndex: 1, padding: '24px' }}>
-                {/* Glass Header */}
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '32px',
-                    padding: '20px 32px',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    backdropFilter: 'blur(20px)',
-                    borderRadius: '24px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-                }}>
-                    <Title level={2} style={{
-                        color: 'var(--text-primary)',
-                        margin: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '16px'
-                    }}>
-                        👤 My Profile
-                    </Title>
-                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                        <Button
-                            onClick={() => navigate('/dashboard')}
-                            style={{
-                                background: 'linear-gradient(135deg, var(--accent-primary) 0%, #8b5cf6 100%)',
-                                border: 'none',
-                                borderRadius: '16px',
-                                color: 'white',
-                                fontWeight: '600',
-                                height: '44px',
-                                paddingInline: '24px'
-                            }}
-                        >
-                            🏠 Back to Dashboard
-                        </Button>
+    const renderProfileHeader = () => (
+        <Card className="bg-gradient-to-r from-terracotta-500 to-sage-500 border-0 text-white mb-6">
+            <Row align="middle" gutter={[32, 32]}>
+                <Col xs={24} md={8}>
+                    <div className="text-center">
+                        <div className="relative inline-block">
+                            <Avatar
+                                size={120}
+                                src={profileData.avatar}
+                                className="bg-white/20 text-white text-4xl"
+                            >
+                                {profileData.name?.charAt(0)?.toUpperCase()}
+                            </Avatar>
+                            <Button
+                                type="primary"
+                                shape="circle"
+                                icon={<CameraOutlined />}
+                                className="absolute -bottom-2 -right-2 bg-white/20 border-white/40 text-white hover:bg-white/30"
+                                size="small"
+                            />
+                        </div>
+                        <Title level={2} className="text-white mt-4 mb-1">
+                            {profileData.name}
+                        </Title>
+                        <Text className="text-white/90 text-lg">
+                            {profileData.title}
+                        </Text>
+                        <br />
+                        <Text className="text-white/80">
+                            {profileData.company}
+                        </Text>
+                        <div className="mt-4">
+                            <Text className="text-white/80">
+                                📍 {profileData.location} • 📅 Joined {profileData.joinedDate}
+                            </Text>
+                        </div>
                     </div>
-                </div>
+                </Col>
 
-                <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-                    {/* Profile Hero Section */}
-                    <div style={{
-                        background: 'linear-gradient(135deg, rgba(11, 197, 234, 0.1) 0%, rgba(139, 92, 246, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%)',
-                        backdropFilter: 'blur(20px)',
-                        borderRadius: '32px',
-                        padding: '48px',
-                        marginBottom: '32px',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        position: 'relative',
-                        overflow: 'hidden'
-                    }}>
-                        {/* Pattern Background */}
-                        <div style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            backgroundImage: `
-                                radial-gradient(circle at 25px 25px, rgba(11, 197, 234, 0.08) 2px, transparent 2px),
-                                radial-gradient(circle at 75px 75px, rgba(139, 92, 246, 0.06) 2px, transparent 2px)
-                            `,
-                            backgroundSize: '100px 100px',
-                            animation: 'backgroundShift 25s linear infinite',
-                            opacity: 0.5
-                        }} />
+                <Col xs={24} md={16}>
+                    <div className="space-y-4">
+                        <Paragraph className="text-white/90 text-lg">
+                            {profileData.bio}
+                        </Paragraph>
 
-                        <Row align="middle" style={{ position: 'relative', zIndex: 1 }}>
-                            <Col xs={24} lg={8} style={{ textAlign: 'center', marginBottom: { xs: '32px', lg: 0 } }}>
-                                <div style={{ position: 'relative', display: 'inline-block' }}>
-                                    <Avatar
-                                        size={180}
-                                        src={user?.avatar}
-                                        icon={<UserOutlined />}
-                                        style={{
-                                            border: '6px solid rgba(255, 255, 255, 0.2)',
-                                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                                            background: 'linear-gradient(135deg, var(--accent-primary) 0%, #8b5cf6 100%)'
-                                        }}
-                                    />
-                                    <Button
-                                        shape="circle"
-                                        icon={<CameraOutlined />}
-                                        style={{
-                                            position: 'absolute',
-                                            bottom: '10px',
-                                            right: '10px',
-                                            background: 'linear-gradient(135deg, var(--accent-primary) 0%, #8b5cf6 100%)',
-                                            border: 'none',
-                                            color: 'white',
-                                            boxShadow: '0 4px 12px rgba(11, 197, 234, 0.3)'
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Level & XP */}
-                                <div style={{
-                                    marginTop: '24px',
-                                    padding: '16px 24px',
-                                    background: 'rgba(255, 255, 255, 0.1)',
-                                    borderRadius: '16px',
-                                    backdropFilter: 'blur(10px)'
-                                }}>
-                                    <Text style={{
-                                        color: 'var(--text-secondary)',
-                                        fontSize: '14px',
-                                        display: 'block',
-                                        marginBottom: '8px'
-                                    }}>
-                                        Level {profileData.stats.level}
-                                    </Text>
-                                    <Progress
-                                        percent={getLevelProgress()}
-                                        strokeColor={{
-                                            '0%': 'var(--accent-primary)',
-                                            '100%': '#8b5cf6',
-                                        }}
-                                        trailColor="rgba(255, 255, 255, 0.1)"
-                                        strokeWidth={8}
-                                        showInfo={false}
-                                    />
-                                    <Text style={{
-                                        color: 'var(--text-muted)',
-                                        fontSize: '12px',
-                                        marginTop: '8px',
-                                        display: 'block'
-                                    }}>
-                                        {profileData.stats.nextLevelXp - profileData.stats.xp} XP to Level {profileData.stats.level + 1}
-                                    </Text>
+                        <Row gutter={16}>
+                            <Col xs={12} sm={6}>
+                                <div className="bg-white/20 rounded-lg p-4 text-center backdrop-blur-sm">
+                                    <div className="text-2xl font-bold text-white">
+                                        Level {profileData.level}
+                                    </div>
+                                    <div className="text-white/80 text-sm">
+                                        {profileData.totalXP} XP
+                                    </div>
                                 </div>
                             </Col>
-
-                            <Col xs={24} lg={16}>
-                                <div style={{ paddingLeft: { lg: '48px' } }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-                                        <Title level={1} style={{
-                                            color: 'var(--text-primary)',
-                                            margin: 0,
-                                            background: 'linear-gradient(135deg, var(--accent-primary) 0%, #8b5cf6 50%, #ec4899 100%)',
-                                            backgroundClip: 'text',
-                                            WebkitBackgroundClip: 'text',
-                                            WebkitTextFillColor: 'transparent',
-                                            fontSize: '3rem',
-                                            fontWeight: '800'
-                                        }}>
-                                            {user?.name || 'User'}
-                                        </Title>
-                                        <Badge count={profileData.stats.rank} style={{
-                                            background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-                                            color: '#000',
-                                            fontWeight: '600',
-                                            fontSize: '12px'
-                                        }} />
+                            <Col xs={12} sm={6}>
+                                <div className="bg-white/20 rounded-lg p-4 text-center backdrop-blur-sm">
+                                    <div className="text-2xl font-bold text-white flex items-center justify-center gap-1">
+                                        <FireOutlined className="text-saffron-300" />
+                                        {profileData.currentStreak}
                                     </div>
-
-                                    <Text style={{
-                                        fontSize: '18px',
-                                        color: 'var(--text-secondary)',
-                                        display: 'block',
-                                        marginBottom: '16px',
-                                        lineHeight: '1.6'
-                                    }}>
-                                        {user?.bio || 'Passionate learner exploring the frontiers of technology and innovation. Constantly evolving, constantly growing. 🚀'}
-                                    </Text>
-
-                                    <Space size="large" wrap style={{ marginBottom: '24px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <EnvironmentOutlined style={{ color: 'var(--accent-primary)' }} />
-                                            <Text style={{ color: 'var(--text-secondary)' }}>San Francisco, CA</Text>
-                                        </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <CalendarOutlined style={{ color: 'var(--accent-primary)' }} />
-                                            <Text style={{ color: 'var(--text-secondary)' }}>Joined January 2023</Text>
-                                        </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <FireOutlined style={{ color: '#ff4d4f' }} />
-                                            <Text style={{ color: 'var(--text-secondary)' }}>{profileData.stats.streak} day streak</Text>
-                                        </div>
-                                    </Space>
-
-                                    {/* Social Links */}
-                                    <Space size="middle">
-                                        <Button
-                                            icon={<LinkedinOutlined />}
-                                            shape="circle"
-                                            size="large"
-                                            style={{
-                                                background: 'rgba(0, 119, 181, 0.1)',
-                                                border: '1px solid rgba(0, 119, 181, 0.3)',
-                                                color: '#0077b5'
-                                            }}
-                                        />
-                                        <Button
-                                            icon={<GithubOutlined />}
-                                            shape="circle"
-                                            size="large"
-                                            style={{
-                                                background: 'rgba(255, 255, 255, 0.1)',
-                                                border: '1px solid rgba(255, 255, 255, 0.3)',
-                                                color: 'var(--text-primary)'
-                                            }}
-                                        />
-                                        <Button
-                                            icon={<TwitterOutlined />}
-                                            shape="circle"
-                                            size="large"
-                                            style={{
-                                                background: 'rgba(29, 161, 242, 0.1)',
-                                                border: '1px solid rgba(29, 161, 242, 0.3)',
-                                                color: '#1da1f2'
-                                            }}
-                                        />
-                                        <Button
-                                            icon={<GlobalOutlined />}
-                                            shape="circle"
-                                            size="large"
-                                            style={{
-                                                background: 'rgba(139, 92, 246, 0.1)',
-                                                border: '1px solid rgba(139, 92, 246, 0.3)',
-                                                color: '#8b5cf6'
-                                            }}
-                                        />
-                                    </Space>
-
-                                    {/* Quick Actions */}
-                                    <div style={{ marginTop: '32px' }}>
-                                        <Space size="middle" wrap>
-                                            <Button
-                                                type="primary"
-                                                icon={<EditOutlined />}
-                                                onClick={() => setEditMode(true)}
-                                                style={{
-                                                    background: 'linear-gradient(135deg, var(--accent-primary) 0%, #8b5cf6 100%)',
-                                                    border: 'none',
-                                                    borderRadius: '16px',
-                                                    height: '44px',
-                                                    fontWeight: '600'
-                                                }}
-                                            >
-                                                Edit Profile
-                                            </Button>
-                                            <Button
-                                                icon={<ShareAltOutlined />}
-                                                style={{
-                                                    borderRadius: '16px',
-                                                    height: '44px',
-                                                    background: 'rgba(255, 255, 255, 0.1)',
-                                                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                                                    color: 'var(--text-primary)'
-                                                }}
-                                            >
-                                                Share Profile
-                                            </Button>
-                                            <Button
-                                                icon={<DownloadOutlined />}
-                                                style={{
-                                                    borderRadius: '16px',
-                                                    height: '44px',
-                                                    background: 'rgba(255, 255, 255, 0.1)',
-                                                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                                                    color: 'var(--text-primary)'
-                                                }}
-                                            >
-                                                Export CV
-                                            </Button>
-                                        </Space>
+                                    <div className="text-white/80 text-sm">Day Streak</div>
+                                </div>
+                            </Col>
+                            <Col xs={12} sm={6}>
+                                <div className="bg-white/20 rounded-lg p-4 text-center backdrop-blur-sm">
+                                    <div className="text-2xl font-bold text-white">
+                                        {profileData.completedCourses}
                                     </div>
+                                    <div className="text-white/80 text-sm">Completed</div>
+                                </div>
+                            </Col>
+                            <Col xs={12} sm={6}>
+                                <div className="bg-white/20 rounded-lg p-4 text-center backdrop-blur-sm">
+                                    <div className="text-2xl font-bold text-white">
+                                        {profileData.certificates}
+                                    </div>
+                                    <div className="text-white/80 text-sm">Certificates</div>
                                 </div>
                             </Col>
                         </Row>
+
+                        <div className="flex gap-3">
+                            <Button
+                                icon={<EditOutlined />}
+                                onClick={() => setEditMode(true)}
+                                className="bg-white/20 border-white/40 text-white hover:bg-white/30"
+                            >
+                                Edit Profile
+                            </Button>
+                            <Button
+                                icon={<SettingOutlined />}
+                                onClick={() => navigate('/settings')}
+                                className="bg-white/20 border-white/40 text-white hover:bg-white/30"
+                            >
+                                Settings
+                            </Button>
+                        </div>
                     </div>
+                </Col>
+            </Row>
+        </Card>
+    );
 
-                    {/* Stats Overview Cards */}
-                    <Row gutter={[24, 24]} style={{ marginBottom: '32px' }}>
-                        <Col xs={12} sm={8} lg={4}>
-                            <Card style={{
-                                background: 'linear-gradient(135deg, rgba(11, 197, 234, 0.1) 0%, rgba(11, 197, 234, 0.05) 100%)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid rgba(11, 197, 234, 0.2)',
-                                borderRadius: '20px',
-                                textAlign: 'center',
-                                padding: '8px',
-                                transition: 'all 0.3s ease'
-                            }}>
-                                <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>🎯</div>
-                                <Statistic
-                                    title={<span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Completed</span>}
-                                    value={profileData.stats.coursesCompleted}
-                                    valueStyle={{ color: 'var(--accent-primary)', fontSize: '24px', fontWeight: '800' }}
-                                />
-                            </Card>
-                        </Col>
-                        <Col xs={12} sm={8} lg={4}>
-                            <Card style={{
-                                background: 'linear-gradient(135deg, rgba(82, 196, 26, 0.1) 0%, rgba(82, 196, 26, 0.05) 100%)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid rgba(82, 196, 26, 0.2)',
-                                borderRadius: '20px',
-                                textAlign: 'center',
-                                padding: '8px',
-                                transition: 'all 0.3s ease'
-                            }}>
-                                <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>⏱️</div>
-                                <Statistic
-                                    title={<span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Hours</span>}
-                                    value={profileData.stats.totalHours}
-                                    valueStyle={{ color: '#52c41a', fontSize: '24px', fontWeight: '800' }}
-                                />
-                            </Card>
-                        </Col>
-                        <Col xs={12} sm={8} lg={4}>
-                            <Card style={{
-                                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid rgba(139, 92, 246, 0.2)',
-                                borderRadius: '20px',
-                                textAlign: 'center',
-                                padding: '8px',
-                                transition: 'all 0.3s ease'
-                            }}>
-                                <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>🏆</div>
-                                <Statistic
-                                    title={<span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Certificates</span>}
-                                    value={profileData.stats.certificates}
-                                    valueStyle={{ color: '#8b5cf6', fontSize: '24px', fontWeight: '800' }}
-                                />
-                            </Card>
-                        </Col>
-                        <Col xs={12} sm={8} lg={4}>
-                            <Card style={{
-                                background: 'linear-gradient(135deg, rgba(255, 77, 79, 0.1) 0%, rgba(255, 77, 79, 0.05) 100%)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid rgba(255, 77, 79, 0.2)',
-                                borderRadius: '20px',
-                                textAlign: 'center',
-                                padding: '8px',
-                                transition: 'all 0.3s ease'
-                            }}>
-                                <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>🔥</div>
-                                <Statistic
-                                    title={<span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Streak</span>}
-                                    value={profileData.stats.streak}
-                                    suffix="days"
-                                    valueStyle={{ color: '#ff4d4f', fontSize: '24px', fontWeight: '800' }}
-                                />
-                            </Card>
-                        </Col>
-                        <Col xs={12} sm={8} lg={4}>
-                            <Card style={{
-                                background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(236, 72, 153, 0.05) 100%)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid rgba(236, 72, 153, 0.2)',
-                                borderRadius: '20px',
-                                textAlign: 'center',
-                                padding: '8px',
-                                transition: 'all 0.3s ease'
-                            }}>
-                                <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>📊</div>
-                                <Statistic
-                                    title={<span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Avg Score</span>}
-                                    value={profileData.stats.averageScore}
-                                    suffix="%"
-                                    valueStyle={{ color: '#ec4899', fontSize: '24px', fontWeight: '800' }}
-                                />
-                            </Card>
-                        </Col>
-                        <Col xs={12} sm={8} lg={4}>
-                            <Card style={{
-                                background: 'linear-gradient(135deg, rgba(250, 173, 20, 0.1) 0%, rgba(250, 173, 20, 0.05) 100%)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid rgba(250, 173, 20, 0.2)',
-                                borderRadius: '20px',
-                                textAlign: 'center',
-                                padding: '8px',
-                                transition: 'all 0.3s ease'
-                            }}>
-                                <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>⚡</div>
-                                <Statistic
-                                    title={<span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Skill Points</span>}
-                                    value={profileData.stats.skillPoints}
-                                    valueStyle={{ color: '#faad14', fontSize: '24px', fontWeight: '800' }}
-                                />
-                            </Card>
-                        </Col>
-                    </Row>
+    const renderStatsOverview = () => (
+        <Row gutter={[24, 24]} className="mb-6">
+            <Col xs={24} sm={12} lg={6}>
+                <Card className="bg-terracotta-50 dark:bg-terracotta-900 border-terracotta-200 dark:border-terracotta-700 text-center">
+                    <Statistic
+                        title={<span className="text-warm-500 dark:text-warm-300">Learning Hours</span>}
+                        value={profileData.learningHours}
+                        prefix={<ClockCircleOutlined className="text-terracotta-500" />}
+                        suffix="h"
+                        valueStyle={{ color: '#E76F51' }}
+                    />
+                </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+                <Card className="bg-sage-50 dark:bg-sage-900 border-sage-200 dark:border-sage-700 text-center">
+                    <Statistic
+                        title={<span className="text-warm-500 dark:text-warm-300">Skills Mastered</span>}
+                        value={profileData.skillsCount}
+                        prefix={<ThunderboltOutlined className="text-sage-500" />}
+                        valueStyle={{ color: '#2A9D8F' }}
+                    />
+                </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+                <Card className="bg-mustard-50 dark:bg-mustard-900 border-mustard-200 dark:border-mustard-700 text-center">
+                    <Statistic
+                        title={<span className="text-warm-500 dark:text-warm-300">Projects Built</span>}
+                        value={profileData.projectsCount}
+                        prefix={<BookOutlined className="text-mustard-500" />}
+                        valueStyle={{ color: '#F4A261' }}
+                    />
+                </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
+                <Card className="bg-olive-50 dark:bg-olive-900 border-olive-200 dark:border-olive-700 text-center">
+                    <Statistic
+                        title={<span className="text-warm-500 dark:text-warm-300">Mentorship Hours</span>}
+                        value={profileData.mentorshipHours}
+                        prefix={<UserOutlined className="text-olive-500" />}
+                        suffix="h"
+                        valueStyle={{ color: '#6A994E' }}
+                    />
+                </Card>
+            </Col>
+        </Row>
+    );
 
-                    {/* Main Content Tabs */}
-                    <Card style={{
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        backdropFilter: 'blur(20px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '24px',
-                        padding: '8px'
-                    }}>
-                        <Tabs
-                            activeKey={activeTab}
-                            onChange={setActiveTab}
-                            size="large"
-                            style={{
-                                '.ant-tabs-tab': {
-                                    fontSize: '16px',
-                                    fontWeight: '600'
-                                }
-                            }}
-                        >
-                            <TabPane tab={<span><TrophyOutlined /> Skills & Achievements</span>} key="skills">
-                                <Row gutter={[32, 32]}>
-                                    {/* Skills */}
-                                    <Col xs={24} lg={14}>
-                                        <Title level={4} style={{ color: 'var(--text-primary)', marginBottom: '24px' }}>
-                                            🎯 Skills Mastery
-                                        </Title>
-                                        <Row gutter={[16, 16]}>
-                                            {profileData.skills.map((skill, index) => (
-                                                <Col xs={24} sm={12} key={index}>
-                                                    <div style={{
-                                                        background: 'rgba(255, 255, 255, 0.05)',
-                                                        borderRadius: '16px',
-                                                        padding: '20px',
-                                                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                                                        transition: 'all 0.3s ease'
-                                                    }}>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                                            <Text style={{ color: 'var(--text-primary)', fontWeight: '600' }}>
-                                                                {skill.name}
-                                                            </Text>
-                                                            <Text style={{ color: getSkillColor(skill.level), fontWeight: '700' }}>
-                                                                {skill.level}%
-                                                            </Text>
-                                                        </div>
-                                                        <Progress
-                                                            percent={skill.level}
-                                                            strokeColor={getSkillColor(skill.level)}
-                                                            trailColor="rgba(255, 255, 255, 0.1)"
-                                                            strokeWidth={8}
-                                                            showInfo={false}
-                                                        />
-                                                        <Text style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
-                                                            {skill.category}
-                                                        </Text>
-                                                    </div>
-                                                </Col>
-                                            ))}
-                                        </Row>
-                                    </Col>
+    const renderSkillsProgress = () => (
+        <Card
+            title={<Title level={4} className="text-charcoal-500 dark:text-cream-100 mb-0">Skills Progress</Title>}
+            className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700"
+        >
+            <Row gutter={[16, 16]}>
+                {skillsData.map((skill, index) => (
+                    <Col key={index} xs={24} sm={12} lg={8}>
+                        <div className="bg-cream-50 dark:bg-warm-800 p-4 rounded-lg">
+                            <div className="flex justify-between items-center mb-2">
+                                <Text className="text-charcoal-500 dark:text-cream-100 font-medium">
+                                    {skill.name}
+                                </Text>
+                                <Text className="text-warm-500 dark:text-warm-300">
+                                    {skill.level}%
+                                </Text>
+                            </div>
+                            <Progress
+                                percent={skill.level}
+                                strokeColor={skill.color}
+                                trailColor={isDark ? '#4A4341' : '#F1EFED'}
+                                size="small"
+                                showInfo={false}
+                            />
+                        </div>
+                    </Col>
+                ))}
+            </Row>
+        </Card>
+    );
 
-                                    {/* Recent Activity */}
-                                    <Col xs={24} lg={10}>
-                                        <Title level={4} style={{ color: 'var(--text-primary)', marginBottom: '24px' }}>
-                                            🎉 Recent Activity
-                                        </Title>
-                                        <Timeline>
-                                            {profileData.recentActivity.map(activity => (
-                                                <Timeline.Item
-                                                    key={activity.id}
-                                                    dot={
-                                                        <div style={{
-                                                            background: activity.color,
-                                                            borderRadius: '50%',
-                                                            width: '32px',
-                                                            height: '32px',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            fontSize: '16px'
-                                                        }}>
-                                                            {activity.icon}
-                                                        </div>
-                                                    }
-                                                >
-                                                    <div style={{
-                                                        background: 'rgba(255, 255, 255, 0.05)',
-                                                        borderRadius: '12px',
-                                                        padding: '16px',
-                                                        marginBottom: '12px'
-                                                    }}>
-                                                        <Text style={{
-                                                            color: 'var(--text-primary)',
-                                                            fontWeight: '600',
-                                                            display: 'block',
-                                                            marginBottom: '4px'
-                                                        }}>
-                                                            {activity.title}
-                                                        </Text>
-                                                        <Text style={{
-                                                            color: 'var(--text-secondary)',
-                                                            fontSize: '14px',
-                                                            display: 'block',
-                                                            marginBottom: '8px'
-                                                        }}>
-                                                            {activity.description}
-                                                        </Text>
-                                                        <Text style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
-                                                            {activity.date}
-                                                        </Text>
-                                                    </div>
-                                                </Timeline.Item>
-                                            ))}
-                                        </Timeline>
-                                    </Col>
-                                </Row>
-                            </TabPane>
-
-                            <TabPane tab={<span><BookOutlined /> Certificates</span>} key="certificates">
-                                <Title level={4} style={{ color: 'var(--text-primary)', marginBottom: '24px' }}>
-                                    🏆 Earned Certificates
-                                </Title>
-                                <Row gutter={[24, 24]}>
-                                    {profileData.certificates.map(cert => (
-                                        <Col xs={24} sm={12} lg={8} key={cert.id}>
-                                            <Card style={{
-                                                background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.05) 100%)',
-                                                border: '2px solid rgba(255, 215, 0, 0.3)',
-                                                borderRadius: '20px',
-                                                padding: '8px',
-                                                transition: 'all 0.3s ease',
-                                                cursor: 'pointer'
-                                            }}
-                                                onMouseEnter={(e) => {
-                                                    e.currentTarget.style.transform = 'translateY(-4px)';
-                                                    e.currentTarget.style.boxShadow = '0 12px 32px rgba(255, 215, 0, 0.2)';
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.currentTarget.style.transform = 'translateY(0)';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }}
-                                            >
-                                                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                                                    <div style={{
-                                                        fontSize: '3rem',
-                                                        marginBottom: '12px',
-                                                        background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                                                        borderRadius: '50%',
-                                                        width: '80px',
-                                                        height: '80px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        margin: '0 auto',
-                                                        boxShadow: '0 4px 16px rgba(255, 215, 0, 0.3)'
-                                                    }}>
-                                                        🏆
-                                                    </div>
-                                                </div>
-                                                <Title level={5} style={{
-                                                    color: 'var(--text-primary)',
-                                                    textAlign: 'center',
-                                                    marginBottom: '8px'
-                                                }}>
-                                                    {cert.title}
-                                                </Title>
-                                                <Text style={{
-                                                    color: 'var(--text-secondary)',
-                                                    display: 'block',
-                                                    textAlign: 'center',
-                                                    marginBottom: '12px'
-                                                }}>
-                                                    {cert.issuer} • {cert.date}
-                                                </Text>
-                                                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                                                    <Tag color="gold">Score: {cert.score}%</Tag>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                                    {cert.skills.map(skill => (
-                                                        <Tag key={skill} color="blue" style={{ margin: '2px' }}>
-                                                            {skill}
-                                                        </Tag>
-                                                    ))}
-                                                </div>
-                                                <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                                                    <Button size="small" icon={<DownloadOutlined />}>
-                                                        Download
-                                                    </Button>
-                                                </div>
-                                            </Card>
-                                        </Col>
-                                    ))}
-                                </Row>
-                            </TabPane>
-
-                            <TabPane tab={<span><RiseOutlined /> Learning Goals</span>} key="goals">
-                                <Title level={4} style={{ color: 'var(--text-primary)', marginBottom: '24px' }}>
-                                    🎯 Learning Goals & Progress
-                                </Title>
-                                <Row gutter={[24, 24]}>
-                                    {profileData.learningGoals.map((goal, index) => (
-                                        <Col xs={24} sm={12} key={index}>
-                                            <Card style={{
-                                                background: 'rgba(255, 255, 255, 0.05)',
-                                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                                borderRadius: '16px',
-                                                padding: '8px'
-                                            }}>
-                                                <div style={{ marginBottom: '16px' }}>
-                                                    <Text style={{
-                                                        color: 'var(--text-primary)',
-                                                        fontSize: '16px',
-                                                        fontWeight: '600',
-                                                        display: 'block',
-                                                        marginBottom: '8px'
-                                                    }}>
-                                                        {goal.title}
-                                                    </Text>
-                                                    <Text style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-                                                        Target: {goal.target}
-                                                    </Text>
-                                                </div>
-                                                <Progress
-                                                    percent={goal.progress}
-                                                    strokeColor={{
-                                                        '0%': 'var(--accent-primary)',
-                                                        '100%': '#8b5cf6',
-                                                    }}
-                                                    trailColor="rgba(255, 255, 255, 0.1)"
-                                                    strokeWidth={12}
-                                                />
-                                            </Card>
-                                        </Col>
-                                    ))}
-                                </Row>
-                            </TabPane>
-
-                            <TabPane tab={<span><SettingOutlined /> Settings</span>} key="settings">
-                                <Row gutter={[32, 32]}>
-                                    <Col xs={24} lg={12}>
-                                        <Title level={4} style={{ color: 'var(--text-primary)', marginBottom: '24px' }}>
-                                            👤 Profile Information
-                                        </Title>
-                                        <Form
-                                            form={profileForm}
-                                            layout="vertical"
-                                            onFinish={handleUpdateProfile}
-                                            disabled={!editMode}
-                                        >
-                                            <Form.Item label="Full Name" name="name">
-                                                <Input size="large" className="theme-input" />
-                                            </Form.Item>
-                                            <Form.Item label="Email" name="email">
-                                                <Input size="large" className="theme-input" disabled />
-                                            </Form.Item>
-                                            <Form.Item label="Bio" name="bio">
-                                                <TextArea rows={4} className="theme-input" />
-                                            </Form.Item>
-                                            <Form.Item label="Location" name="location">
-                                                <Input size="large" className="theme-input" />
-                                            </Form.Item>
-                                            <Form.Item label="Website" name="website">
-                                                <Input size="large" className="theme-input" />
-                                            </Form.Item>
-
-                                            {editMode && (
-                                                <Space>
-                                                    <Button
-                                                        type="primary"
-                                                        htmlType="submit"
-                                                        loading={loading}
-                                                        icon={<SaveOutlined />}
-                                                        style={{
-                                                            background: 'linear-gradient(135deg, var(--accent-primary) 0%, #8b5cf6 100%)',
-                                                            border: 'none',
-                                                            borderRadius: '12px'
-                                                        }}
-                                                    >
-                                                        Save Changes
-                                                    </Button>
-                                                    <Button onClick={() => setEditMode(false)}>
-                                                        Cancel
-                                                    </Button>
-                                                </Space>
-                                            )}
-                                        </Form>
-                                    </Col>
-
-                                    <Col xs={24} lg={12}>
-                                        <Title level={4} style={{ color: 'var(--text-primary)', marginBottom: '24px' }}>
-                                            🔒 Security & Privacy
-                                        </Title>
-                                        <Form
-                                            form={passwordForm}
-                                            layout="vertical"
-                                            onFinish={handleUpdatePassword}
-                                        >
-                                            <Form.Item
-                                                label="Current Password"
-                                                name="currentPassword"
-                                                rules={[{ required: true, message: 'Please enter current password' }]}
-                                            >
-                                                <Input.Password size="large" className="theme-input" />
-                                            </Form.Item>
-                                            <Form.Item
-                                                label="New Password"
-                                                name="newPassword"
-                                                rules={[{ required: true, message: 'Please enter new password' }]}
-                                            >
-                                                <Input.Password size="large" className="theme-input" />
-                                            </Form.Item>
-                                            <Form.Item
-                                                label="Confirm New Password"
-                                                name="confirmPassword"
-                                                dependencies={['newPassword']}
-                                                rules={[
-                                                    { required: true, message: 'Please confirm new password' },
-                                                    ({ getFieldValue }) => ({
-                                                        validator(_, value) {
-                                                            if (!value || getFieldValue('newPassword') === value) {
-                                                                return Promise.resolve();
-                                                            }
-                                                            return Promise.reject(new Error('Passwords do not match'));
-                                                        },
-                                                    }),
-                                                ]}
-                                            >
-                                                <Input.Password size="large" className="theme-input" />
-                                            </Form.Item>
-                                            <Button
-                                                type="primary"
-                                                htmlType="submit"
-                                                loading={loading}
-                                                icon={<LockOutlined />}
-                                                style={{
-                                                    background: 'linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)',
-                                                    border: 'none',
-                                                    borderRadius: '12px'
-                                                }}
-                                            >
-                                                Update Password
-                                            </Button>
-                                        </Form>
-
-                                        <Divider />
-
-                                        <Title level={5} style={{ color: 'var(--text-primary)', marginBottom: '16px' }}>
-                                            🔔 Notification Preferences
-                                        </Title>
-                                        <Space direction="vertical" style={{ width: '100%' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <Text style={{ color: 'var(--text-primary)' }}>Email Notifications</Text>
-                                                <Switch defaultChecked />
-                                            </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <Text style={{ color: 'var(--text-primary)' }}>Course Reminders</Text>
-                                                <Switch defaultChecked />
-                                            </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <Text style={{ color: 'var(--text-primary)' }}>Achievement Alerts</Text>
-                                                <Switch defaultChecked />
-                                            </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <Text style={{ color: 'var(--text-primary)' }}>Marketing Emails</Text>
-                                                <Switch />
-                                            </div>
-                                        </Space>
-                                    </Col>
-                                </Row>
-                            </TabPane>
-                        </Tabs>
-                    </Card>
-                </div>
+    const renderLearningGoals = () => (
+        <Card
+            title={<Title level={4} className="text-charcoal-500 dark:text-cream-100 mb-0">Learning Goals</Title>}
+            className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700"
+        >
+            <div className="space-y-4">
+                {learningGoals.map((goal) => (
+                    <div key={goal.id} className="bg-cream-50 dark:bg-warm-800 p-4 rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                            <Text className="text-charcoal-500 dark:text-cream-100 font-medium">
+                                {goal.title}
+                            </Text>
+                            <Text className="text-warm-500 dark:text-warm-300">
+                                {goal.progress}/{goal.target}
+                            </Text>
+                        </div>
+                        <Progress
+                            percent={Math.round((goal.progress / goal.target) * 100)}
+                            strokeColor={goal.color}
+                            trailColor={isDark ? '#4A4341' : '#F1EFED'}
+                            size="small"
+                        />
+                    </div>
+                ))}
             </div>
+        </Card>
+    );
 
-            {/* Edit Profile Modal */}
-            <Modal
-                title="✨ Edit Profile"
-                open={editMode}
-                onCancel={() => setEditMode(false)}
-                footer={null}
-                width={600}
-                style={{
-                    top: 50
-                }}
-            >
-                <Form
-                    form={profileForm}
-                    layout="vertical"
-                    onFinish={handleUpdateProfile}
-                    style={{ marginTop: '24px' }}
+    const renderAchievements = () => (
+        <Card
+            title={<Title level={4} className="text-charcoal-500 dark:text-cream-100 mb-0">Achievements</Title>}
+            className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700"
+        >
+            <Row gutter={[16, 16]}>
+                {achievementsData.map((achievement) => (
+                    <Col key={achievement.id} xs={24} sm={12} lg={6}>
+                        <Card
+                            className={`text-center ${achievement.color} border-0 ${achievement.earned ? 'shadow-md' : 'opacity-75'
+                                }`}
+                            size="small"
+                        >
+                            <div className="text-4xl mb-2">{achievement.icon}</div>
+                            <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-1">
+                                {achievement.title}
+                            </Title>
+                            <Text className="text-warm-600 dark:text-warm-300 text-sm block mb-2">
+                                {achievement.description}
+                            </Text>
+                            {achievement.earned ? (
+                                <Badge
+                                    status="success"
+                                    text={<span className="text-olive-500">Earned</span>}
+                                />
+                            ) : (
+                                <Progress
+                                    percent={achievement.progress}
+                                    size="small"
+                                    strokeColor="#E76F51"
+                                />
+                            )}
+                        </Card>
+                    </Col>
+                ))}
+            </Row>
+        </Card>
+    );
+
+    const renderRecentActivity = () => (
+        <Card
+            title={<Title level={4} className="text-charcoal-500 dark:text-cream-100 mb-0">Recent Activity</Title>}
+            className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700"
+        >
+            <Timeline>
+                {recentActivity.map((activity) => (
+                    <Timeline.Item key={activity.id} dot={activity.icon}>
+                        <div className={`p-3 rounded-lg ${activity.color}`}>
+                            <Text className="text-charcoal-500 dark:text-cream-100 font-medium block">
+                                {activity.title}
+                            </Text>
+                            <Text className="text-warm-600 dark:text-warm-300 text-sm block">
+                                {activity.description}
+                            </Text>
+                            <Text className="text-warm-500 dark:text-warm-300 text-xs">
+                                {activity.timestamp}
+                            </Text>
+                        </div>
+                    </Timeline.Item>
+                ))}
+            </Timeline>
+        </Card>
+    );
+
+    return (
+        <div className="min-h-screen bg-cream-100 dark:bg-charcoal-500 p-6 transition-colors duration-300">
+            <div className="max-w-7xl mx-auto">
+                {renderProfileHeader()}
+                {renderStatsOverview()}
+
+                <Row gutter={[24, 24]}>
+                    <Col xs={24} lg={16}>
+                        <div className="space-y-6">
+                            {renderSkillsProgress()}
+                            {renderLearningGoals()}
+                            {renderAchievements()}
+                        </div>
+                    </Col>
+
+                    <Col xs={24} lg={8}>
+                        {renderRecentActivity()}
+                    </Col>
+                </Row>
+
+                {/* Edit Profile Modal */}
+                <Modal
+                    title="Edit Profile"
+                    visible={editMode}
+                    onCancel={() => setEditMode(false)}
+                    footer={null}
+                    width={600}
                 >
-                    <Row gutter={[16, 16]}>
-                        <Col xs={24} sm={12}>
-                            <Form.Item label="Full Name" name="name">
-                                <Input size="large" className="theme-input" />
-                            </Form.Item>
-                        </Col>
-                        <Col xs={24} sm={12}>
-                            <Form.Item label="Email" name="email">
-                                <Input size="large" className="theme-input" disabled />
-                            </Form.Item>
-                        </Col>
-                        <Col xs={24}>
-                            <Form.Item label="Bio" name="bio">
-                                <TextArea rows={3} className="theme-input" />
-                            </Form.Item>
-                        </Col>
-                        <Col xs={24} sm={12}>
-                            <Form.Item label="Location" name="location">
-                                <Input size="large" className="theme-input" />
-                            </Form.Item>
-                        </Col>
-                        <Col xs={24} sm={12}>
-                            <Form.Item label="Website" name="website">
-                                <Input size="large" className="theme-input" />
-                            </Form.Item>
-                        </Col>
-                    </Row>
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        onFinish={handleSave}
+                        initialValues={profileData}
+                    >
+                        <Form.Item
+                            name="name"
+                            label={<span className="text-charcoal-500 dark:text-cream-100">Full Name</span>}
+                            rules={[{ required: true, message: 'Please enter your name' }]}
+                        >
+                            <Input className="h-10 bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600" />
+                        </Form.Item>
 
-                    <div style={{ textAlign: 'right', marginTop: '24px' }}>
-                        <Space>
+                        <Form.Item
+                            name="title"
+                            label={<span className="text-charcoal-500 dark:text-cream-100">Job Title</span>}
+                        >
+                            <Input className="h-10 bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600" />
+                        </Form.Item>
+
+                        <Form.Item
+                            name="company"
+                            label={<span className="text-charcoal-500 dark:text-cream-100">Company</span>}
+                        >
+                            <Input className="h-10 bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600" />
+                        </Form.Item>
+
+                        <Form.Item
+                            name="bio"
+                            label={<span className="text-charcoal-500 dark:text-cream-100">Bio</span>}
+                        >
+                            <Input.TextArea
+                                rows={4}
+                                className="bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            name="location"
+                            label={<span className="text-charcoal-500 dark:text-cream-100">Location</span>}
+                        >
+                            <Input className="h-10 bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600" />
+                        </Form.Item>
+
+                        <div className="flex justify-end gap-3">
                             <Button onClick={() => setEditMode(false)}>
                                 Cancel
                             </Button>
@@ -1100,21 +561,16 @@ const StunningProfilePage = () => {
                                 type="primary"
                                 htmlType="submit"
                                 loading={loading}
-                                icon={<SaveOutlined />}
-                                style={{
-                                    background: 'linear-gradient(135deg, var(--accent-primary) 0%, #8b5cf6 100%)',
-                                    border: 'none',
-                                    borderRadius: '12px'
-                                }}
+                                className="bg-terracotta-500 hover:bg-terracotta-600 border-terracotta-500"
                             >
                                 Save Changes
                             </Button>
-                        </Space>
-                    </div>
-                </Form>
-            </Modal>
+                        </div>
+                    </Form>
+                </Modal>
+            </div>
         </div>
     );
 };
 
-export default StunningProfilePage;
+export default ProfilePage;
