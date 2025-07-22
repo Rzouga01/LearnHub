@@ -3,14 +3,19 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "@21st-extension/react": "^0.5.14",
+        "@21st-extension/toolbar-react": "^0.5.14",
+        "@ant-design/icons": "^5.2.6",
+        "antd": "^5.11.0",
+        "axios": "^1.6.0",
         "react": "^18.3.0",
         "react-dom": "^18.3.0",
-        "antd": "^5.11.0",
-        "@ant-design/icons": "^5.2.6",
-        "axios": "^1.6.0",
         "react-router-dom": "^6.18.0"
     },
     "devDependencies": {
+        "@types/node": "^24.0.14",
+        "@types/react": "^19.1.8",
+        "@types/react-dom": "^19.1.6",
         "@vitejs/plugin-react": "^4.2.0",
         "autoprefixer": "^10.4.16",
         "postcss": "^8.4.31",

@@ -9,10 +9,15 @@ import {
     Statistic,
     Progress,
     Avatar,
-    Tag,
-    Space,
     Timeline,
-    Rate
+    Rate,
+    Empty,
+    Spin,
+    Badge,
+    Space,
+    List,
+    Tooltip,
+    Divider
 } from 'antd';
 import {
     BookOutlined,
@@ -22,28 +27,164 @@ import {
     FireOutlined,
     StarOutlined,
     ArrowRightOutlined,
-    CalendarOutlined
+    CalendarOutlined,
+    TeamOutlined,
+    UserOutlined,
+    PlusOutlined,
+    RocketOutlined,
+    BulbOutlined,
+    HeartOutlined,
+    ThunderboltOutlined,
+    CrownOutlined,
+    GiftOutlined,
+    LineChartOutlined,
+    EyeOutlined,
+    CheckCircleOutlined,
+
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import api from '../services/api';
+import '../styles/dashboard.css';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
 const Dashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { isDark } = useTheme();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const [stats] = useState({
-        coursesEnrolled: 12,
-        coursesCompleted: 8,
-        totalHours: 247,
-        certificates: 8,
-        streak: 18,
-        level: 42,
-        xp: 12750,
-        nextLevelXp: 15000
+    // Real data states
+    const [stats, setStats] = useState({
+        coursesEnrolled: 0,
+        coursesCompleted: 0,
+        totalHours: 0,
+        certificates: 0,
+        streak: 0,
+        level: 1,
+        xp: 0,
+        nextLevelXp: 100
     });
+
+    const [trainerStats, setTrainerStats] = useState({
+        totalCourses: 0,
+        totalStudents: 0,
+        completionRate: 0,
+        avgRating: 0,
+        upcomingSessions: 0,
+        totalRevenue: 0
+    });
+
+    const [activeCourses, setActiveCourses] = useState([]);
+    const [recentActivity, setRecentActivity] = useState([]);
+
+    // Fetch dashboard data
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                if (user?.role === 'trainer') {
+                    const response = await api.routes.dashboard.getTrainerDashboard();
+                    const data = response.data;
+
+                    setTrainerStats({
+                        totalCourses: data.totalCourses || 0,
+                        totalStudents: data.totalStudents || 0,
+                        completionRate: data.completionRate || 0,
+                        avgRating: data.avgRating || 0,
+                        upcomingSessions: data.upcomingSessions || 0,
+                        totalRevenue: data.totalRevenue || 0
+                    });
+                } else {
+                    const response = await api.routes.dashboard.getStudentDashboard();
+                    const data = response.data;
+
+                    setStats({
+                        coursesEnrolled: data.coursesEnrolled || 0,
+                        coursesCompleted: data.coursesCompleted || 0,
+                        totalHours: data.totalHours || 0,
+                        certificates: data.certificates || 0,
+                        streak: data.streak || 0,
+                        level: data.level || 1,
+                        xp: data.xp || 0,
+                        nextLevelXp: data.nextLevelXp || 100
+                    });
+
+                    setActiveCourses(data.activeCourses || []);
+                }
+
+                // Fetch recent activity for both roles
+                const activityResponse = await api.routes.dashboard.getRecentActivity();
+                setRecentActivity(activityResponse.data || []);
+
+            } catch (err) {
+                console.error('Error fetching dashboard data:', err);
+                setError('Failed to load dashboard data');
+
+                // Fallback to sample data if API fails
+                if (user?.role === 'trainer') {
+                    setTrainerStats({
+                        totalCourses: 5,
+                        totalStudents: 42,
+                        completionRate: 85,
+                        avgRating: 4.7,
+                        upcomingSessions: 3,
+                        totalRevenue: 12500
+                    });
+                } else {
+                    setStats({
+                        coursesEnrolled: 4,
+                        coursesCompleted: 2,
+                        totalHours: 45,
+                        certificates: 1,
+                        streak: 7,
+                        level: 12,
+                        xp: 850,
+                        nextLevelXp: 1000
+                    });
+
+                    setActiveCourses([
+                        {
+                            id: 1,
+                            title: 'Advanced React Development',
+                            progress: 75,
+                            instructor: 'Sarah Johnson',
+                            rating: 4.8,
+                            thumbnail: '⚛️',
+                            nextLesson: 'Hooks Deep Dive',
+                            lessonsLeft: 3
+                        },
+                        {
+                            id: 2,
+                            title: 'UI/UX Design Fundamentals',
+                            progress: 45,
+                            instructor: 'Mike Chen',
+                            rating: 4.6,
+                            thumbnail: '🎨',
+                            nextLesson: 'Color Theory',
+                            lessonsLeft: 8
+                        }
+                    ]);
+                }
+
+                setRecentActivity([
+                    { id: 1, title: 'Completed "React Hooks" lesson', time: '2 hours ago', type: 'lesson' },
+                    { id: 2, title: 'Started "Advanced Patterns" course', time: '1 day ago', type: 'course' },
+                    { id: 3, title: 'Earned "Quick Learner" badge', time: '2 days ago', type: 'achievement' }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user) {
+            fetchDashboardData();
+        }
+    }, [user]);
 
     const getGreeting = () => {
         const hour = new Date().getHours();
@@ -53,306 +194,594 @@ const Dashboard = () => {
         return `Good Evening, ${name}!`;
     };
 
-    const activeCourses = [
-        {
-            id: 1,
-            title: 'Advanced React Patterns',
-            progress: 87,
-            instructor: 'Sarah Johnson',
-            rating: 4.9,
-            thumbnail: '⚛️',
-            color: '#E76F51', // terracotta
-            nextLesson: 'Advanced Hooks & Context'
-        },
-        {
-            id: 2,
-            title: 'AI & Machine Learning',
-            progress: 92,
-            instructor: 'Dr. Michael Chen',
-            rating: 4.8,
-            thumbnail: '🤖',
-            color: '#2A9D8F', // sage
-            nextLesson: 'Neural Networks'
-        },
-        {
-            id: 3,
-            title: 'Web3 Development',
-            progress: 65,
-            instructor: 'Alex Turner',
-            rating: 4.7,
-            thumbnail: '🔗',
-            color: '#F4A261', // mustard
-            nextLesson: 'Smart Contracts'
-        }
-    ];
+    if (loading) {
+        return (
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '100vh',
+                background: isDark ? 'linear-gradient(135deg, #0f172a, #1e293b)' : 'linear-gradient(135deg, #f8f9fa, #ffffff)'
+            }}>
+                <div style={{ textAlign: 'center' }}>
+                    <Spin size="large" />
+                    <Text style={{
+                        display: 'block',
+                        marginTop: '16px',
+                        fontSize: '18px',
+                        color: isDark ? '#ffffff' : '#000000'
+                    }}>
+                        Loading your dashboard...
+                    </Text>
+                </div>
+            </div>
+        );
+    }
 
-    const recentActivity = [
-        {
-            id: 1,
-            type: 'course_complete',
-            title: 'Completed "JavaScript Fundamentals"',
-            time: '2 hours ago',
-            icon: <TrophyOutlined className="text-olive-500" />
-        },
-        {
-            id: 2,
-            type: 'certificate',
-            title: 'Earned React Developer Certificate',
-            time: '1 day ago',
-            icon: <StarOutlined className="text-saffron-500" />
-        },
-        {
-            id: 3,
-            type: 'streak',
-            title: 'Maintained 18-day learning streak',
-            time: '2 days ago',
-            icon: <FireOutlined className="text-terracotta-500" />
-        }
-    ];
+    // Enhanced Trainer Dashboard
+    if (user?.role === 'trainer') {
+        return (
+            <div style={{
+                minHeight: '100vh',
+                background: isDark
+                    ? 'linear-gradient(135deg, #0f172a, #1e293b)'
+                    : 'linear-gradient(135deg, #f8f9fa, #ffffff)',
+                padding: '24px'
+            }}>
+                <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-cream-50 via-cream-100 to-warm-50 dark:from-charcoal-600 dark:via-charcoal-500 dark:to-warm-800 transition-all duration-500">
-            <div className="max-w-7xl mx-auto p-6 space-y-8">
+                    {/* Welcome Header */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, #E76F51 0%, #F4A261 50%, #2A9D8F 100%)',
+                        borderRadius: '24px',
+                        padding: '40px',
+                        color: 'white',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: '0 20px 40px rgba(231, 111, 81, 0.3)'
+                    }}>
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            right: 0,
+                            width: '300px',
+                            height: '300px',
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: '50%',
+                            transform: 'translate(100px, -100px)'
+                        }} />
 
-                {/* Welcome Header - Enhanced */}
-                <Card className="relative overflow-hidden border-0 shadow-2xl">
-                    <div className="absolute inset-0 bg-gradient-to-r from-terracotta-500 via-terracotta-400 to-sage-500"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                    <div className="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full -mr-36 -mt-36"></div>
-                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-sage-600/20 rounded-full -ml-48 -mb-48"></div>
-
-                    <div className="relative z-10 p-8">
-                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
-                            <div className="flex-1">
-                                <Title level={1} className="text-white mb-3 text-3xl lg:text-4xl font-bold">
-                                    {getGreeting()}
-                                </Title>
-                                <Text className="text-white/90 text-lg lg:text-xl font-medium">
-                                    Ready to continue your learning journey today?
-                                </Text>
-                                <div className="flex items-center gap-4 mt-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 bg-olive-400 rounded-full animate-pulse"></div>
-                                        <Text className="text-white/80 text-sm">Online</Text>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <TrophyOutlined className="text-saffron-300" />
-                                        <Text className="text-white/80 text-sm">Level {stats.level}</Text>
-                                    </div>
+                        <div style={{ position: 'relative', zIndex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+                                <div style={{
+                                    width: '80px',
+                                    height: '80px',
+                                    background: 'rgba(255, 255, 255, 0.2)',
+                                    borderRadius: '20px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backdropFilter: 'blur(10px)'
+                                }}>
+                                    <RocketOutlined style={{ fontSize: '36px' }} />
+                                </div>
+                                <div>
+                                    <Title level={1} style={{
+                                        color: 'white',
+                                        margin: 0,
+                                        fontSize: '48px',
+                                        fontWeight: '700',
+                                        lineHeight: '1.2'
+                                    }}>
+                                        {getGreeting().replace('Learner', 'Trainer')}
+                                    </Title>
+                                    <Text style={{
+                                        color: 'rgba(255, 255, 255, 0.9)',
+                                        fontSize: '20px',
+                                        display: 'block',
+                                        marginTop: '8px'
+                                    }}>
+                                        Empowering minds, shaping futures 🎓
+                                    </Text>
                                 </div>
                             </div>
-                            <div className="flex gap-4">
-                                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/30">
-                                    <Text className="text-white/90 text-sm block mb-2">Learning Streak</Text>
-                                    <div className="flex items-center gap-3">
-                                        <FireOutlined className="text-saffron-300 text-xl" />
-                                        <Text className="text-white text-3xl font-bold">{stats.streak}</Text>
-                                        <Text className="text-white/80 text-sm">days</Text>
+
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+                                {[
+                                    { icon: '🟢', text: 'Teaching Mode' },
+                                    { icon: '📚', text: `${trainerStats.totalCourses} Active Courses` },
+                                    { icon: '👥', text: `${trainerStats.totalStudents} Students` }
+                                ].map((badge, index) => (
+                                    <div key={index} style={{
+                                        background: 'rgba(255, 255, 255, 0.15)',
+                                        backdropFilter: 'blur(10px)',
+                                        borderRadius: '50px',
+                                        padding: '12px 20px',
+                                        border: '1px solid rgba(255, 255, 255, 0.2)'
+                                    }}>
+                                        <Text style={{ color: 'white', fontWeight: '600' }}>
+                                            {badge.icon} {badge.text}
+                                        </Text>
                                     </div>
-                                </div>
-                                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/30">
-                                    <Text className="text-white/90 text-sm block mb-2">XP Progress</Text>
-                                    <div className="flex items-center gap-3">
-                                        <StarOutlined className="text-mustard-300 text-xl" />
-                                        <Text className="text-white text-3xl font-bold">{Math.round((stats.xp / stats.nextLevelXp) * 100)}%</Text>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
-                </Card>
 
-                {/* Enhanced Stats Overview */}
-                <Row gutter={[32, 32]}>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card className="relative bg-white dark:bg-warm-900 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-terracotta-500/5 to-terracotta-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative z-10 p-6">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="w-14 h-14 bg-terracotta-100 dark:bg-terracotta-900 rounded-2xl flex items-center justify-center">
-                                        <BookOutlined className="text-terracotta-500 text-xl" />
+                    {/* Stats Grid */}
+                    <Row gutter={[24, 24]}>
+                        {[
+                            {
+                                title: 'Total Courses',
+                                value: trainerStats.totalCourses,
+                                icon: BookOutlined,
+                                color: '#E76F51',
+                                bgColor: isDark ? 'rgba(231, 111, 81, 0.15)' : 'rgba(231, 111, 81, 0.08)'
+                            },
+                            {
+                                title: 'Total Students',
+                                value: trainerStats.totalStudents,
+                                icon: TeamOutlined,
+                                color: '#6A994E',
+                                bgColor: isDark ? 'rgba(106, 153, 78, 0.15)' : 'rgba(106, 153, 78, 0.08)'
+                            },
+                            {
+                                title: 'Completion Rate',
+                                value: trainerStats.completionRate,
+                                suffix: '%',
+                                icon: TrophyOutlined,
+                                color: '#F4A261',
+                                bgColor: isDark ? 'rgba(244, 162, 97, 0.15)' : 'rgba(244, 162, 97, 0.08)'
+                            },
+                            {
+                                title: 'Avg Rating',
+                                value: trainerStats.avgRating,
+                                precision: 1,
+                                icon: StarOutlined,
+                                color: '#2A9D8F',
+                                bgColor: isDark ? 'rgba(42, 157, 143, 0.15)' : 'rgba(42, 157, 143, 0.08)'
+                            }
+                        ].map((stat, index) => (
+                            <Col xs={24} sm={12} lg={6} key={index}>
+                                <Card style={{
+                                    textAlign: 'center',
+                                    background: stat.bgColor,
+                                    border: `2px solid ${stat.color}30`,
+                                    borderRadius: '20px',
+                                    transition: 'all 0.3s ease',
+                                    cursor: 'pointer'
+                                }}
+                                    className="hover:shadow-lg hover:scale-105"
+                                >
+                                    <div style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        borderRadius: '16px',
+                                        background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 16px auto'
+                                    }}>
+                                        <stat.icon style={{ fontSize: '24px', color: stat.color }} />
                                     </div>
-                                    <div className="text-right">
-                                        <Text className="text-terracotta-500 text-3xl font-bold block">{stats.coursesEnrolled}</Text>
-                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">+2 this month</Text>
+                                    <Statistic
+                                        value={stat.value}
+                                        suffix={stat.suffix}
+                                        precision={stat.precision}
+                                        title={<span style={{ color: isDark ? '#ffffff' : '#000000', fontWeight: '600' }}>{stat.title}</span>}
+                                        valueStyle={{ color: stat.color, fontSize: '32px', fontWeight: '700' }}
+                                    />
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
+
+                    {/* Action Cards */}
+                    <Row gutter={[24, 24]}>
+                        <Col xs={24} lg={12}>
+                            <Card style={{
+                                height: '100%',
+                                background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
+                                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                                borderRadius: '24px',
+                                backdropFilter: 'blur(20px)'
+                            }}>
+                                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                                    <div style={{
+                                        width: '100px',
+                                        height: '100px',
+                                        borderRadius: '24px',
+                                        background: isDark ? 'rgba(231, 111, 81, 0.15)' : 'rgba(231, 111, 81, 0.08)',
+                                        border: `2px solid ${isDark ? 'rgba(231, 111, 81, 0.3)' : 'rgba(231, 111, 81, 0.2)'}`,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 24px auto'
+                                    }}>
+                                        <PlusOutlined style={{ fontSize: '48px', color: '#E76F51' }} />
                                     </div>
+                                    <Title level={3} style={{
+                                        color: isDark ? '#ffffff' : '#000000',
+                                        marginBottom: '16px'
+                                    }}>
+                                        Ready to Create Amazing Courses?
+                                    </Title>
+                                    <Text style={{
+                                        color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                                        fontSize: '16px',
+                                        display: 'block',
+                                        marginBottom: '32px'
+                                    }}>
+                                        Share your expertise with students worldwide. Create engaging content that makes a difference.
+                                    </Text>
+                                    <Button
+                                        type="primary"
+                                        size="large"
+                                        icon={<PlusOutlined />}
+                                        onClick={() => navigate('/dashboard/courses')}
+                                        style={{
+                                            background: 'linear-gradient(135deg, #E76F51, #F4A261)',
+                                            border: 'none',
+                                            borderRadius: '12px',
+                                            height: '48px',
+                                            fontSize: '16px',
+                                            fontWeight: '600',
+                                            boxShadow: '0 8px 24px rgba(231, 111, 81, 0.3)'
+                                        }}
+                                    >
+                                        Create New Course
+                                    </Button>
                                 </div>
-                                <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-1">
-                                    Courses Enrolled
+                            </Card>
+                        </Col>
+                        <Col xs={24} lg={12}>
+                            <Card style={{
+                                height: '100%',
+                                background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
+                                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                                borderRadius: '24px',
+                                backdropFilter: 'blur(20px)'
+                            }}>
+                                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                                    <div style={{
+                                        width: '100px',
+                                        height: '100px',
+                                        borderRadius: '24px',
+                                        background: isDark ? 'rgba(106, 153, 78, 0.15)' : 'rgba(106, 153, 78, 0.08)',
+                                        border: `2px solid ${isDark ? 'rgba(106, 153, 78, 0.3)' : 'rgba(106, 153, 78, 0.2)'}`,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 24px auto'
+                                    }}>
+                                        <TeamOutlined style={{ fontSize: '48px', color: '#6A994E' }} />
+                                    </div>
+                                    <Title level={3} style={{
+                                        color: isDark ? '#ffffff' : '#000000',
+                                        marginBottom: '16px'
+                                    }}>
+                                        Manage Your Students
+                                    </Title>
+                                    <Text style={{
+                                        color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                                        fontSize: '16px',
+                                        display: 'block',
+                                        marginBottom: '32px'
+                                    }}>
+                                        Track student progress, provide feedback, and help them achieve their learning goals.
+                                    </Text>
+                                    <Button
+                                        size="large"
+                                        icon={<TeamOutlined />}
+                                        onClick={() => navigate('/dashboard/students')}
+                                        style={{
+                                            background: '#6A994E',
+                                            borderColor: '#6A994E',
+                                            color: 'white',
+                                            borderRadius: '12px',
+                                            height: '48px',
+                                            fontSize: '16px',
+                                            fontWeight: '600',
+                                            boxShadow: '0 8px 24px rgba(106, 153, 78, 0.3)'
+                                        }}
+                                    >
+                                        View Students
+                                    </Button>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
+                </div>
+            </div>
+        );
+    }
+
+    // Enhanced Student Dashboard
+    return (
+        <div style={{
+            minHeight: '100vh',
+            background: isDark
+                ? 'linear-gradient(135deg, #0f172a, #1e293b)'
+                : 'linear-gradient(135deg, #f8f9fa, #ffffff)',
+            padding: '24px'
+        }}>
+            <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+                {/* Welcome Header */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #E76F51 0%, #F4A261 50%, #2A9D8F 100%)',
+                    borderRadius: '24px',
+                    padding: '40px',
+                    color: 'white',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    boxShadow: '0 20px 40px rgba(231, 111, 81, 0.3)'
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        width: '300px',
+                        height: '300px',
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '50%',
+                        transform: 'translate(100px, -100px)',
+                        animation: 'pulse 4s ease-in-out infinite'
+                    }} />
+
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+                            <div style={{
+                                width: '80px',
+                                height: '80px',
+                                background: 'rgba(255, 255, 255, 0.2)',
+                                borderRadius: '20px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backdropFilter: 'blur(10px)'
+                            }}>
+                                <BulbOutlined style={{ fontSize: '36px' }} />
+                            </div>
+                            <div>
+                                <Title level={1} style={{
+                                    color: 'white',
+                                    margin: 0,
+                                    fontSize: '48px',
+                                    fontWeight: '700',
+                                    lineHeight: '1.2'
+                                }}>
+                                    {getGreeting()}
                                 </Title>
-                                <Text className="text-warm-500 dark:text-warm-300 text-sm">
-                                    Active learning paths
+                                <Text style={{
+                                    color: 'rgba(255, 255, 255, 0.9)',
+                                    fontSize: '20px',
+                                    display: 'block',
+                                    marginTop: '8px'
+                                }}>
+                                    Ready to unlock new knowledge? Let's make today extraordinary! 🚀
                                 </Text>
                             </div>
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card className="relative bg-white dark:bg-warm-900 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-olive-500/5 to-olive-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative z-10 p-6">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="w-14 h-14 bg-olive-100 dark:bg-olive-900 rounded-2xl flex items-center justify-center">
-                                        <TrophyOutlined className="text-olive-500 text-xl" />
-                                    </div>
-                                    <div className="text-right">
-                                        <Text className="text-olive-500 text-3xl font-bold block">{stats.coursesCompleted}</Text>
-                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">{Math.round((stats.coursesCompleted / stats.coursesEnrolled) * 100)}% completion</Text>
-                                    </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+                            {[
+                                { icon: '🟢', text: 'Online & Active' },
+                                { icon: '🏆', text: `Level ${stats.level} Learner` },
+                                { icon: '🔥', text: `${stats.streak} Day Streak` }
+                            ].map((badge, index) => (
+                                <div key={index} style={{
+                                    background: 'rgba(255, 255, 255, 0.15)',
+                                    backdropFilter: 'blur(10px)',
+                                    borderRadius: '50px',
+                                    padding: '12px 20px',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                                }}>
+                                    <Text style={{ color: 'white', fontWeight: '600' }}>
+                                        {badge.icon} {badge.text}
+                                    </Text>
                                 </div>
-                                <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-1">
-                                    Completed
-                                </Title>
-                                <Text className="text-warm-500 dark:text-warm-300 text-sm">
-                                    Successfully finished
-                                </Text>
-                            </div>
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card className="relative bg-white dark:bg-warm-900 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-sage-500/5 to-sage-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative z-10 p-6">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="w-14 h-14 bg-sage-100 dark:bg-sage-900 rounded-2xl flex items-center justify-center">
-                                        <ClockCircleOutlined className="text-sage-500 text-xl" />
-                                    </div>
-                                    <div className="text-right">
-                                        <Text className="text-sage-500 text-3xl font-bold block">{stats.totalHours}</Text>
-                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">+12 this week</Text>
-                                    </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Stats Grid */}
+                <Row gutter={[24, 24]}>
+                    {[
+                        {
+                            title: 'Enrolled Courses',
+                            value: stats.coursesEnrolled,
+                            icon: BookOutlined,
+                            color: '#E76F51',
+                            bgColor: isDark ? 'rgba(231, 111, 81, 0.15)' : 'rgba(231, 111, 81, 0.08)',
+                            subtitle: 'Active learning paths'
+                        },
+                        {
+                            title: 'Completed',
+                            value: stats.coursesCompleted,
+                            icon: TrophyOutlined,
+                            color: '#6A994E',
+                            bgColor: isDark ? 'rgba(106, 153, 78, 0.15)' : 'rgba(106, 153, 78, 0.08)',
+                            subtitle: 'Successfully mastered'
+                        },
+                        {
+                            title: 'Learning Hours',
+                            value: stats.totalHours,
+                            icon: ClockCircleOutlined,
+                            color: '#2A9D8F',
+                            bgColor: isDark ? 'rgba(42, 157, 143, 0.15)' : 'rgba(42, 157, 143, 0.08)',
+                            subtitle: 'Time invested in growth'
+                        },
+                        {
+                            title: 'Certificates',
+                            value: stats.certificates,
+                            icon: StarOutlined,
+                            color: '#F4A261',
+                            bgColor: isDark ? 'rgba(244, 162, 97, 0.15)' : 'rgba(244, 162, 97, 0.08)',
+                            subtitle: 'Earned achievements'
+                        }
+                    ].map((stat, index) => (
+                        <Col xs={24} sm={12} lg={6} key={index}>
+                            <Card style={{
+                                textAlign: 'center',
+                                background: stat.bgColor,
+                                border: `2px solid ${stat.color}30`,
+                                borderRadius: '20px',
+                                transition: 'all 0.3s ease',
+                                cursor: 'pointer'
+                            }}
+                                className="hover:shadow-lg hover:scale-105"
+                            >
+                                <div style={{
+                                    width: '60px',
+                                    height: '60px',
+                                    borderRadius: '16px',
+                                    background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 16px auto'
+                                }}>
+                                    <stat.icon style={{ fontSize: '24px', color: stat.color }} />
                                 </div>
-                                <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-1">
-                                    Learning Hours
-                                </Title>
-                                <Text className="text-warm-500 dark:text-warm-300 text-sm">
-                                    Total time invested
+                                <Statistic
+                                    value={stat.value}
+                                    title={<span style={{ color: isDark ? '#ffffff' : '#000000', fontWeight: '600' }}>{stat.title}</span>}
+                                    valueStyle={{ color: stat.color, fontSize: '32px', fontWeight: '700' }}
+                                />
+                                <Text style={{
+                                    color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                                    fontSize: '12px',
+                                    marginTop: '8px'
+                                }}>
+                                    {stat.subtitle}
                                 </Text>
-                            </div>
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card className="relative bg-white dark:bg-warm-900 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-mustard-500/5 to-mustard-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative z-10 p-6">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="w-14 h-14 bg-mustard-100 dark:bg-mustard-900 rounded-2xl flex items-center justify-center">
-                                        <StarOutlined className="text-mustard-500 text-xl" />
-                                    </div>
-                                    <div className="text-right">
-                                        <Text className="text-mustard-500 text-3xl font-bold block">{stats.certificates}</Text>
-                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">+1 this month</Text>
-                                    </div>
-                                </div>
-                                <Title level={5} className="text-charcoal-500 dark:text-cream-100 mb-1">
-                                    Certificates
-                                </Title>
-                                <Text className="text-warm-500 dark:text-warm-300 text-sm">
-                                    Earned credentials
-                                </Text>
-                            </div>
-                        </Card>
-                    </Col>
+                            </Card>
+                        </Col>
+                    ))}
                 </Row>
 
-                {/* Enhanced Progress & Active Courses */}
-                <Row gutter={[32, 32]}>
+                {/* Content Grid */}
+                <Row gutter={[24, 24]}>
+                    {/* Active Courses */}
                     <Col xs={24} lg={16}>
                         <Card
-                            className="bg-white dark:bg-warm-900 border-0 shadow-lg"
                             title={
-                                <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-terracotta-100 dark:bg-terracotta-900 rounded-xl flex items-center justify-center">
-                                            <PlayCircleOutlined className="text-terracotta-500 text-lg" />
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{
+                                            width: '40px',
+                                            height: '40px',
+                                            borderRadius: '12px',
+                                            background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}>
+                                            <PlayCircleOutlined style={{ fontSize: '20px', color: '#E76F51' }} />
                                         </div>
-                                        <Title level={3} className="text-charcoal-500 dark:text-cream-100 mb-0">
-                                            Continue Learning
+                                        <Title level={3} style={{
+                                            margin: 0,
+                                            color: isDark ? '#ffffff' : '#000000'
+                                        }}>
+                                            Continue Your Journey
                                         </Title>
                                     </div>
                                     <Button
                                         type="text"
-                                        className="text-sage-500 hover:text-sage-600 hover:bg-sage-50 dark:hover:bg-sage-900/20 rounded-lg px-4 py-2"
-                                        onClick={() => navigate('/courses')}
+                                        icon={<ArrowRightOutlined />}
+                                        onClick={() => navigate('/dashboard/courses')}
+                                        style={{ color: '#E76F51' }}
                                     >
-                                        View All <ArrowRightOutlined />
+                                        View All
                                     </Button>
                                 </div>
                             }
+                            style={{
+                                background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
+                                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                                borderRadius: '20px',
+                                backdropFilter: 'blur(20px)'
+                            }}
                         >
-                            <div className="space-y-6">
-                                {activeCourses.map((course, index) => (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                {activeCourses.map((course) => (
                                     <Card
                                         key={course.id}
-                                        className="bg-gradient-to-r from-cream-50 to-white dark:from-warm-800 dark:to-warm-750 border-0 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
+                                        style={{
+                                            background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)',
+                                            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                                            borderRadius: '16px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s ease'
+                                        }}
+                                        className="hover:shadow-md hover:scale-102"
                                         onClick={() => navigate(`/courses/${course.id}`)}
                                     >
-                                        <div className="flex items-center gap-6 p-2">
-                                            <div className="relative">
-                                                <div
-                                                    className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition-transform duration-300"
-                                                    style={{
-                                                        background: `linear-gradient(135deg, ${course.color}20, ${course.color}30)`,
-                                                        border: `2px solid ${course.color}40`
-                                                    }}
-                                                >
-                                                    {course.thumbnail}
-                                                </div>
-                                                <div className="absolute -top-2 -right-2 w-6 h-6 bg-olive-500 rounded-full flex items-center justify-center">
-                                                    <Text className="text-white text-xs font-bold">{index + 1}</Text>
-                                                </div>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <div className="flex-1">
-                                                        <Title level={4} className="text-charcoal-500 dark:text-cream-100 mb-1 group-hover:text-terracotta-500 transition-colors">
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                            <div style={{ fontSize: '48px' }}>{course.thumbnail}</div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                                                    <div>
+                                                        <Title level={5} style={{
+                                                            margin: 0,
+                                                            color: isDark ? '#ffffff' : '#000000',
+                                                            marginBottom: '4px'
+                                                        }}>
                                                             {course.title}
                                                         </Title>
-                                                        <div className="flex items-center gap-4 mb-2">
-                                                            <Text className="text-warm-500 dark:text-warm-300 text-sm">
-                                                                by {course.instructor}
-                                                            </Text>
-                                                            <div className="flex items-center gap-1">
-                                                                <Rate disabled value={course.rating} allowHalf className="text-xs" />
-                                                                <Text className="text-warm-400 text-xs">({course.rating})</Text>
-                                                            </div>
-                                                        </div>
+                                                        <Text style={{
+                                                            color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)'
+                                                        }}>
+                                                            by {course.instructor}
+                                                        </Text>
                                                     </div>
+                                                    <Rate disabled value={course.rating} allowHalf style={{ fontSize: '14px' }} />
                                                 </div>
-                                                <div className="mb-4">
-                                                    <div className="flex justify-between items-center mb-2">
-                                                        <Text className="text-warm-500 dark:text-warm-300 text-sm font-medium">
+                                                <div style={{ marginBottom: '12px' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                                        <Text style={{
+                                                            color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                                                            fontSize: '14px'
+                                                        }}>
                                                             Progress: {course.progress}%
                                                         </Text>
-                                                        <Text className="text-sage-500 text-sm font-medium">
-                                                            Next: {course.nextLesson}
+                                                        <Text style={{
+                                                            color: '#2A9D8F',
+                                                            fontSize: '14px',
+                                                            fontWeight: '600'
+                                                        }}>
+                                                            {course.lessonsLeft} lessons left
                                                         </Text>
                                                     </div>
-                                                    <div className="relative">
-                                                        <Progress
-                                                            percent={course.progress}
-                                                            strokeColor={{
-                                                                '0%': course.color,
-                                                                '100%': course.color + 'CC'
-                                                            }}
-                                                            trailColor={isDark ? '#4A4341' : '#F1EFED'}
-                                                            strokeWidth={8}
-                                                            showInfo={false}
-                                                            className="rounded-full"
-                                                        />
-                                                    </div>
+                                                    <Progress
+                                                        percent={course.progress}
+                                                        strokeColor="#E76F51"
+                                                        trailColor={isDark ? 'rgba(255, 255, 255, 0.1)' : '#f0f0f0'}
+                                                        size="small"
+                                                    />
                                                 </div>
-                                                <div className="flex justify-between items-center">
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Text style={{
+                                                        color: isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)',
+                                                        fontSize: '14px'
+                                                    }}>
+                                                        Next: {course.nextLesson}
+                                                    </Text>
                                                     <Button
                                                         type="primary"
+                                                        size="small"
                                                         icon={<PlayCircleOutlined />}
-                                                        className="bg-terracotta-500 hover:bg-terracotta-600 border-terracotta-500 hover:border-terracotta-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
-                                                        size="default"
+                                                        style={{
+                                                            background: '#E76F51',
+                                                            borderColor: '#E76F51',
+                                                            borderRadius: '8px'
+                                                        }}
                                                     >
-                                                        Continue Learning
+                                                        Continue
                                                     </Button>
-                                                    <Text className="text-warm-400 text-sm">
-                                                        {Math.round((100 - course.progress) / 10)} lessons left
-                                                    </Text>
                                                 </div>
                                             </div>
                                         </div>
@@ -362,190 +791,66 @@ const Dashboard = () => {
                         </Card>
                     </Col>
 
+                    {/* Recent Activity */}
                     <Col xs={24} lg={8}>
-                        <div className="space-y-8">
-                            {/* Enhanced Level Progress */}
-                            <Card className="bg-white dark:bg-warm-900 border-0 shadow-lg">
-                                <div className="text-center p-4">
-                                    <div className="flex items-center justify-center gap-3 mb-6">
-                                        <div className="w-10 h-10 bg-terracotta-100 dark:bg-terracotta-900 rounded-xl flex items-center justify-center">
-                                            <TrophyOutlined className="text-terracotta-500 text-lg" />
-                                        </div>
-                                        <Title level={3} className="text-charcoal-500 dark:text-cream-100 mb-0">
-                                            Your Level
-                                        </Title>
+                        <Card
+                            title={
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        borderRadius: '12px',
+                                        background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}>
+                                        <LineChartOutlined style={{ fontSize: '20px', color: '#2A9D8F' }} />
                                     </div>
-
-                                    <div className="relative mb-6">
-                                        <Progress
-                                            type="circle"
-                                            percent={Math.round((stats.xp / stats.nextLevelXp) * 100)}
-                                            strokeColor={{
-                                                '0%': '#E76F51',
-                                                '100%': '#F4A261'
-                                            }}
-                                            trailColor={isDark ? '#4A4341' : '#F1EFED'}
-                                            strokeWidth={8}
-                                            size={140}
-                                            format={() => (
-                                                <div className="text-center">
-                                                    <Text className="text-terracotta-500 text-2xl font-bold block">
-                                                        {stats.level}
-                                                    </Text>
-                                                    <Text className="text-warm-500 dark:text-warm-300 text-xs">
-                                                        LEVEL
-                                                    </Text>
-                                                </div>
-                                            )}
-                                        />
-                                    </div>
-
-                                    <div className="bg-cream-50 dark:bg-warm-800 rounded-xl p-4 mb-4">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <Text className="text-warm-500 dark:text-warm-300 text-sm font-medium">
-                                                Current XP
-                                            </Text>
-                                            <Text className="text-terracotta-500 text-sm font-bold">
-                                                {stats.xp.toLocaleString()}
-                                            </Text>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <Text className="text-warm-500 dark:text-warm-300 text-sm font-medium">
-                                                Next Level
-                                            </Text>
-                                            <Text className="text-sage-500 text-sm font-bold">
-                                                {stats.nextLevelXp.toLocaleString()}
-                                            </Text>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-center gap-2">
-                                        <StarOutlined className="text-mustard-500" />
-                                        <Text className="text-warm-500 dark:text-warm-300 text-sm">
-                                            {stats.nextLevelXp - stats.xp} XP to next level
-                                        </Text>
-                                    </div>
-                                </div>
-                            </Card>
-
-                            {/* Enhanced Recent Activity */}
-                            <Card className="bg-white dark:bg-warm-900 border-0 shadow-lg">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 bg-sage-100 dark:bg-sage-900 rounded-xl flex items-center justify-center">
-                                        <ClockCircleOutlined className="text-sage-500 text-lg" />
-                                    </div>
-                                    <Title level={3} className="text-charcoal-500 dark:text-cream-100 mb-0">
+                                    <Title level={3} style={{
+                                        margin: 0,
+                                        color: isDark ? '#ffffff' : '#000000'
+                                    }}>
                                         Recent Activity
                                     </Title>
                                 </div>
-
-                                <div className="space-y-4">
-                                    {recentActivity.map((activity, index) => (
-                                        <div key={activity.id} className="flex items-start gap-4 p-3 rounded-xl bg-cream-50 dark:bg-warm-800 hover:bg-cream-100 dark:hover:bg-warm-700 transition-colors duration-200">
-                                            <div className="w-10 h-10 rounded-xl bg-white dark:bg-warm-900 flex items-center justify-center shadow-sm">
-                                                {activity.icon}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <Text className="text-charcoal-500 dark:text-cream-100 text-sm font-medium block mb-1">
-                                                    {activity.title}
-                                                </Text>
-                                                <Text className="text-warm-500 dark:text-warm-300 text-xs">
-                                                    {activity.time}
-                                                </Text>
-                                            </div>
+                            }
+                            style={{
+                                background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
+                                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                                borderRadius: '20px',
+                                backdropFilter: 'blur(20px)'
+                            }}
+                        >
+                            <Timeline
+                                items={(Array.isArray(recentActivity) ? recentActivity : []).map((activity) => ({
+                                    dot: activity.type === 'lesson' ?
+                                        <CheckCircleOutlined style={{ color: '#6A994E' }} /> :
+                                        activity.type === 'course' ?
+                                            <BookOutlined style={{ color: '#E76F51' }} /> :
+                                            <TrophyOutlined style={{ color: '#F4A261' }} />,
+                                    children: (
+                                        <div>
+                                            <Text style={{
+                                                color: isDark ? '#ffffff' : '#000000',
+                                                display: 'block',
+                                                fontWeight: '500'
+                                            }}>
+                                                {activity.title}
+                                            </Text>
+                                            <Text style={{
+                                                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)',
+                                                fontSize: '12px'
+                                            }}>
+                                                {activity.time}
+                                            </Text>
                                         </div>
-                                    ))}
-                                </div>
-
-                                <div className="mt-6 text-center">
-                                    <Button
-                                        type="text"
-                                        className="text-sage-500 hover:text-sage-600 hover:bg-sage-50 dark:hover:bg-sage-900/20 rounded-lg"
-                                        onClick={() => navigate('/activity')}
-                                    >
-                                        View All Activity <ArrowRightOutlined />
-                                    </Button>
-                                </div>
-                            </Card>
-                        </div>
+                                    )
+                                }))}
+                            />
+                        </Card>
                     </Col>
                 </Row>
-
-                {/* Enhanced Quick Actions */}
-                <Card className="bg-white dark:bg-warm-900 border-0 shadow-lg">
-                    <div className="flex items-center gap-3 mb-8">
-                        <div className="w-10 h-10 bg-mustard-100 dark:bg-mustard-900 rounded-xl flex items-center justify-center">
-                            <StarOutlined className="text-mustard-500 text-lg" />
-                        </div>
-                        <Title level={3} className="text-charcoal-500 dark:text-cream-100 mb-0">
-                            Quick Actions
-                        </Title>
-                    </div>
-
-                    <Row gutter={[24, 24]}>
-                        <Col xs={24} sm={12} md={6}>
-                            <div className="group">
-                                <Button
-                                    type="primary"
-                                    block
-                                    icon={<BookOutlined />}
-                                    className="h-16 bg-gradient-to-r from-terracotta-500 to-terracotta-600 hover:from-terracotta-600 hover:to-terracotta-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 rounded-xl text-white font-medium"
-                                    onClick={() => navigate('/courses')}
-                                >
-                                    <div className="flex flex-col items-center gap-1">
-                                        <span className="text-lg">Browse Courses</span>
-                                        <span className="text-xs opacity-90">Explore new topics</span>
-                                    </div>
-                                </Button>
-                            </div>
-                        </Col>
-                        <Col xs={24} sm={12} md={6}>
-                            <div className="group">
-                                <Button
-                                    block
-                                    icon={<TrophyOutlined />}
-                                    className="h-16 bg-gradient-to-r from-olive-500 to-olive-600 hover:from-olive-600 hover:to-olive-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 rounded-xl text-white font-medium"
-                                    onClick={() => navigate('/achievements')}
-                                >
-                                    <div className="flex flex-col items-center gap-1">
-                                        <span className="text-lg">Achievements</span>
-                                        <span className="text-xs opacity-90">View your progress</span>
-                                    </div>
-                                </Button>
-                            </div>
-                        </Col>
-                        <Col xs={24} sm={12} md={6}>
-                            <div className="group">
-                                <Button
-                                    block
-                                    icon={<CalendarOutlined />}
-                                    className="h-16 bg-gradient-to-r from-sage-500 to-sage-600 hover:from-sage-600 hover:to-sage-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 rounded-xl text-white font-medium"
-                                    onClick={() => navigate('/schedule')}
-                                >
-                                    <div className="flex flex-col items-center gap-1">
-                                        <span className="text-lg">Schedule</span>
-                                        <span className="text-xs opacity-90">Plan your learning</span>
-                                    </div>
-                                </Button>
-                            </div>
-                        </Col>
-                        <Col xs={24} sm={12} md={6}>
-                            <div className="group">
-                                <Button
-                                    block
-                                    icon={<StarOutlined />}
-                                    className="h-16 bg-gradient-to-r from-mustard-500 to-mustard-600 hover:from-mustard-600 hover:to-mustard-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 rounded-xl text-charcoal-500 font-medium"
-                                    onClick={() => navigate('/certificates')}
-                                >
-                                    <div className="flex flex-col items-center gap-1">
-                                        <span className="text-lg">Certificates</span>
-                                        <span className="text-xs opacity-90">Download credentials</span>
-                                    </div>
-                                </Button>
-                            </div>
-                        </Col>
-                    </Row>
-                </Card>
             </div>
         </div>
     );

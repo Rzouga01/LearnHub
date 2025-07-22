@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 import {
     Table,
     Card,
@@ -31,72 +34,178 @@ import {
 const { Title, Text } = Typography;
 
 const Students = () => {
+    const { isDark } = useTheme();
+    const { user } = useAuth();
     const [searchText, setSearchText] = useState('');
     const [selectedLevel, setSelectedLevel] = useState('all');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Sample students data with new color scheme
-    const studentsData = [
-        {
-            id: 1,
-            name: 'Alex Thompson',
-            email: 'alex.thompson@email.com',
-            avatar: '👨‍💻',
-            joinedDate: '2024-01-15',
-            coursesEnrolled: 5,
-            coursesCompleted: 3,
-            level: 'Intermediate',
-            totalHours: 127,
-            certificates: 3,
-            progress: 78,
-            status: 'Active',
-            lastActivity: '2 hours ago'
-        },
-        {
-            id: 2,
-            name: 'Maria Garcia',
-            email: 'maria.garcia@email.com',
-            avatar: '👩‍🎨',
-            joinedDate: '2024-02-01',
-            coursesEnrolled: 3,
-            coursesCompleted: 2,
-            level: 'Beginner',
-            totalHours: 84,
-            certificates: 2,
-            progress: 65,
-            status: 'Active',
-            lastActivity: '1 day ago'
-        },
-        {
-            id: 3,
-            name: 'David Kim',
-            email: 'david.kim@email.com',
-            avatar: '👨‍🔬',
-            joinedDate: '2023-12-10',
-            coursesEnrolled: 8,
-            coursesCompleted: 7,
-            level: 'Advanced',
-            totalHours: 298,
-            certificates: 7,
-            progress: 92,
-            status: 'Active',
-            lastActivity: '5 minutes ago'
-        },
-        {
-            id: 4,
-            name: 'Sarah Wilson',
-            email: 'sarah.wilson@email.com',
-            avatar: '👩‍💼',
-            joinedDate: '2024-01-28',
-            coursesEnrolled: 4,
-            coursesCompleted: 1,
-            level: 'Beginner',
-            totalHours: 45,
-            certificates: 1,
-            progress: 25,
-            status: 'Inactive',
-            lastActivity: '1 week ago'
+    // Real data states
+    const [studentsData, setStudentsData] = useState([]);
+
+    // Fetch students data
+    useEffect(() => {
+        const fetchStudents = async () => {
+            setLoading(true);
+            setError(null);
+            
+            try {
+                let students = [];
+                
+                if (user.role === 'trainer') {
+                    // For trainers: Only get students enrolled in their courses
+                    const trainerCoursesResponse = await api.routes.trainings.getAll();
+                    const allCourses = trainerCoursesResponse.data || [];
+                    const trainerCourses = allCourses.filter(course => course.trainer_id === user.id);
+                    
+                    // Get enrollments for trainer's courses
+                    const enrollmentsResponse = await api.routes.enrollments.getAll();
+                    const allEnrollments = enrollmentsResponse.data || [];
+                    
+                    // Filter enrollments for trainer's courses only
+                    const trainerEnrollments = allEnrollments.filter(enrollment => 
+                        trainerCourses.some(course => course.id === enrollment.training_id)
+                    );
+                    
+                    // Get unique student IDs from enrollments
+                    const studentIds = [...new Set(trainerEnrollments.map(e => e.user_id))];
+                    
+                    // Fetch student details
+                    const studentsResponse = await api.routes.users.getByRole('student');
+                    const allStudents = studentsResponse.data || [];
+                    
+                    // Filter to only include students enrolled in trainer's courses
+                    students = allStudents.filter(student => studentIds.includes(student.id));
+                    
+                    // Add enrollment data to each student
+                    students = students.map(student => {
+                        const studentEnrollments = trainerEnrollments.filter(e => e.user_id === student.id);
+                        return {
+                            ...student,
+                            enrollments: studentEnrollments,
+                            trainerCourses: studentEnrollments.map(e => 
+                                trainerCourses.find(c => c.id === e.training_id)
+                            ).filter(Boolean)
+                        };
+                    });
+                } else if (user.role === 'coordinator' || user.role === 'admin') {
+                    // For coordinators/admins: Get all students
+                    const response = await api.routes.users.getByRole('student');
+                    students = response.data || [];
+                } else {
+                    // Other roles shouldn't access this page
+                    setError('Access denied');
+                    return;
+                }
+                
+                // Transform API data to match our component structure
+                const transformedStudents = students.map(student => {
+                    const enrollments = student.enrollments || [];
+                    const trainerCourses = student.trainerCourses || [];
+                    
+                    return {
+                        id: student.id,
+                        name: student.name,
+                        email: student.email,
+                        avatar: getRandomAvatar(),
+                        joinedDate: new Date(student.created_at).toLocaleDateString(),
+                        coursesEnrolled: user.role === 'trainer' ? trainerCourses.length : enrollments.length,
+                        coursesCompleted: enrollments.filter(e => e.status === 'completed').length,
+                        level: calculateLevel(enrollments.length),
+                        totalHours: calculateTotalHours(user.role === 'trainer' ? trainerCourses : enrollments),
+                        certificates: enrollments.filter(e => e.status === 'completed').length,
+                        progress: calculateProgress(enrollments),
+                        status: student.last_login_at && new Date(student.last_login_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) ? 'Active' : 'Inactive',
+                        lastActivity: formatLastActivity(student.last_login_at),
+                        enrolledCourses: user.role === 'trainer' ? trainerCourses : enrollments
+                    };
+                });
+                
+                setStudentsData(transformedStudents);
+            } catch (err) {
+                console.error('Error fetching students:', err);
+                setError('Failed to load students data');
+                
+                // Fallback to sample data if API fails
+                setStudentsData([
+                    {
+                        id: 1,
+                        name: 'Alex Thompson',
+                        email: 'alex.thompson@email.com',
+                        avatar: '👨‍💻',
+                        joinedDate: '2024-01-15',
+                        coursesEnrolled: user.role === 'trainer' ? 2 : 5,
+                        coursesCompleted: 1,
+                        level: 'Intermediate',
+                        totalHours: 45,
+                        certificates: 1,
+                        progress: 50,
+                        status: 'Active',
+                        lastActivity: '2 hours ago'
+                    },
+                    {
+                        id: 2,
+                        name: 'Maria Garcia',
+                        email: 'maria.garcia@email.com',
+                        avatar: '👩‍🎨',
+                        joinedDate: '2024-02-01',
+                        coursesEnrolled: user.role === 'trainer' ? 1 : 3,
+                        coursesCompleted: 1,
+                        level: 'Beginner',
+                        totalHours: 30,
+                        certificates: 1,
+                        progress: 75,
+                        status: 'Active',
+                        lastActivity: '1 day ago'
+                    }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user && (user.role === 'trainer' || user.role === 'coordinator' || user.role === 'admin')) {
+            fetchStudents();
         }
-    ];
+    }, [user]);
+
+    // Helper functions
+    const getRandomAvatar = () => {
+        const avatars = ['👨‍💻', '👩‍💻', '👨‍🎨', '👩‍🎨', '👨‍🔬', '👩‍🔬', '👨‍💼', '👩‍💼'];
+        return avatars[Math.floor(Math.random() * avatars.length)];
+    };
+
+    const calculateLevel = (coursesCount) => {
+        if (coursesCount >= 10) return 'Advanced';
+        if (coursesCount >= 5) return 'Intermediate';
+        return 'Beginner';
+    };
+
+    const calculateTotalHours = (enrollments) => {
+        return enrollments.reduce((total, enrollment) => {
+            return total + (enrollment.training?.duration_hours || 0);
+        }, 0);
+    };
+
+    const calculateProgress = (enrollments) => {
+        if (enrollments.length === 0) return 0;
+        const completedCount = enrollments.filter(e => e.status === 'completed').length;
+        return Math.round((completedCount / enrollments.length) * 100);
+    };
+
+    const formatLastActivity = (lastLogin) => {
+        if (!lastLogin) return 'Never';
+        const now = new Date();
+        const loginDate = new Date(lastLogin);
+        const diffInHours = Math.floor((now - loginDate) / (1000 * 60 * 60));
+        
+        if (diffInHours < 1) return 'Just now';
+        if (diffInHours < 24) return `${diffInHours} hours ago`;
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays < 7) return `${diffInDays} days ago`;
+        return `${Math.floor(diffInDays / 7)} weeks ago`;
+    };
 
     const getLevelColor = (level) => {
         const levelColors = {
@@ -250,97 +359,220 @@ const Students = () => {
     const stats = {
         totalStudents: studentsData.length,
         activeStudents: studentsData.filter(s => s.status === 'Active').length,
-        avgProgress: Math.round(studentsData.reduce((acc, s) => acc + s.progress, 0) / studentsData.length),
+        avgProgress: studentsData.length > 0 ? Math.round(studentsData.reduce((acc, s) => acc + s.progress, 0) / studentsData.length) : 0,
         totalCertificates: studentsData.reduce((acc, s) => acc + s.certificates, 0)
     };
 
+    if (loading) {
+        return (
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '100vh',
+                background: isDark ? 'linear-gradient(135deg, #0f172a, #1e293b)' : 'linear-gradient(135deg, #f8f9fa, #ffffff)'
+            }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '18px', color: isDark ? '#ffffff' : '#000000' }}>
+                        Loading students...
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '100vh',
+                background: isDark ? 'linear-gradient(135deg, #0f172a, #1e293b)' : 'linear-gradient(135deg, #f8f9fa, #ffffff)'
+            }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '18px', color: '#ef4444' }}>
+                        {error}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-cream-100 dark:bg-charcoal-500 p-6 transition-colors duration-300">
-            <div className="max-w-7xl mx-auto space-y-6">
+        <div style={{
+            minHeight: '100vh',
+            padding: '24px',
+            background: isDark 
+                ? 'linear-gradient(135deg, #0f172a, #1e293b)'
+                : 'linear-gradient(135deg, #f8f9fa, #ffffff)'
+        }}>
+            <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
                 {/* Header */}
-                <Card className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700">
-                    <Title level={2} className="text-charcoal-500 dark:text-cream-100 mb-2">
-                        <UserOutlined className="text-terracotta-500 mr-3" />
-                        Students Management
+                <div className="mb-8">
+                    <Title level={1} className="mb-2" style={{ 
+                        color: isDark ? '#ffffff' : '#000000',
+                        fontSize: '32px',
+                        fontWeight: '700'
+                    }}>
+                        <UserOutlined className="mr-3" style={{ color: '#E76F51' }} />
+                        {user?.role === 'trainer' ? 'My Students' : 'Students Management'}
                     </Title>
-                    <Text className="text-warm-500 dark:text-warm-300">
-                        Monitor student progress and engagement
-                    </Text>
-                </Card>
+                    <p className="text-lg" style={{ 
+                        color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)' 
+                    }}>
+                        {user?.role === 'trainer' 
+                            ? 'Monitor your students\' progress in your courses' 
+                            : 'Monitor student progress and engagement'
+                        }
+                    </p>
+                </div>
 
                 {/* Stats Overview */}
-                <Row gutter={[24, 24]}>
+                <Row gutter={[24, 24]} className="mb-8">
                     <Col xs={24} sm={12} lg={6}>
-                        <Card className="bg-terracotta-50 dark:bg-terracotta-900 border-terracotta-200 dark:border-terracotta-700 text-center">
-                            <Statistic
-                                title={<span className="text-warm-500 dark:text-warm-300">Total Students</span>}
-                                value={stats.totalStudents}
-                                prefix={<UserOutlined className="text-terracotta-500" />}
-                                valueStyle={{ color: '#E76F51' }}
-                            />
-                        </Card>
+                        <div style={{
+                            background: isDark ? '#1e293b' : '#ffffff',
+                            borderRadius: '12px',
+                            padding: '24px',
+                            textAlign: 'center',
+                            border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+                            boxShadow: isDark 
+                                ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)' 
+                                : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <UserOutlined style={{ color: '#E76F51', fontSize: '24px', marginBottom: '12px' }} />
+                            <div style={{ color: '#E76F51', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
+                                {stats.totalStudents}
+                            </div>
+                            <div style={{ 
+                                color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                                fontSize: '14px'
+                            }}>
+                                Total Students
+                            </div>
+                        </div>
                     </Col>
                     <Col xs={24} sm={12} lg={6}>
-                        <Card className="bg-olive-50 dark:bg-olive-900 border-olive-200 dark:border-olive-700 text-center">
-                            <Statistic
-                                title={<span className="text-warm-500 dark:text-warm-300">Active Students</span>}
-                                value={stats.activeStudents}
-                                prefix={<UserOutlined className="text-olive-500" />}
-                                valueStyle={{ color: '#6A994E' }}
-                            />
-                        </Card>
+                        <div style={{
+                            background: isDark ? '#1e293b' : '#ffffff',
+                            borderRadius: '12px',
+                            padding: '24px',
+                            textAlign: 'center',
+                            border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+                            boxShadow: isDark 
+                                ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)' 
+                                : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <UserOutlined style={{ color: '#6A994E', fontSize: '24px', marginBottom: '12px' }} />
+                            <div style={{ color: '#6A994E', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
+                                {stats.activeStudents}
+                            </div>
+                            <div style={{ 
+                                color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                                fontSize: '14px'
+                            }}>
+                                Active Students
+                            </div>
+                        </div>
                     </Col>
                     <Col xs={24} sm={12} lg={6}>
-                        <Card className="bg-sage-50 dark:bg-sage-900 border-sage-200 dark:border-sage-700 text-center">
-                            <Statistic
-                                title={<span className="text-warm-500 dark:text-warm-300">Avg Progress</span>}
-                                value={stats.avgProgress}
-                                suffix="%"
-                                prefix={<BookOutlined className="text-sage-500" />}
-                                valueStyle={{ color: '#2A9D8F' }}
-                            />
-                        </Card>
+                        <div style={{
+                            background: isDark ? '#1e293b' : '#ffffff',
+                            borderRadius: '12px',
+                            padding: '24px',
+                            textAlign: 'center',
+                            border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+                            boxShadow: isDark 
+                                ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)' 
+                                : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <BookOutlined style={{ color: '#2A9D8F', fontSize: '24px', marginBottom: '12px' }} />
+                            <div style={{ color: '#2A9D8F', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
+                                {stats.avgProgress}%
+                            </div>
+                            <div style={{ 
+                                color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                                fontSize: '14px'
+                            }}>
+                                Avg Progress
+                            </div>
+                        </div>
                     </Col>
                     <Col xs={24} sm={12} lg={6}>
-                        <Card className="bg-mustard-50 dark:bg-mustard-900 border-mustard-200 dark:border-mustard-700 text-center">
-                            <Statistic
-                                title={<span className="text-warm-500 dark:text-warm-300">Certificates</span>}
-                                value={stats.totalCertificates}
-                                prefix={<TrophyOutlined className="text-mustard-500" />}
-                                valueStyle={{ color: '#F4A261' }}
-                            />
-                        </Card>
+                        <div style={{
+                            background: isDark ? '#1e293b' : '#ffffff',
+                            borderRadius: '12px',
+                            padding: '24px',
+                            textAlign: 'center',
+                            border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+                            boxShadow: isDark 
+                                ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)' 
+                                : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <TrophyOutlined style={{ color: '#F4A261', fontSize: '24px', marginBottom: '12px' }} />
+                            <div style={{ color: '#F4A261', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
+                                {stats.totalCertificates}
+                            </div>
+                            <div style={{ 
+                                color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                                fontSize: '14px'
+                            }}>
+                                Certificates
+                            </div>
+                        </div>
                     </Col>
                 </Row>
 
                 {/* Search and Filters */}
-                <Card className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700">
+                <div className="mb-6">
                     <Row gutter={[16, 16]}>
-                        <Col xs={24} md={12}>
+                        <Col xs={24} md={16}>
                             <Input
                                 placeholder="Search students by name or email..."
-                                prefix={<SearchOutlined className="text-sage-500" />}
+                                prefix={<SearchOutlined style={{ color: '#2A9D8F' }} />}
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
-                                className="h-10 bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600"
+                                style={{
+                                    height: '48px',
+                                    borderRadius: '8px',
+                                    fontSize: '16px',
+                                    background: isDark ? '#1e293b' : '#ffffff',
+                                    borderColor: isDark ? '#334155' : '#e2e8f0',
+                                    color: isDark ? '#ffffff' : '#000000'
+                                }}
                             />
                         </Col>
-                        <Col xs={24} md={12}>
+                        <Col xs={24} md={8}>
                             <div className="flex justify-end">
                                 <Button
                                     icon={<FilterOutlined />}
-                                    className="text-sage-500 border-sage-500 hover:bg-sage-50 dark:hover:bg-sage-900"
+                                    style={{
+                                        height: '48px',
+                                        borderRadius: '8px',
+                                        borderColor: '#2A9D8F',
+                                        color: '#2A9D8F',
+                                        background: 'transparent'
+                                    }}
                                 >
                                     Advanced Filters
                                 </Button>
                             </div>
                         </Col>
                     </Row>
-                </Card>
+                </div>
 
                 {/* Students Table */}
-                <Card className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700">
+                <div style={{
+                    background: isDark ? '#1e293b' : '#ffffff',
+                    borderRadius: '12px',
+                    padding: '24px',
+                    border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+                    boxShadow: isDark 
+                        ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)' 
+                        : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}>
                     <Table
                         columns={columns}
                         dataSource={filteredStudents}
@@ -348,15 +580,21 @@ const Students = () => {
                         pagination={{
                             pageSize: 10,
                             showTotal: (total, range) => (
-                                <span className="text-warm-500 dark:text-warm-300">
+                                <span style={{ 
+                                    color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)' 
+                                }}>
                                     {`${range[0]}-${range[1]} of ${total} students`}
                                 </span>
                             ),
+                            showSizeChanger: true,
+                            showQuickJumper: true
                         }}
-                        className="custom-table"
                         scroll={{ x: 'max-content' }}
+                        style={{
+                            background: 'transparent'
+                        }}
                     />
-                </Card>
+                </div>
             </div>
         </div>
     );

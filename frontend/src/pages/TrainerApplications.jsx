@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Table,
     Card,
@@ -17,7 +17,8 @@ import {
     Tooltip,
     Row,
     Col,
-    Statistic
+    Statistic,
+    Spin
 } from 'antd';
 import {
     SearchOutlined,
@@ -31,103 +32,132 @@ import {
     BookOutlined,
     TrophyOutlined
 } from '@ant-design/icons';
+import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 const TrainerApplications = () => {
+    const { isDark } = useTheme();
+    const { user } = useAuth();
     const [searchText, setSearchText] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedApplication, setSelectedApplication] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Sample applications data with new color scheme
-    const applicationsData = [
-        {
-            id: 1,
-            name: 'John Mitchell',
-            email: 'john.mitchell@email.com',
-            phone: '+1 (555) 123-4567',
-            avatar: '👨‍💻',
-            appliedDate: '2024-01-15',
-            status: 'Under Review',
-            primarySkill: 'Web Development',
-            experienceLevel: 'Advanced',
-            currentJob: 'Senior Full Stack Developer',
-            company: 'TechCorp Inc.',
-            location: 'San Francisco, CA',
-            skills: ['React', 'Node.js', 'TypeScript', 'AWS'],
-            motivation: 'Passionate about sharing knowledge and helping others grow in their careers.',
-            teachingExperience: '3 years of mentoring junior developers',
-            sampleCourse: 'Building Modern Web Applications with React and Node.js',
-            resumeUploaded: true,
-            portfolioUrl: 'https://johnmitchell.dev',
-            linkedinUrl: 'https://linkedin.com/in/johnmitchell'
-        },
-        {
-            id: 2,
-            name: 'Dr. Lisa Chen',
-            email: 'lisa.chen@email.com',
-            phone: '+1 (555) 987-6543',
-            avatar: '👩‍🔬',
-            appliedDate: '2024-01-20',
-            status: 'Approved',
-            primarySkill: 'Data Science',
-            experienceLevel: 'Expert',
-            currentJob: 'Principal Data Scientist',
-            company: 'DataTech Solutions',
-            location: 'Seattle, WA',
-            skills: ['Python', 'Machine Learning', 'TensorFlow', 'SQL'],
-            motivation: 'Want to democratize data science education and make it accessible to everyone.',
-            teachingExperience: 'University lecturer for 5 years, online course creator',
-            sampleCourse: 'Introduction to Machine Learning with Python',
-            resumeUploaded: true,
-            portfolioUrl: 'https://lisachen-datascience.com',
-            linkedinUrl: 'https://linkedin.com/in/lisachen'
-        },
-        {
-            id: 3,
-            name: 'Marcus Thompson',
-            email: 'marcus.thompson@email.com',
-            phone: '+1 (555) 456-7890',
-            avatar: '👨‍🎨',
-            appliedDate: '2024-01-25',
-            status: 'Pending',
-            primarySkill: 'Design',
-            experienceLevel: 'Advanced',
-            currentJob: 'UX Design Manager',
-            company: 'Creative Agency',
-            location: 'Austin, TX',
-            skills: ['Figma', 'Adobe Creative Suite', 'User Research', 'Prototyping'],
-            motivation: 'Believe that good design can change the world and want to teach others.',
-            teachingExperience: 'Workshop facilitator at design conferences',
-            sampleCourse: 'Complete UX Design Process: From Research to Prototype',
-            resumeUploaded: true,
-            portfolioUrl: 'https://marcusthompson.design',
-            linkedinUrl: 'https://linkedin.com/in/marcusthompson'
-        },
-        {
-            id: 4,
-            name: 'Sarah Kim',
-            email: 'sarah.kim@email.com',
-            phone: '+1 (555) 321-0987',
-            avatar: '👩‍💼',
-            appliedDate: '2024-01-30',
-            status: 'Rejected',
-            primarySkill: 'DevOps',
-            experienceLevel: 'Intermediate',
-            currentJob: 'DevOps Engineer',
-            company: 'CloudTech Inc.',
-            location: 'Denver, CO',
-            skills: ['Docker', 'Kubernetes', 'AWS', 'Jenkins'],
-            motivation: 'Want to help developers understand the importance of DevOps practices.',
-            teachingExperience: 'Internal training sessions at current company',
-            sampleCourse: 'Docker and Kubernetes for Developers',
-            resumeUploaded: true,
-            portfolioUrl: 'https://sarahkim.dev',
-            linkedinUrl: 'https://linkedin.com/in/sarahkim'
+    // Real data states
+    const [applicationsData, setApplicationsData] = useState([]);
+
+    // Fetch trainer applications
+    useEffect(() => {
+        const fetchApplications = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                // For now, we'll use a mock API endpoint since trainer applications might not be implemented yet
+                // In a real scenario, this would be something like: api.routes.trainerApplications.getAll()
+
+                // Check if we have a specific endpoint for trainer applications
+                const response = await api.get('/api/trainer-applications');
+                const applications = response.data || [];
+
+                // Transform API data to match our component structure
+                const transformedApplications = applications.map(app => ({
+                    id: app.id,
+                    name: app.name || app.user?.name,
+                    email: app.email || app.user?.email,
+                    phone: app.phone || app.contact_phone,
+                    avatar: getRandomAvatar(),
+                    appliedDate: new Date(app.created_at).toLocaleDateString(),
+                    status: app.status || 'Pending',
+                    primarySkill: app.primary_skill || app.expertise_area,
+                    experienceLevel: app.experience_level || 'Intermediate',
+                    currentJob: app.current_job || app.current_position,
+                    company: app.company || app.current_company,
+                    location: app.location,
+                    skills: app.skills ? (Array.isArray(app.skills) ? app.skills : app.skills.split(',')) : [],
+                    motivation: app.motivation || app.teaching_motivation,
+                    teachingExperience: app.teaching_experience,
+                    sampleCourse: app.sample_course || app.proposed_course,
+                    resumeUploaded: !!app.resume_url,
+                    portfolioUrl: app.portfolio_url,
+                    linkedinUrl: app.linkedin_url
+                }));
+
+                setApplicationsData(transformedApplications);
+            } catch (err) {
+                console.error('Error fetching trainer applications:', err);
+
+                // If the endpoint doesn't exist, fall back to sample data
+                if (err.response?.status === 404) {
+                    console.log('Trainer applications endpoint not found, using sample data');
+                    setApplicationsData([
+                        {
+                            id: 1,
+                            name: 'John Mitchell',
+                            email: 'john.mitchell@email.com',
+                            phone: '+1 (555) 123-4567',
+                            avatar: '👨‍💻',
+                            appliedDate: '2024-01-15',
+                            status: 'Under Review',
+                            primarySkill: 'Web Development',
+                            experienceLevel: 'Advanced',
+                            currentJob: 'Senior Full Stack Developer',
+                            company: 'TechCorp Inc.',
+                            location: 'San Francisco, CA',
+                            skills: ['React', 'Node.js', 'TypeScript', 'AWS'],
+                            motivation: 'Passionate about sharing knowledge and helping others grow in their careers.',
+                            teachingExperience: '3 years of mentoring junior developers',
+                            sampleCourse: 'Building Modern Web Applications with React and Node.js',
+                            resumeUploaded: true,
+                            portfolioUrl: 'https://johnmitchell.dev',
+                            linkedinUrl: 'https://linkedin.com/in/johnmitchell'
+                        },
+                        {
+                            id: 2,
+                            name: 'Dr. Lisa Chen',
+                            email: 'lisa.chen@email.com',
+                            phone: '+1 (555) 987-6543',
+                            avatar: '👩‍🔬',
+                            appliedDate: '2024-01-20',
+                            status: 'Approved',
+                            primarySkill: 'Data Science',
+                            experienceLevel: 'Expert',
+                            currentJob: 'Principal Data Scientist',
+                            company: 'DataTech Solutions',
+                            location: 'Seattle, WA',
+                            skills: ['Python', 'Machine Learning', 'TensorFlow', 'SQL'],
+                            motivation: 'Want to democratize data science education and make it accessible to everyone.',
+                            teachingExperience: 'University lecturer for 5 years, online course creator',
+                            sampleCourse: 'Introduction to Machine Learning with Python',
+                            resumeUploaded: true,
+                            portfolioUrl: 'https://lisachen-datascience.com',
+                            linkedinUrl: 'https://linkedin.com/in/lisachen'
+                        }
+                    ]);
+                } else {
+                    setError('Failed to load trainer applications');
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user && (user.role === 'coordinator' || user.role === 'admin')) {
+            fetchApplications();
         }
-    ];
+    }, [user]);
+
+    // Helper function
+    const getRandomAvatar = () => {
+        const avatars = ['👨‍💻', '👩‍💻', '👨‍🔬', '👩‍🔬', '👨‍🎨', '👩‍🎨', '👨‍💼', '👩‍💼'];
+        return avatars[Math.floor(Math.random() * avatars.length)];
+    };
 
     const getStatusColor = (status) => {
         const statusColors = {
@@ -189,8 +219,8 @@ const TrainerApplications = () => {
             key: 'experienceLevel',
             render: (level) => (
                 <Tag className={`border-0 ${level === 'Expert' ? 'bg-terracotta-100 dark:bg-terracotta-900 text-terracotta-700 dark:text-terracotta-300' :
-                        level === 'Advanced' ? 'bg-rust-100 dark:bg-rust-900 text-rust-700 dark:text-rust-300' :
-                            'bg-saffron-100 dark:bg-saffron-900 text-saffron-700 dark:text-saffron-300'
+                    level === 'Advanced' ? 'bg-rust-100 dark:bg-rust-900 text-rust-700 dark:text-rust-300' :
+                        'bg-saffron-100 dark:bg-saffron-900 text-saffron-700 dark:text-saffron-300'
                     }`}>
                     {level}
                 </Tag>
@@ -489,8 +519,8 @@ const TrainerApplications = () => {
                                             Experience Level:
                                         </Text>
                                         <Tag className={`border-0 ${selectedApplication.experienceLevel === 'Expert' ? 'bg-terracotta-100 dark:bg-terracotta-900 text-terracotta-700 dark:text-terracotta-300' :
-                                                selectedApplication.experienceLevel === 'Advanced' ? 'bg-rust-100 dark:bg-rust-900 text-rust-700 dark:text-rust-300' :
-                                                    'bg-saffron-100 dark:bg-saffron-900 text-saffron-700 dark:text-saffron-300'
+                                            selectedApplication.experienceLevel === 'Advanced' ? 'bg-rust-100 dark:bg-rust-900 text-rust-700 dark:text-rust-300' :
+                                                'bg-saffron-100 dark:bg-saffron-900 text-saffron-700 dark:text-saffron-300'
                                             }`}>
                                             {selectedApplication.experienceLevel}
                                         </Tag>

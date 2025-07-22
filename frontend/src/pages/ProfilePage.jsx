@@ -65,124 +65,42 @@ const ProfilePage = () => {
     const [editMode, setEditMode] = useState(false);
     const [activeTab, setActiveTab] = useState('1');
 
-    // Enhanced profile data with achievements and detailed stats
-    const profileData = {
-        ...user,
-        bio: "Passionate full-stack developer with 5+ years of experience building scalable web applications. Love learning new technologies and sharing knowledge with the community.",
-        title: "Senior Full Stack Developer",
-        company: "TechCorp Inc.",
-        location: "San Francisco, CA",
-        website: "https://johndoe.dev",
-        github: "https://github.com/johndoe",
-        linkedin: "https://linkedin.com/in/johndoe",
-        twitter: "https://twitter.com/johndoe",
-        joinedDate: "January 2023",
-        level: 42,
-        totalXP: 12750,
-        nextLevelXP: 15000,
-        currentStreak: 18,
-        longestStreak: 45,
-        totalCourses: 12,
-        completedCourses: 8,
-        inProgressCourses: 3,
-        savedCourses: 15,
-        certificates: 8,
-        learningHours: 247,
-        averageRating: 4.8,
-        skillsCount: 24,
-        projectsCount: 15,
-        mentorshipHours: 32
-    };
+    const [profileData, setProfileData] = useState(null);
+    const [loadingProfile, setLoadingProfile] = useState(true);
+    const [profileError, setProfileError] = useState(null);
 
-    const recentActivity = [
-        {
-            id: 1,
-            type: 'course_complete',
-            title: 'Completed "Advanced React Patterns"',
-            description: 'Earned certificate and 500 XP',
-            timestamp: '2 hours ago',
-            icon: <TrophyOutlined className="text-olive-500" />,
-            color: 'bg-olive-50 dark:bg-olive-900'
-        },
-        {
-            id: 2,
-            type: 'achievement',
-            title: 'Earned "Code Master" Badge',
-            description: 'Completed 10 coding challenges',
-            timestamp: '1 day ago',
-            icon: <CrownOutlined className="text-terracotta-500" />,
-            color: 'bg-terracotta-50 dark:bg-terracotta-900'
-        },
-        {
-            id: 3,
-            type: 'streak',
-            title: '18-Day Learning Streak',
-            description: 'Keep it up! Just 12 more days for the next milestone',
-            timestamp: '1 day ago',
-            icon: <FireOutlined className="text-saffron-500" />,
-            color: 'bg-saffron-50 dark:bg-saffron-900'
-        },
-        {
-            id: 4,
-            type: 'skill_unlock',
-            title: 'New Skill Unlocked: TypeScript',
-            description: 'Reached intermediate level',
-            timestamp: '3 days ago',
-            icon: <ThunderboltOutlined className="text-sage-500" />,
-            color: 'bg-sage-50 dark:bg-sage-900'
-        }
-    ];
+    useEffect(() => {
+        const fetchProfile = async () => {
+            setLoadingProfile(true);
+            setProfileError(null);
+            try {
+                const res = await api.routes.users.getProfile();
+                setProfileData(res.data.data || res.data);
+            } catch (err) {
+                setProfileError('Failed to load profile.');
+            } finally {
+                setLoadingProfile(false);
+            }
+        };
+        fetchProfile();
+    }, []);
 
-    const skillsData = [
-        { name: 'JavaScript', level: 95, color: '#E76F51' },
-        { name: 'React', level: 92, color: '#2A9D8F' },
-        { name: 'Node.js', level: 88, color: '#F4A261' },
-        { name: 'Python', level: 82, color: '#6A994E' },
-        { name: 'TypeScript', level: 78, color: '#F6BD60' },
-        { name: 'MongoDB', level: 75, color: '#BC4749' }
-    ];
+    const [recentActivity, setRecentActivity] = useState([]);
+    useEffect(() => {
+        const fetchActivity = async () => {
+            try {
+                const res = await api.routes.dashboard.getRecentActivity();
+                setRecentActivity(res.data.data || res.data || []);
+            } catch (err) {
+                setRecentActivity([]);
+            }
+        };
+        fetchActivity();
+    }, []);
 
-    const achievementsData = [
-        {
-            id: 1,
-            title: 'Course Completionist',
-            description: 'Completed 10+ courses',
-            icon: '🏆',
-            earned: true,
-            rarity: 'Gold',
-            earnedDate: '2024-01-15',
-            color: 'bg-saffron-100 dark:bg-saffron-900'
-        },
-        {
-            id: 2,
-            title: 'Speed Learner',
-            description: 'Completed a course in under 3 days',
-            icon: '⚡',
-            earned: true,
-            rarity: 'Silver',
-            earnedDate: '2024-01-20',
-            color: 'bg-sage-100 dark:bg-sage-900'
-        },
-        {
-            id: 3,
-            title: 'Knowledge Seeker',
-            description: 'Explored 5 different categories',
-            icon: '📚',
-            earned: true,
-            rarity: 'Bronze',
-            earnedDate: '2024-01-25',
-            color: 'bg-rust-100 dark:bg-rust-900'
-        },
-        {
-            id: 4,
-            title: 'Streak Master',
-            description: 'Maintain 30-day learning streak',
-            icon: '🔥',
-            earned: false,
-            progress: 60,
-            color: 'bg-terracotta-100 dark:bg-terracotta-900'
-        }
-    ];
+    const skillsData = profileData?.skills || [];
+
+    const achievementsData = profileData?.achievements || [];
 
     const learningGoals = [
         { id: 1, title: 'Complete React Advanced Course', progress: 75, target: 100, color: '#E76F51' },
@@ -480,6 +398,9 @@ const ProfilePage = () => {
         </Card>
     );
 
+    if (loadingProfile) return <div className="p-8 text-center text-lg">Loading profile...</div>;
+    if (profileError) return <div className="p-8 text-center text-red-500">{profileError}</div>;
+    if (!profileData) return null;
     return (
         <div className="min-h-screen bg-cream-100 dark:bg-charcoal-500 p-6 transition-colors duration-300">
             <div className="max-w-7xl mx-auto">
@@ -518,6 +439,24 @@ const ProfilePage = () => {
                             name="name"
                             label={<span className="text-charcoal-500 dark:text-cream-100">Full Name</span>}
                             rules={[{ required: true, message: 'Please enter your name' }]}
+                        >
+                            <Input className="h-10 bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600" />
+                        </Form.Item>
+                        <Form.Item
+                            name="address"
+                            label={<span className="text-charcoal-500 dark:text-cream-100">Address</span>}
+                        >
+                            <Input className="h-10 bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600" />
+                        </Form.Item>
+                        <Form.Item
+                            name="dob"
+                            label={<span className="text-charcoal-500 dark:text-cream-100">Date of Birth</span>}
+                        >
+                            <Input type="date" className="h-10 bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600" />
+                        </Form.Item>
+                        <Form.Item
+                            name="phone_number"
+                            label={<span className="text-charcoal-500 dark:text-cream-100">Phone Number</span>}
                         >
                             <Input className="h-10 bg-cream-50 dark:bg-warm-800 border-warm-200 dark:border-warm-600" />
                         </Form.Item>

@@ -37,33 +37,76 @@ const MainLayout = () => {
     const pathname = location.pathname;
     const pathSegments = pathname.split('/').filter(Boolean);
 
-    const items = [
+    // Role-based menu items
+    let items = [
         {
             key: '/dashboard',
             icon: <DashboardOutlined />,
             label: <Link to="/dashboard">Dashboard</Link>,
-        },
-        {
+        }
+    ];
+
+    // Role-specific menu items
+    if (user?.role === 'trainer') {
+        // Trainers can only see Students and Courses
+        items.push(
+            {
+                key: '/dashboard/students',
+                icon: <TeamOutlined />,
+                label: <Link to="/dashboard/students">My Students</Link>,
+            },
+            {
+                key: '/dashboard/courses',
+                icon: <BookOutlined />,
+                label: <Link to="/dashboard/courses">My Courses</Link>,
+            }
+        );
+    } else if (user?.role === 'coordinator') {
+        // Coordinators can only see Trainers and Trainer Applications
+        items.push(
+            {
+                key: '/dashboard/trainers',
+                icon: <UserOutlined />,
+                label: <Link to="/dashboard/trainers">Trainers</Link>,
+            },
+            {
+                key: '/dashboard/trainer-applications',
+                icon: <FileTextOutlined />,
+                label: <Link to="/dashboard/trainer-applications">Trainer Applications</Link>,
+            }
+        );
+    } else if (user?.role === 'admin') {
+        // Admins can see everything
+        items.push(
+            {
+                key: '/dashboard/courses',
+                icon: <BookOutlined />,
+                label: <Link to="/dashboard/courses">All Courses</Link>,
+            },
+            {
+                key: '/dashboard/students',
+                icon: <TeamOutlined />,
+                label: <Link to="/dashboard/students">All Students</Link>,
+            },
+            {
+                key: '/dashboard/trainers',
+                icon: <UserOutlined />,
+                label: <Link to="/dashboard/trainers">All Trainers</Link>,
+            },
+            {
+                key: '/dashboard/trainer-applications',
+                icon: <FileTextOutlined />,
+                label: <Link to="/dashboard/trainer-applications">Trainer Applications</Link>,
+            }
+        );
+    } else if (user?.role === 'student') {
+        // Students can only see courses
+        items.push({
             key: '/dashboard/courses',
             icon: <BookOutlined />,
-            label: <Link to="/dashboard/courses">Courses</Link>,
-        },
-        {
-            key: '/dashboard/students',
-            icon: <TeamOutlined />,
-            label: <Link to="/dashboard/students">Students</Link>,
-        },
-        {
-            key: '/dashboard/trainers',
-            icon: <UserOutlined />,
-            label: <Link to="/dashboard/trainers">Trainers</Link>,
-        },
-        {
-            key: '/dashboard/trainer-applications',
-            icon: <FileTextOutlined />,
-            label: <Link to="/dashboard/trainer-applications">Trainer Applications</Link>,
-        },
-    ];
+            label: <Link to="/dashboard/courses">Browse Courses</Link>,
+        });
+    }
 
     const userMenuItems = [
         {
@@ -106,10 +149,12 @@ const MainLayout = () => {
                     top: 0,
                     bottom: 0,
                     background: isDark
-                        ? 'linear-gradient(180deg, #001529 0%, #0d1b2a 50%, #001529 100%)'
-                        : 'linear-gradient(180deg, #001529 0%, #1c3a52 50%, #001529 100%)',
+                        ? 'linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+                        : 'linear-gradient(180deg, #f8f9fa 0%, #ffffff 50%, #f8f9fa 100%)',
                     boxShadow: '4px 0 24px rgba(0, 0, 0, 0.15)',
-                    borderRight: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRight: isDark 
+                        ? '1px solid rgba(148, 163, 184, 0.2)' 
+                        : '1px solid rgba(231, 111, 81, 0.1)',
                     transition: 'all 0.3s ease',
                     zIndex: 1000
                 }}
@@ -120,12 +165,16 @@ const MainLayout = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    backdropFilter: 'blur(10px)',
+                    border: isDark 
+                        ? '1px solid rgba(100, 116, 139, 0.3)' 
+                        : '1px solid rgba(231, 111, 81, 0.1)',
+                    background: isDark 
+                        ? 'rgba(30, 41, 59, 0.8)' 
+                        : 'rgba(231, 111, 81, 0.05)',
+                    backdropFilter: 'blur(20px)',
                     margin: '0 12px',
                     marginTop: '12px',
-                    borderRadius: '12px',
+                    borderRadius: '16px',
                     marginBottom: '24px'
                 }}>
                     {collapsed ? (
@@ -133,14 +182,14 @@ const MainLayout = () => {
                             to="/dashboard"
                             size="small"
                             showText={false}
-                            style={{ color: '#0BC5EA' }}
+                            style={{ color: '#E76F51' }}
                         />
                     ) : (
                         <Logo
                             to="/dashboard"
                             size="medium"
                             showText={true}
-                            style={{ color: '#0BC5EA' }}
+                            style={{ color: '#E76F51' }}
                         />
                     )}
                 </div>
@@ -150,23 +199,32 @@ const MainLayout = () => {
                     <div style={{
                         padding: '20px',
                         marginBottom: '24px',
-                        background: 'rgba(11, 197, 234, 0.08)',
+                        background: isDark 
+                            ? 'rgba(244, 162, 97, 0.15)' 
+                            : 'rgba(244, 162, 97, 0.08)',
                         margin: '0 12px 24px 12px',
                         borderRadius: '16px',
-                        border: '1px solid rgba(11, 197, 234, 0.2)',
+                        border: isDark 
+                            ? '1px solid rgba(244, 162, 97, 0.3)' 
+                            : '1px solid rgba(244, 162, 97, 0.2)',
+                        backdropFilter: 'blur(20px)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <Avatar
                                 size={48}
                                 icon={<UserOutlined />}
                                 style={{
-                                    background: 'linear-gradient(135deg, #0BC5EA 0%, #40a9ff 100%)',
-                                    border: '2px solid rgba(255, 255, 255, 0.2)'
+                                    background: isDark 
+                                        ? 'linear-gradient(135deg, #64748b 0%, #94a3b8 100%)' 
+                                        : 'linear-gradient(135deg, #E76F51 0%, #F4A261 100%)',
+                                    border: isDark 
+                                        ? '2px solid rgba(148, 163, 184, 0.4)' 
+                                        : '2px solid rgba(231, 111, 81, 0.3)'
                                 }}
                             />
                             <div>
                                 <div style={{
-                                    color: 'white',
+                                    color: isDark ? '#ffffff' : '#000000',
                                     fontWeight: '600',
                                     fontSize: '16px',
                                     marginBottom: '2px'
@@ -174,7 +232,7 @@ const MainLayout = () => {
                                     {user?.name || 'User'}
                                 </div>
                                 <div style={{
-                                    color: 'rgba(255, 255, 255, 0.6)',
+                                    color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
                                     fontSize: '12px',
                                     textTransform: 'capitalize'
                                 }}>
@@ -188,7 +246,7 @@ const MainLayout = () => {
                 {/* Navigation Menu */}
                 <div style={{ padding: '0 12px' }}>
                     <Menu
-                        theme="dark"
+                        theme={isDark ? "dark" : "light"}
                         mode="inline"
                         selectedKeys={[pathname]}
                         style={{
@@ -203,11 +261,19 @@ const MainLayout = () => {
                                 height: '48px',
                                 lineHeight: '48px',
                                 background: pathname === item.key ?
-                                    'linear-gradient(135deg, #0BC5EA 0%, #40a9ff 100%)' :
+                                    (isDark 
+                                        ? 'linear-gradient(135deg, #475569 0%, #64748b 100%)' 
+                                        : 'linear-gradient(135deg, #E76F51 0%, #F4A261 100%)') :
                                     'transparent',
                                 border: pathname === item.key ?
-                                    '1px solid rgba(11, 197, 234, 0.3)' :
+                                    (isDark 
+                                        ? '1px solid rgba(100, 116, 139, 0.5)' 
+                                        : '1px solid rgba(231, 111, 81, 0.3)') :
                                     '1px solid transparent',
+                                color: pathname === item.key ? 
+                                    'white' : 
+                                    (isDark ? '#cbd5e1' : 'rgba(0, 0, 0, 0.8)'),
+                                fontWeight: pathname === item.key ? '600' : '500'
                             }
                         }))}
                     />
@@ -221,25 +287,44 @@ const MainLayout = () => {
                         left: '12px',
                         right: '12px',
                         padding: '16px',
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        borderRadius: '12px',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        background: isDark 
+                            ? 'rgba(42, 157, 143, 0.15)' 
+                            : 'rgba(42, 157, 143, 0.08)',
+                        borderRadius: '16px',
+                        border: isDark 
+                            ? '1px solid rgba(42, 157, 143, 0.3)' 
+                            : '1px solid rgba(42, 157, 143, 0.2)',
+                        backdropFilter: 'blur(20px)'
                     }}>
-                        <div style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '12px', marginBottom: '8px' }}>
+                        <div style={{ 
+                            color: isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)', 
+                            fontSize: '12px', 
+                            marginBottom: '8px',
+                            fontWeight: '600'
+                        }}>
                             Quick Stats
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <div style={{ textAlign: 'center' }}>
-                                <div style={{ color: '#0BC5EA', fontSize: '16px', fontWeight: '600' }}>8</div>
-                                <div style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '10px' }}>Courses</div>
+                                <div style={{ color: '#E76F51', fontSize: '16px', fontWeight: '600' }}>8</div>
+                                <div style={{ 
+                                    color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)', 
+                                    fontSize: '10px' 
+                                }}>Courses</div>
                             </div>
                             <div style={{ textAlign: 'center' }}>
-                                <div style={{ color: '#52c41a', fontSize: '16px', fontWeight: '600' }}>18</div>
-                                <div style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '10px' }}>Streak</div>
+                                <div style={{ color: '#6A994E', fontSize: '16px', fontWeight: '600' }}>18</div>
+                                <div style={{ 
+                                    color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)', 
+                                    fontSize: '10px' 
+                                }}>Streak</div>
                             </div>
                             <div style={{ textAlign: 'center' }}>
-                                <div style={{ color: '#faad14', fontSize: '16px', fontWeight: '600' }}>42</div>
-                                <div style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '10px' }}>Level</div>
+                                <div style={{ color: '#F4A261', fontSize: '16px', fontWeight: '600' }}>42</div>
+                                <div style={{ 
+                                    color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)', 
+                                    fontSize: '10px' 
+                                }}>Level</div>
                             </div>
                         </div>
                     </div>
@@ -254,15 +339,15 @@ const MainLayout = () => {
                 <Header style={{
                     padding: 0,
                     background: isDark
-                        ? 'rgba(26, 32, 44, 0.95)'
+                        ? 'rgba(15, 23, 42, 0.95)'
                         : 'rgba(255, 255, 255, 0.95)',
                     backdropFilter: 'blur(20px)',
                     borderBottom: isDark
-                        ? '1px solid rgba(255, 255, 255, 0.08)'
-                        : '1px solid rgba(0, 0, 0, 0.06)',
+                        ? '1px solid rgba(51, 65, 85, 0.6)'
+                        : '1px solid rgba(231, 111, 81, 0.1)',
                     boxShadow: isDark
-                        ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                        : '0 2px 8px rgba(0, 0, 0, 0.06)',
+                        ? '0 4px 20px rgba(0, 0, 0, 0.4)'
+                        : '0 2px 8px rgba(231, 111, 81, 0.1)',
                     position: 'sticky',
                     top: 0,
                     zIndex: 100,
@@ -284,27 +369,42 @@ const MainLayout = () => {
                                     fontSize: '18px',
                                     width: 44,
                                     height: 44,
-                                    borderRadius: '10px',
+                                    borderRadius: '12px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
-                                    color: isDark ? '#fff' : '#262626',
+                                    background: isDark 
+                                        ? 'rgba(51, 65, 85, 0.6)' 
+                                        : 'rgba(231, 111, 81, 0.08)',
+                                    color: isDark ? '#94a3b8' : '#E76F51',
+                                    border: isDark 
+                                        ? '1px solid rgba(100, 116, 139, 0.4)' 
+                                        : '1px solid rgba(231, 111, 81, 0.2)',
                                     transition: 'all 0.2s ease'
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.target.style.background = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)';
+                                    e.target.style.background = isDark 
+                                        ? 'rgba(71, 85, 105, 0.8)' 
+                                        : 'rgba(231, 111, 81, 0.15)';
                                     e.target.style.transform = 'scale(1.05)';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.target.style.background = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)';
+                                    e.target.style.background = isDark 
+                                        ? 'rgba(51, 65, 85, 0.6)' 
+                                        : 'rgba(231, 111, 81, 0.08)';
                                     e.target.style.transform = 'scale(1)';
                                 }}
                             />
                             <div style={{
-                                background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
+                                background: isDark 
+                                    ? 'rgba(244, 162, 97, 0.15)' 
+                                    : 'rgba(244, 162, 97, 0.08)',
+                                border: isDark 
+                                    ? '1px solid rgba(244, 162, 97, 0.3)' 
+                                    : '1px solid rgba(244, 162, 97, 0.2)',
                                 borderRadius: '12px',
-                                padding: '8px 16px'
+                                padding: '8px 16px',
+                                backdropFilter: 'blur(10px)'
                             }}>
                                 <Breadcrumb
                                     style={{
@@ -350,17 +450,26 @@ const MainLayout = () => {
                                     padding: '8px 16px',
                                     borderRadius: '12px',
                                     transition: 'all 0.2s ease',
-                                    background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
-                                    border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)',
+                                    background: isDark 
+                                        ? 'rgba(30, 41, 59, 0.9)' 
+                                        : 'rgba(42, 157, 143, 0.08)',
+                                    border: isDark 
+                                        ? '1px solid rgba(71, 85, 105, 0.6)' 
+                                        : '1px solid rgba(42, 157, 143, 0.2)',
                                     position: 'relative',
-                                    zIndex: 1
+                                    zIndex: 1,
+                                    backdropFilter: 'blur(10px)'
                                 }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)';
+                                        e.currentTarget.style.background = isDark 
+                                            ? 'rgba(51, 65, 85, 0.9)' 
+                                            : 'rgba(42, 157, 143, 0.15)';
                                         e.currentTarget.style.transform = 'translateY(-1px)';
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)';
+                                        e.currentTarget.style.background = isDark 
+                                            ? 'rgba(30, 41, 59, 0.9)' 
+                                            : 'rgba(42, 157, 143, 0.08)';
                                         e.currentTarget.style.transform = 'translateY(0)';
                                     }}
                                 >
@@ -390,8 +499,12 @@ const MainLayout = () => {
                                         size={40}
                                         icon={<UserOutlined />}
                                         style={{
-                                            background: 'linear-gradient(135deg, #0BC5EA 0%, #40a9ff 100%)',
-                                            border: '2px solid rgba(11, 197, 234, 0.2)'
+                                            background: isDark 
+                                                ? 'linear-gradient(135deg, #64748b 0%, #94a3b8 100%)' 
+                                                : 'linear-gradient(135deg, #E76F51 0%, #F4A261 100%)',
+                                            border: isDark 
+                                                ? '2px solid rgba(148, 163, 184, 0.4)' 
+                                                : '2px solid rgba(231, 111, 81, 0.3)'
                                         }}
                                     />
                                 </div>
@@ -405,7 +518,9 @@ const MainLayout = () => {
                         margin: 0,
                         padding: 0,
                         minHeight: 'calc(100vh - 72px)',
-                        background: isDark ? '#1a202c' : '#f5f5f5',
+                        background: isDark 
+                            ? 'linear-gradient(135deg, #0f172a, #1e293b)'
+                            : 'linear-gradient(135deg, #f8f9fa, #ffffff)',
                         overflow: 'auto'
                     }}
                 >

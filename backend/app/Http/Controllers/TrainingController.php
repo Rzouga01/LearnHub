@@ -14,8 +14,33 @@ class TrainingController extends Controller
      */
     public function index()
     {
-        $trainings = Training::all();
-        return response()->json($trainings);
+        $trainings = Training::with('user')->get()->map(function ($training) {
+            return [
+                'id' => $training->id,
+                'title' => $training->title,
+                'description' => $training->description,
+                'subject' => $training->subject,
+                'category' => $training->subject, // Use subject as category
+                'level' => 'Intermediate', // Default level
+                'trainer' => $training->user->name ?? 'Unknown',
+                'trainer_name' => $training->user->name ?? 'Unknown',
+                'students' => $training->enrollments()->count(),
+                'duration' => '12 hours', // Default duration
+                'price' => $training->price ? '$' . number_format($training->price, 2) : 'Free',
+                'status' => 'Active', // Default status
+                'rating' => $training->rating ?? 0,
+                'thumbnail' => '📚',
+                'start_date' => $training->start_date,
+                'end_date' => $training->end_date,
+                'user_id' => $training->user_id,
+                'created_at' => $training->created_at,
+                'updated_at' => $training->updated_at,
+            ];
+        });
+        
+        return response()->json([
+            'data' => $trainings
+        ]);
     }
 
     /**
@@ -29,12 +54,14 @@ class TrainingController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'capacity' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
+            'subject' => 'required|string',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after:start_date',
+            'price' => 'nullable|numeric|min:0',
         ]);
 
+        $validated['user_id'] = auth()->id();
+        
         $training = Training::create($validated);
         return response()->json($training, 201);
     }
@@ -47,7 +74,7 @@ class TrainingController extends Controller
      */
     public function show($id)
     {
-        $training = Training::findOrFail($id);
+        $training = Training::with('user')->findOrFail($id);
         return response()->json($training);
     }
 
@@ -65,10 +92,10 @@ class TrainingController extends Controller
         $validated = $request->validate([
             'title' => 'string|max:255',
             'description' => 'string',
-            'start_date' => 'date',
-            'end_date' => 'date|after:start_date',
-            'capacity' => 'integer|min:1',
-            'price' => 'numeric|min:0',
+            'subject' => 'string',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after:start_date',
+            'price' => 'nullable|numeric|min:0',
         ]);
 
         $training->update($validated);

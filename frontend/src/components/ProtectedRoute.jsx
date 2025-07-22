@@ -1,20 +1,29 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-const ProtectedRoute = () => {
-    const { user, loading } = useAuth();
+import { useLocation } from 'react-router-dom';
 
-    // Show loading indicator while checking authentication
+const ProtectedRoute = ({ role }) => {
+    const { user, loading } = useAuth();
+    const location = useLocation();
+
     if (loading) {
         return <div>Loading...</div>;
     }
 
-    // Redirect to login if not authenticated
     if (!user) {
         return <Navigate to="/login" replace />;
     }
 
-    // Render the protected route content
+
+    if (user?.role === 'admin' && !location.pathname.startsWith('/admin')) {
+        return <Navigate to="/admin" replace />;
+    }
+
+    if (role && user?.role !== role) {
+        return <Navigate to="/dashboard" replace />;
+    }
+
     return <Outlet />;
 };
 

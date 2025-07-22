@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Card,
     Row,
@@ -13,7 +13,9 @@ import {
     Space,
     Statistic,
     List,
-    Badge
+    Badge,
+    Spin,
+    message
 } from 'antd';
 import {
     SearchOutlined,
@@ -26,90 +28,160 @@ import {
     MessageOutlined,
     PlusOutlined
 } from '@ant-design/icons';
+import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 
 const Trainers = () => {
+    const { isDark } = useTheme();
+    const { user } = useAuth();
     const [searchText, setSearchText] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [sortBy, setSortBy] = useState('rating');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Sample trainers data with new color scheme
-    const trainersData = [
-        {
-            id: 1,
-            name: 'Sarah Johnson',
-            title: 'Senior Frontend Developer',
-            company: 'TechCorp Inc.',
-            avatar: '👩‍💻',
-            bio: 'Passionate React developer with 8+ years of experience. Love teaching and sharing knowledge with the community.',
-            rating: 4.9,
-            totalStudents: 15420,
-            totalCourses: 12,
-            categories: ['Web Development', 'React', 'JavaScript'],
-            status: 'Active',
-            joinedDate: '2022-01-15',
-            totalHours: 240,
-            expertise: 'Advanced',
-            location: 'San Francisco, CA',
-            languages: ['English', 'Spanish']
-        },
-        {
-            id: 2,
-            name: 'Dr. Michael Chen',
-            title: 'AI Research Scientist',
-            company: 'AI Labs',
-            avatar: '👨‍🔬',
-            bio: 'PhD in Computer Science specializing in Machine Learning and AI. Published researcher with 10+ years in academia.',
-            rating: 4.8,
-            totalStudents: 8920,
-            totalCourses: 8,
-            categories: ['Data Science', 'Machine Learning', 'Python'],
-            status: 'Active',
-            joinedDate: '2021-09-20',
-            totalHours: 180,
-            expertise: 'Expert',
-            location: 'Boston, MA',
-            languages: ['English', 'Mandarin']
-        },
-        {
-            id: 3,
-            name: 'Emma Rodriguez',
-            title: 'UX Design Lead',
-            company: 'Design Studio',
-            avatar: '👩‍🎨',
-            bio: 'Creative designer with expertise in user experience and interface design. Helping students build beautiful products.',
-            rating: 4.9,
-            totalStudents: 12350,
-            totalCourses: 15,
-            categories: ['Design', 'UX/UI', 'Figma'],
-            status: 'Active',
-            joinedDate: '2021-11-10',
-            totalHours: 300,
-            expertise: 'Advanced',
-            location: 'New York, NY',
-            languages: ['English', 'Portuguese']
-        },
-        {
-            id: 4,
-            name: 'Alex Turner',
-            title: 'Blockchain Developer',
-            company: 'Crypto Solutions',
-            avatar: '👨‍💼',
-            bio: 'Blockchain enthusiast and Web3 developer. Building the future of decentralized applications.',
-            rating: 4.7,
-            totalStudents: 5680,
-            totalCourses: 6,
-            categories: ['Blockchain', 'Web3', 'Solidity'],
-            status: 'Active',
-            joinedDate: '2022-03-05',
-            totalHours: 120,
-            expertise: 'Intermediate',
-            location: 'Austin, TX',
-            languages: ['English']
-        }
-    ];
+    // Real data states
+    const [trainersData, setTrainersData] = useState([]);
+
+    // Fetch trainers data
+    useEffect(() => {
+        const fetchTrainers = async () => {
+            setLoading(true);
+            setError(null);
+            
+            try {
+                const response = await api.routes.users.getByRole('trainer');
+                const trainers = response.data || [];
+                
+                // Transform API data to match our component structure
+                const transformedTrainers = await Promise.all(trainers.map(async (trainer) => {
+                    try {
+                        // Fetch trainer's courses and stats
+                        const coursesResponse = await api.routes.trainings.getAll();
+                        const allCourses = coursesResponse.data || [];
+                        const trainerCourses = allCourses.filter(course => course.trainer_id === trainer.id);
+                        
+                        // Calculate stats
+                        const totalStudents = trainerCourses.reduce((sum, course) => sum + (course.enrolled_count || 0), 0);
+                        const totalHours = trainerCourses.reduce((sum, course) => sum + (course.duration_hours || 0), 0);
+                        const avgRating = trainerCourses.length > 0 
+                            ? trainerCourses.reduce((sum, course) => sum + (course.rating || 0), 0) / trainerCourses.length 
+                            : 0;
+                        
+                        return {
+                            id: trainer.id,
+                            name: trainer.name,
+                            title: trainer.title || 'Trainer',
+                            company: trainer.company || '',
+                            avatar: getRandomAvatar(),
+                            bio: trainer.bio || 'Passionate educator dedicated to sharing knowledge.',
+                            rating: parseFloat(avgRating.toFixed(1)),
+                            totalStudents: totalStudents,
+                            totalCourses: trainerCourses.length,
+                            categories: getTrainerCategories(trainerCourses),
+                            status: trainer.status || 'Active',
+                            joinedDate: new Date(trainer.created_at).toLocaleDateString(),
+                            totalHours: totalHours,
+                            expertise: calculateExpertise(trainerCourses.length, totalHours),
+                            location: trainer.location || 'Remote',
+                            languages: trainer.languages ? trainer.languages.split(',') : ['English']
+                        };
+                    } catch (err) {
+                        console.error(`Error processing trainer ${trainer.id}:`, err);
+                        return {
+                            id: trainer.id,
+                            name: trainer.name,
+                            title: trainer.title || 'Trainer',
+                            company: trainer.company || '',
+                            avatar: getRandomAvatar(),
+                            bio: trainer.bio || 'Passionate educator dedicated to sharing knowledge.',
+                            rating: 4.5,
+                            totalStudents: 0,
+                            totalCourses: 0,
+                            categories: ['General'],
+                            status: 'Active',
+                            joinedDate: new Date(trainer.created_at).toLocaleDateString(),
+                            totalHours: 0,
+                            expertise: 'Beginner',
+                            location: 'Remote',
+                            languages: ['English']
+                        };
+                    }
+                }));
+                
+                setTrainersData(transformedTrainers);
+            } catch (err) {
+                console.error('Error fetching trainers:', err);
+                setError('Failed to load trainers data');
+                
+                // Fallback to sample data if API fails
+                setTrainersData([
+                    {
+                        id: 1,
+                        name: 'Sarah Johnson',
+                        title: 'Senior Frontend Developer',
+                        company: 'TechCorp Inc.',
+                        avatar: '👩‍💻',
+                        bio: 'Passionate React developer with 8+ years of experience. Love teaching and sharing knowledge with the community.',
+                        rating: 4.9,
+                        totalStudents: 15420,
+                        totalCourses: 12,
+                        categories: ['Web Development', 'React', 'JavaScript'],
+                        status: 'Active',
+                        joinedDate: '2022-01-15',
+                        totalHours: 240,
+                        expertise: 'Advanced',
+                        location: 'San Francisco, CA',
+                        languages: ['English', 'Spanish']
+                    },
+                    {
+                        id: 2,
+                        name: 'Dr. Michael Chen',
+                        title: 'AI Research Scientist',
+                        company: 'AI Labs',
+                        avatar: '👨‍🔬',
+                        bio: 'PhD in Computer Science specializing in Machine Learning and AI. Published researcher with 10+ years in academia.',
+                        rating: 4.8,
+                        totalStudents: 8920,
+                        totalCourses: 8,
+                        categories: ['Data Science', 'Machine Learning', 'Python'],
+                        status: 'Active',
+                        joinedDate: '2021-09-20',
+                        totalHours: 180,
+                        expertise: 'Expert',
+                        location: 'Boston, MA',
+                        languages: ['English', 'Mandarin']
+                    }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTrainers();
+    }, []);
+
+    // Helper functions
+    const getRandomAvatar = () => {
+        const avatars = ['👩‍💻', '👨‍💻', '👩‍🔬', '👨‍🔬', '👩‍🎨', '👨‍🎨', '👩‍💼', '👨‍💼'];
+        return avatars[Math.floor(Math.random() * avatars.length)];
+    };
+
+    const getTrainerCategories = (courses) => {
+        const categories = courses.map(course => course.category || course.subject).filter(Boolean);
+        return [...new Set(categories)].slice(0, 3); // Get unique categories, max 3
+    };
+
+    const calculateExpertise = (coursesCount, totalHours) => {
+        if (coursesCount >= 15 || totalHours >= 200) return 'Expert';
+        if (coursesCount >= 10 || totalHours >= 100) return 'Advanced';
+        if (coursesCount >= 5 || totalHours >= 50) return 'Intermediate';
+        return 'Beginner';
+    };
 
     const getCategoryColor = (category) => {
         const categoryColors = {

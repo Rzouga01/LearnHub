@@ -13,6 +13,7 @@ class Attendance extends Model
         'session_id',
         'user_id',
         'present',
+        'status',
         'marked_at',
     ];
 

@@ -31,13 +31,15 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,trainer,student',
-            'phone' => 'nullable|string|max:20',
+            'role' => 'required|in:admin,trainer,student,coordinator',
+            'address' => 'nullable|string|max:255',
+            'dob' => 'nullable|date',
+            'phone_number' => 'nullable|string|max:20',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
 
-        $user = User::create($validated);
+    $user = User::create($validated);
         return response()->json($user, 201);
     }
 
@@ -67,8 +69,10 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'string|max:255',
             'email' => 'string|email|max:255|unique:users,email,' . $id,
-            'role' => 'in:admin,trainer,student',
-            'phone' => 'nullable|string|max:20',
+            'role' => 'in:admin,trainer,student,coordinator',
+            'address' => 'nullable|string|max:255',
+            'dob' => 'nullable|date',
+            'phone_number' => 'nullable|string|max:20',
         ]);
 
         $user->update($validated);

@@ -14,6 +14,17 @@ class Training extends Model
         'description',
         'subject',
         'user_id',
+        'start_date',
+        'end_date',
+        'price',
+        'rating',
+    ];
+
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'price' => 'decimal:2',
+        'rating' => 'decimal:1',
     ];
 
     /**

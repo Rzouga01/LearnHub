@@ -28,7 +28,11 @@ const Login = () => {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
                 login(response.data.user, response.data.token);
-                navigate('/dashboard');
+                if (response.data.user.role === 'admin') {
+                    navigate('/admin');
+                } else {
+                    navigate('/dashboard');
+                }
             }
         } catch (error) {
             if (error.response && error.response.status === 401) {

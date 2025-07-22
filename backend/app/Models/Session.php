@@ -9,11 +9,17 @@ class Session extends Model
 {
     use HasFactory;
 
+    protected $table = 'training_sessions';
+
     protected $fillable = [
         'training_id',
+        'title',
+        'description',
         'date',
         'start_time',
         'end_time',
+        'location',
+        'status',
     ];
 
     protected $casts = [

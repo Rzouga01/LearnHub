@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Card,
     Form,
@@ -16,7 +16,8 @@ import {
     Modal,
     Space,
     Tag,
-    Alert
+    Alert,
+    Spin
 } from 'antd';
 import {
     UserOutlined,
@@ -33,6 +34,7 @@ import {
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import api from '../services/api';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -57,14 +59,50 @@ const Settings = () => {
         twoFactorAuth: false
     });
 
+    // Load user settings on component mount
+    useEffect(() => {
+        const loadUserSettings = async () => {
+            try {
+                const response = await api.routes.users.getProfile();
+                const userSettings = response.data.settings || {};
+                
+                setSettings({
+                    emailNotifications: userSettings.emailNotifications ?? true,
+                    pushNotifications: userSettings.pushNotifications ?? false,
+                    marketingEmails: userSettings.marketingEmails ?? false,
+                    courseReminders: userSettings.courseReminders ?? true,
+                    language: userSettings.language || 'en',
+                    timezone: userSettings.timezone || 'UTC',
+                    privacy: userSettings.privacy || 'public',
+                    twoFactorAuth: userSettings.twoFactorAuth ?? false
+                });
+                
+                // Set form initial values
+                form.setFieldsValue({
+                    name: user?.name,
+                    email: user?.email,
+                    bio: response.data.bio || '',
+                    title: response.data.title || '',
+                    company: response.data.company || ''
+                });
+            } catch (error) {
+                console.error('Error loading user settings:', error);
+            }
+        };
+
+        if (user) {
+            loadUserSettings();
+        }
+    }, [user, form]);
+
     const handleProfileUpdate = async (values) => {
         setLoading(true);
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const response = await api.routes.users.updateProfile(values);
             updateUser({ ...user, ...values });
             message.success('Profile updated successfully!');
         } catch (error) {
+            console.error('Error updating profile:', error);
             message.error('Failed to update profile');
         } finally {
             setLoading(false);
@@ -74,20 +112,38 @@ const Settings = () => {
     const handlePasswordChange = async (values) => {
         setLoading(true);
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await api.routes.users.updatePassword({
+                current_password: values.currentPassword,
+                new_password: values.newPassword,
+                new_password_confirmation: values.confirmPassword
+            });
             message.success('Password changed successfully!');
             passwordForm.resetFields();
         } catch (error) {
+            console.error('Error changing password:', error);
             message.error('Failed to change password');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSettingChange = (key, value) => {
-        setSettings(prev => ({ ...prev, [key]: value }));
-        message.success('Setting updated successfully!');
+    const handleSettingChange = async (key, value) => {
+        try {
+            const updatedSettings = { ...settings, [key]: value };
+            setSettings(updatedSettings);
+            
+            // Save to API
+            await api.routes.users.updateProfile({
+                settings: updatedSettings
+            });
+            
+            message.success('Setting updated successfully!');
+        } catch (error) {
+            console.error('Error updating setting:', error);
+            // Revert the change if API call fails
+            setSettings(prev => ({ ...prev, [key]: !value }));
+            message.error('Failed to update setting');
+        }
     };
 
     const settingsTabs = [
@@ -533,23 +589,41 @@ const Settings = () => {
     };
 
     return (
-        <div className="min-h-screen bg-cream-100 dark:bg-charcoal-500 p-6 transition-colors duration-300">
-            <div className="max-w-7xl mx-auto space-y-6">
+        <div className="min-h-screen p-6" style={{
+            background: isDark 
+                ? 'linear-gradient(135deg, #0f172a, #1e293b)'
+                : 'linear-gradient(135deg, #f8f9fa, #ffffff)'
+        }}>
+            <div className="max-w-7xl mx-auto space-y-8">
 
                 {/* Header */}
-                <Card className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700">
-                    <Title level={2} className="text-charcoal-500 dark:text-cream-100 mb-2">
+                <div className="mb-8">
+                    <Title level={1} className="mb-2" style={{ 
+                        color: isDark ? '#ffffff' : '#000000',
+                        fontSize: '32px',
+                        fontWeight: '700'
+                    }}>
                         ⚙️ Settings
                     </Title>
-                    <Text className="text-warm-500 dark:text-warm-300">
+                    <p className="text-lg" style={{ 
+                        color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)' 
+                    }}>
                         Manage your account settings and preferences
-                    </Text>
-                </Card>
+                    </p>
+                </div>
 
                 <Row gutter={[24, 24]}>
                     {/* Sidebar */}
                     <Col xs={24} lg={6}>
-                        <Card className="bg-white dark:bg-warm-900 border-warm-200 dark:border-warm-700">
+                        <div style={{
+                            background: isDark ? '#1e293b' : '#ffffff',
+                            borderRadius: '12px',
+                            padding: '24px',
+                            border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+                            boxShadow: isDark 
+                                ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)' 
+                                : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}>
                             <div className="space-y-2">
                                 {settingsTabs.map((tab) => (
                                     <Button
@@ -557,17 +631,28 @@ const Settings = () => {
                                         type={activeTab === tab.key ? 'primary' : 'text'}
                                         block
                                         icon={tab.icon}
-                                        className={`h-12 text-left justify-start ${activeTab === tab.key
-                                            ? 'bg-terracotta-500 hover:bg-terracotta-600 border-terracotta-500'
-                                            : 'text-warm-600 dark:text-warm-300 hover:bg-cream-50 dark:hover:bg-warm-800'
-                                            }`}
+                                        style={{
+                                            height: '48px',
+                                            textAlign: 'left',
+                                            justifyContent: 'flex-start',
+                                            borderRadius: '8px',
+                                            background: activeTab === tab.key 
+                                                ? '#E76F51' 
+                                                : 'transparent',
+                                            borderColor: activeTab === tab.key 
+                                                ? '#E76F51' 
+                                                : 'transparent',
+                                            color: activeTab === tab.key 
+                                                ? 'white' 
+                                                : (isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)')
+                                        }}
                                         onClick={() => setActiveTab(tab.key)}
                                     >
                                         {tab.title}
                                     </Button>
                                 ))}
                             </div>
-                        </Card>
+                        </div>
                     </Col>
 
                     {/* Content */}
@@ -582,7 +667,15 @@ const Settings = () => {
                         type="primary"
                         size="large"
                         icon={<SaveOutlined />}
-                        className="px-8 bg-terracotta-500 hover:bg-terracotta-600 border-terracotta-500"
+                        style={{
+                            background: '#E76F51',
+                            borderColor: '#E76F51',
+                            height: '48px',
+                            padding: '0 32px',
+                            borderRadius: '8px',
+                            fontSize: '16px',
+                            fontWeight: '600'
+                        }}
                     >
                         Save All Changes
                     </Button>

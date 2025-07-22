@@ -13,15 +13,13 @@ class Enrollment extends Model
         'user_id',
         'training_id',
         'status',
-        'start_date',
-        'end_date',
         'progress',
+        'payment_status',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
         'progress' => 'decimal:2',
+        'enrollment_date' => 'datetime',
     ];
 
     /**

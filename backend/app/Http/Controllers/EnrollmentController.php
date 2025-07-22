@@ -12,9 +12,12 @@ class EnrollmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $enrollments = Enrollment::with(['user', 'training'])->get();
+        $user = $request->user();
+        $enrollments = Enrollment::with(['user', 'training'])
+            ->where('user_id', $user->id)
+            ->get();
         return response()->json($enrollments);
     }
 

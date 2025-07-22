@@ -1,0 +1,326 @@
+/* Dashboard Animations and Enhancements */
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Card hover effects */
+.dashboard-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Stat cards */
+.stat-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card .stat-icon {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Course cards */
+.course-card {
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.course-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(231, 111, 81, 0.15);
+}
+
+/* Progress bars */
+.custom-progress .ant-progress-bg {
+    transition: all 0.3s ease;
+}
+
+/* Button animations */
+.animated-button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.animated-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.animated-button:hover::before {
+    left: 100%;
+}
+
+.animated-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Header gradient animation */
+.gradient-header {
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Floating elements */
+.floating-element {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Timeline enhancements */
+.custom-timeline .ant-timeline-item-head {
+    transition: all 0.3s ease;
+}
+
+.custom-timeline .ant-timeline-item:hover .ant-timeline-item-head {
+    transform: scale(1.2);
+}
+
+/* Table row hover */
+.custom-table .ant-table-tbody > tr:hover > td {
+    background: rgba(231, 111, 81, 0.05) !important;
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+/* Loading spinner enhancement */
+.loading-container {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* Badge animations */
+.status-badge {
+    transition: all 0.3s ease;
+    animation: slideInRight 0.4s ease-out;
+}
+
+.status-badge:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive animations */
+@media (max-width: 768px) {
+    .dashboard-card:hover {
+        transform: none;
+    }
+    
+    .stat-card:hover {
+        transform: none;
+    }
+}
+
+/* Dark mode specific animations */
+.dark-mode .dashboard-card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .dashboard-card:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #E76F51, #F4A261);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #d65a3f, #e89050);
+}
+
+/* Focus states for accessibility */
+.dashboard-card:focus,
+.stat-card:focus,
+.course-card:focus {
+    outline: 2px solid #E76F51;
+    outline-offset: 2px;
+}
+
+/* Course image loading animations */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.image-loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.course-image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.course-image-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+    z-index: 1;
+}
+
+.course-image-container:hover::before {
+    transform: translateX(100%);
+}
+
+/* Enhanced course card animations */
+.course-card-enhanced {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-origin: center;
+}
+
+.course-card-enhanced:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(231, 111, 81, 0.2);
+}
+
+.course-card-enhanced .course-image {
+    transition: all 0.3s ease;
+}
+
+.course-card-enhanced:hover .course-image {
+    transform: scale(1.05);
+}
+
+/* AI thumbnail specific styles */
+.ai-thumbnail {
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-thumbnail::after {
+    content: '🤖 AI Generated';
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.ai-thumbnail:hover::after {
+    opacity: 1;
+}
+
+/* Print styles */
+@media print {
+    .dashboard-card,
+    .stat-card,
+    .course-card {
+        break-inside: avoid;
+        box-shadow: none;
+    }
+}
